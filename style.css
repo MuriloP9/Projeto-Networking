@@ -225,3 +225,163 @@ footer {
         padding: 15px 20px;
     }
 }
+/* Estilos da seção de Webinars */
+.webinars {
+    padding: 50px;
+    text-align: center;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.webinar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.webinar-description {
+    width: 45%;
+    text-align: left;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.webinar-description h3 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #007a85;
+}
+
+.webinar-description p {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.webinar-description a {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #0096a1;
+    color: white;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.webinar-description a:hover {
+    background-color: #005a6e;
+}
+
+.webinar-description img {
+    margin-top: 15px;
+    width: 100%;
+    border-radius: 10px;
+}
+
+.webinar-image {
+    width: 45%;
+}
+
+.webinar-image img {
+    width: 100%;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.webinar-container:hover .webinar-image img {
+    transform: scale(1.05); /* Zoom na imagem ao passar o mouse */
+}
+
+/* Estilos responsivos para Webinars */
+@media (max-width: 768px) {
+    .webinar-container {
+        flex-direction: column;
+    }
+
+    .webinar-description, .webinar-image {
+        width: 100%;
+    }
+}
+/* Estilos da seção de Oportunidades de Trabalho */
+.job-opportunities {
+    padding: 50px;
+    text-align: center;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.job-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.job-description {
+    width: 45%;
+    text-align: left;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.job-description h3 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #007a85;
+}
+
+.job-description p {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.job-description a {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #0096a1;
+    color: white;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.job-description a:hover {
+    background-color: #005a6e;
+}
+
+.job-description img {
+    margin-top: 15px;
+    width: 100%;
+    border-radius: 10px;
+}
+
+.job-image {
+    width: 45%;
+}
+
+.job-image img {
+    width: 100%;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.job-container:hover .job-image img {
+    transform: scale(1.05); /* Zoom na imagem ao passar o mouse */
+}
+
+/* Estilos responsivos para Oportunidades de Trabalho */
+@media (max-width: 768px) {
+    .job-container {
+        flex-direction: column;
+    }
+
+    .job-description, .job-image {
+        width: 100%;
+    }
+}
