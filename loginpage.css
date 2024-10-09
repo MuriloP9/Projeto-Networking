@@ -27,7 +27,7 @@ body * {
 
 .left-login > h1 {
     font-size: 3vw;
-    color: #77ffc0;
+    color: hsl(187, 76%, 53%);
 }
 
 .left-login-image {
@@ -55,7 +55,7 @@ body * {
 }
 
 .card-login > h1 {
-    color: #00ff88;
+    color: hsl(187, 76%, 53%);
     font-weight: 800;
     margin: 0;
 }
@@ -101,7 +101,7 @@ body * {
     font-weight: 800;
     letter-spacing: 3px;
     color: #2b124b;
-    background: #00ff88;
+    background: hsl(187, 76%, 53%);;
     cursor: pointer;
     box-shadow: 0px 10px 40px -12px #00ff8052;
 }
@@ -131,4 +131,28 @@ body * {
     .card-login{
         width: 90%;
     }
+}
+
+ .voltar {
+    position: absolute;
+    top: 20px; 
+    right: 50px; 
+    list-style: none;
+}
+
+.voltar li a {
+    text-decoration: none;
+    color: #f0ffffde; 
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bold;
+    padding: 10px 20px; 
+    border: 2px solid #f0ffffde; 
+    border-radius: 8px; 
+    transition: all 0.3s ease; 
+}
+
+.voltar li a:hover {
+    color: hsl(187, 76%, 53%);; 
+    background-color: #333; 
+    border-color: hsl(187, 76%, 53%); 
 }
