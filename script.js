@@ -19,3 +19,17 @@ $(document).ready(function() {
 
     setInterval(nextItem, 3000);  // Muda de imagem a cada 3 segundos
 });
+
+$(document).ready(function() {
+    $('.faq-question').on('click', function() {
+        const faqItem = $(this).closest('.faq-item');
+        const faqAnswer = faqItem.find('.faq-answer');
+
+        // Toggle a visibilidade da resposta com uma transição
+        faqAnswer.slideToggle(300); // 300ms para a animação
+        faqItem.toggleClass('active'); // Alterna a classe 'active' no item
+    });
+});
+
+
+

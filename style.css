@@ -385,3 +385,140 @@ footer {
         width: 100%;
     }
 }
+/* Estilo da linha do tempo */
+.timeline {
+    background-image: url('./img/colegas-sorridentes-de-tiro-medio-no-trabalho.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 80px 0;
+    color: #fff;
+    position: relative;
+}
+
+.timeline h2 {
+    text-align: center;
+    margin-bottom: 60px;
+    font-size: 2.5em;
+    color: #ffffff;
+}
+
+.timeline-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-icon {
+    background-color: #fff;
+    border-radius: 50%;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    width: 60px;
+    margin-right: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 2; /* Ícones ficam à frente da linha */
+    position: relative; /* Garante que o ícone tenha um z-index aplicado */
+}
+
+.timeline-icon img {
+    width: 40px;
+    height: 40px;
+}
+
+.timeline-content {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 700px;
+    z-index: 2; /* Conteúdo fica à frente da linha */
+    position: relative;
+}
+
+.timeline-content h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.timeline-content p {
+    font-size: 1.2em;
+    line-height: 1.6;
+}
+
+/* Estilo da seção de perguntas frequentes */
+.faq-section {
+    padding: 50px 0;
+    display: flex;
+    justify-content: center;
+    background-color: #f9f9f9;
+}
+
+.faq-container {
+    display: flex;
+    max-width: 1200px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.faq-image img {
+    width: 500px;
+    height: auto;
+}
+
+.faq-content {
+    max-width: 600px;
+    padding: 20px;
+}
+
+.faq-content h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.faq-item {
+    margin-bottom: 20px;
+}
+
+/* Estilo dos botões das perguntas */
+.faq-question {
+    background-color: #ffffff;
+    border: 2px solid #00a8cc; /* Borda mais suave, ciano */
+    border-radius: 30px; /* Deixa os botões arredondados */
+    padding: 15px 20px; /* Ajusta o preenchimento para melhor espaçamento */
+    width: 100%;
+    text-align: left;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.4s ease, transform 0.3s ease; /* Transição mais suave */
+    color: #00a8cc; /* Cor do texto ciano */
+}
+
+.faq-question:hover {
+    background-color: #00a8cc; /* Muda o fundo para ciano ao passar o mouse */
+    color: #ffffff; /* Texto fica branco ao passar o mouse */
+    transform: translateY(-2px); /* Leve efeito de elevação */
+}
+
+.faq-answer {
+    display: none;
+    padding: 10px 0;
+    font-size: 1.1em;
+    color: #555;
+}
+
+.faq-item.active .faq-answer {
+    display: block;
+}
