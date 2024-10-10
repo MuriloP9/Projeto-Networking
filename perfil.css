@@ -92,31 +92,10 @@ header {
     font-weight: 300;
 }
 
-.descricao {
-    text-align: center;
-    padding: 40px 20px;
-    margin: 20px 10%;
-    background-color: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 80%;
-}
 
-.descricao h2 {
-    font-size: 36px;
-    color: #004f6a;
-    margin-bottom: 15px;
-}
-
-.descricao p {
-    font-size: 18px;
-    line-height: 1.6;
-    font-weight: 300;
-    color: #666;
-}
 
 .detalhes {
-    text-align: center;
+    text-align: left;
     padding: 30px 20px;
     background-color: #ffffff;
     margin: 20px 10%;
@@ -126,6 +105,7 @@ header {
 }
 
 .detalhes h2 {
+    text-align: left;
     font-size: 36px;
     color: #004f6a;
     margin-bottom: 20px;
@@ -135,9 +115,15 @@ header {
     margin-bottom: 15px;
 }
 
+.imagem-projeto-perfil{ 
+    height: auto;
+    margin-left: 20px; 
+    width: 20vw;
+}
+
 .detalhes strong {
     font-size: 20px;
-    color: #004f6a;
+    color: #444;
 }
 
 .detalhes p {
@@ -146,7 +132,7 @@ header {
 }
 
 .projetos {
-    text-align: center;
+    text-align: left;
     padding: 30px 20px;
     background-color: #ffffff;
     margin: 20px 10%;
@@ -154,6 +140,13 @@ header {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     width: 80%;
 }
+
+.projetos .conteudo {
+    display: flex; 
+    justify-content: space-between;
+    width: 100%;
+}
+
 
 .projetos h2 {
     font-size: 36px;
