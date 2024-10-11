@@ -3,11 +3,12 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    scroll-behavior: smooth;
 }
 
 body {
     font-family: "Montserrat", sans-serif;
-    background: linear-gradient(to bottom, #00c2cb, #007a85);
+    background: linear-gradient(to bottom, #00c2cb, #ffffff);
     color: #fff;
 }
 
@@ -521,4 +522,74 @@ footer {
 
 .faq-item.active .faq-answer {
     display: block;
+}
+/* Seção de Contato */
+.contact-section {
+    background-color: rgb(228, 244, 247); /* Ciano bem claro, quase branco */
+    padding: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contact-container {
+    display: flex;
+    gap: 100px;
+    align-items: center;
+}
+
+.map-container iframe {
+    border-radius: 15px; /* Bordas arredondadas no mapa */
+}
+
+.contact-info {
+    font-size: 1.2em;
+    color: #555555; /* Cor do texto em cinza */
+}
+
+.contact-info p {
+    margin: 0;
+}
+
+#contato::before {
+    content: "Contato";
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    color: #555252; /* Cinza escuro */
+    font-size: 2em;
+    margin-bottom: 20px; /* Espacamento entre o título e o conteúdo da seção */
+}
+
+.contact-section {
+    display: flex;
+    flex-direction: column; /* Alinha os itens em coluna */
+    align-items: center; /* Centraliza os itens horizontalmente */
+}
+
+
+.small-hr {
+    width: 50%;
+    border: none;
+    border-top: 2px solid #00a8cc;
+    margin: 10px 0;
+}
+
+/* Seção de Footer */
+.footer-section {
+    background-color: #51ccd4;
+    padding: 20px;
+    text-align: center;
+    color: white;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer-logo {
+    width: 50px;
+    margin-bottom: 10px;
 }
