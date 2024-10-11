@@ -2,16 +2,54 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProLink - Webinar</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="script.js"></script>
-    <title>Webinar</title>
 </head>
 <body>
-    <a href="./index.html">voltar</a>
+    <header>
+        <nav class="navbar">
+            <div class="logo-container">
+                <img src="./img/icons8-network-96.png" alt="Logo" class="logo-icon">
+                <div class="logo">ProLink</div>
+            </div>
+            <ul class="menu">
+                <li><a href="./index.html">Home</a></li>
+                <li><a href="./pagina_emprego.html">Oportunidades de Trabalho</a></li>
+                <li><a href="#contato">Contato</a></li>
+                <li><a href="./login.html">Login</a></li> <!-- Sem âncora, link externo -->
+            </ul>
+            <div class="profile">
+                <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a> <!-- Sem âncora, link externo -->
+            </div>
+        </nav>
+    </header>
+
+    
+    <section id="contato" class="contact-section">
+        <div class="contact-container">
+            <div class="map-container">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3656.3465896377126!2d-46.64165882513707!3d-23.53003478469527!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce5857a5c48815%3A0x70b13f63e8491df3!2sETESP!5e0!3m2!1spt-BR!2sbr!4v1696952749192!5m2!1spt-BR!2sbr" width="400" height="300" style="border:0; border-radius: 15px;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+            <div class="contact-info">
+                <p>Bom Retiro, São Paulo - SP, 01124-010<br>ETESP</p>
+                <hr class="small-hr">
+                <p>Email: contato@empresa.com<br>Telefone: (11) 1234-5678</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer-section">
+        <div class="footer-content">
+            <img src="./img/icons8-network-96.png" alt="Logo da Empresa" class="footer-logo">
+            <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
