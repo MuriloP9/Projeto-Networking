@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>ProLink Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1c1c1c; /* Preto mais claro */
+            color: #fff;
+        }
+
+        .container {
+            display: flex;
+            width: 800px;
+            max-width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #2e2e2e;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Lista de conversas */
+        .conversation-list {
+            width: 30%;
+            background-color: #3a3a3a;
+            border-right: 1px solid #555;
+            overflow-y: auto;
+            height: 500px;
+        }
+
+        .conversation-list h3 {
+            padding: 15px;
+            text-align: center;
+            background-color: #00bfa5;
+            margin-bottom: 10px;
+        }
+
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #555;
+            transition: background-color 0.3s;
+        }
+
+        .conversation-item:hover {
+            background-color: #555;
+        }
+
+        .conversation-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .conversation-item .name {
+            font-size: 16px;
+        }
+
+        .chat-container {
+            width: 70%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background-color: #2e2e2e;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #00bfa5;
+            color: white;
+            padding: 15px;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ccc;
+            background-image: url('perfil.png');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .online-status {
+            width: 12px;
+            height: 12px;
+            background-color: #4CAF50;
+            border: 2px solid white;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+
+        .back-btn {
+            background-color: transparent;
+            border: none;
+            font-size: 20px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .back-btn:hover {
+            transform: rotate(-90deg);
+        }
+
+        .chat-box {
+            height: 400px;
+            padding: 10px;
+            overflow-y: scroll;
+            border-bottom: 1px solid #555;
+            color: white;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background-color: #3a3a3a;
+        }
+
+        #message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            outline: none;
+            font-size: 16px;
+            background-color: #2e2e2e;
+            color: white;
+        }
+
+        #send-btn {
+            background-color: #00bfa5;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #send-btn:hover {
+            background-color: #008f7a;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            background-color: #00bfa5;
+            color: white;
+            text-align: right;
+            margin-left: auto;
+        }
+
+        .message.other {
+            background-color: #555;
+            color: white;
+            text-align: left;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Lista de conversas -->
+        <div class="conversation-list">
+            <h3>Conversas</h3>
+            <div class="conversation-item">
+                <img src="./img/Perfil1.jpg" alt="Perfil">
+                <div class="name">Rafael de Souza</div>
+            </div>
+            <div class="conversation-item">
+                <img src="./img/perfil2.jpg" alt="Perfil">
+                <div class="name">Luiza Magalhães</div>
+            </div>
+            <div class="conversation-item">
+                <img src="./img/perfil3.jpg" alt="Perfil">
+                <div class="name">Carlos Silva</div>
+            </div>
+            <!-- Adicionar conversas aqui depois da integração com o banco de dados, rapazeada -->
+        </div>
+
+        <!-- Janela do chat -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+                <h2>ProLink Chat</h2>
+                <div class="profile-pic">
+                    <div class="online-status"></div> <!-- Status online -->
+                </div>
+            </div>
+            <div class="chat-box" id="chat-box">
+                <!-- Mensagens aparecerão aqui -->
+            </div>
+            <div class="chat-input">
+                <input type="text" id="message-input" placeholder="Digite sua mensagem...">
+                <button id="send-btn">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="chat.js"></script>
+</body>
+</html>
