@@ -52,7 +52,7 @@
 
         .conversation-item {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             padding: 10px;
             cursor: pointer;
             border-bottom: 1px solid #555;
@@ -74,12 +74,23 @@
             font-size: 16px;
         }
 
+        .stars {
+            display: flex;
+            margin-top: 5px;
+        }
+
+        .stars i {
+            color: #ffcc00;
+            margin-right: 3px;
+        }
+
         .chat-container {
             width: 70%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             background-color: #2e2e2e;
+            position: relative;
         }
 
         .chat-header {
@@ -89,19 +100,10 @@
             background-color: #00bfa5;
             color: white;
             padding: 15px;
-        }
-
-        .profile-pic {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #ccc;
-            background-image: url('perfil.png');
-            background-size: cover;
-            background-position: center;
             position: relative;
         }
 
+        /* Círculo do status online */
         .online-status {
             width: 12px;
             height: 12px;
@@ -109,8 +111,22 @@
             border: 2px solid white;
             border-radius: 50%;
             position: absolute;
-            bottom: 0;
-            right: 0;
+            bottom: 5px; /* Ajusta a posição vertical */
+            right: 40px; /* Ajusta a posição horizontal */
+            z-index: 1; /* Coloca na frente da imagem de perfil */
+        }
+
+        /* Círculo do perfil do usuário */
+        .user-profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-image: url('./img/133285127.jpg'); /* Coloque aqui a URL da imagem do seu perfil */
+            background-size: cover;
+            background-position: center;
+            margin-left: 10px; /* Espaçamento entre o status online e o círculo de perfil */
+            position: relative; /* Para a sobreposição */
+            z-index: 0; /* Coloca atrás do círculo de online */
         }
 
         .back-btn {
@@ -132,12 +148,14 @@
             overflow-y: scroll;
             border-bottom: 1px solid #555;
             color: white;
+            transition: opacity 0.3s ease-in-out;
         }
 
         .chat-input {
             display: flex;
             padding: 10px;
             background-color: #3a3a3a;
+            align-items: center; /* Centraliza verticalmente os elementos */
         }
 
         #message-input {
@@ -160,10 +178,11 @@
             cursor: pointer;
             border-radius: 5px;
             font-size: 16px;
+            transition: transform 0.3s ease-in-out;
         }
 
         #send-btn:hover {
-            background-color: #008f7a;
+            transform: scale(1.1);
         }
 
         .message {
@@ -187,6 +206,7 @@
             text-align: left;
             margin-right: auto;
         }
+
     </style>
 </head>
 <body>
@@ -194,19 +214,27 @@
         <!-- Lista de conversas -->
         <div class="conversation-list">
             <h3>Conversas</h3>
-            <div class="conversation-item">
+            <div class="conversation-item" onclick="selectConversation(this)">
                 <img src="./img/Perfil1.jpg" alt="Perfil">
                 <div class="name">Rafael de Souza</div>
+                <div class="stars">
+                    <i>★</i><i>★</i><i>★</i><i>☆</i><i>☆</i> <!-- Avaliação 3 estrelas -->
+                </div>
             </div>
-            <div class="conversation-item">
+            <div class="conversation-item" onclick="selectConversation(this)">
                 <img src="./img/perfil2.jpg" alt="Perfil">
                 <div class="name">Luiza Magalhães</div>
+                <div class="stars">
+                    <i>★</i><i>★</i><i>★</i><i>★</i><i>☆</i> <!-- Avaliação 4 estrelas -->
+                </div>
             </div>
-            <div class="conversation-item">
+            <div class="conversation-item" onclick="selectConversation(this)">
                 <img src="./img/perfil3.jpg" alt="Perfil">
                 <div class="name">Carlos Silva</div>
+                <div class="stars">
+                    <i>★</i><i>★</i><i>★</i><i>★</i><i>★</i> <!-- Avaliação 5 estrelas -->
+                </div>
             </div>
-            <!-- Adicionar conversas aqui depois da integração com o banco de dados, rapazeada -->
         </div>
 
         <!-- Janela do chat -->
@@ -214,8 +242,9 @@
             <div class="chat-header">
                 <button class="back-btn" onclick="window.location.href='index.html'">←</button>
                 <h2>ProLink Chat</h2>
-                <div class="profile-pic">
+                <div style="display: flex; align-items: center;">
                     <div class="online-status"></div> <!-- Status online -->
+                    <div class="user-profile-pic"></div> <!-- Círculo de perfil do usuário -->
                 </div>
             </div>
             <div class="chat-box" id="chat-box">
@@ -227,7 +256,5 @@
             </div>
         </div>
     </div>
-
-    <script src="chat.js"></script>
 </body>
 </html>

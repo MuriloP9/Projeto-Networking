@@ -38,3 +38,15 @@ document.getElementById('message-input').addEventListener('keypress', function (
         autoReply();
     }
 });
+
+function selectConversation(element) {
+    const chatBox = document.getElementById('chat-box');
+    // Adiciona a animação de fade-out
+    chatBox.style.opacity = '0';
+    setTimeout(() => {
+        // Limpa as mensagens anteriores (simula a seleção de outra conversa)
+        chatBox.innerHTML = '';
+        // Volta a opacidade para fade-in
+        chatBox.style.opacity = '1';
+    }, 300); // Tempo da animação
+}

@@ -593,3 +593,29 @@ footer {
     width: 50px;
     margin-bottom: 10px;
 }
+/* ícone do chat */
+.profile {
+    display: flex;
+    align-items: center;
+}
+
+.profile a {
+    margin-left: 10px;
+}
+
+.chat-icon {
+    width: 40px; /* ajuste o tamanho conforme necessário */
+    height: 40px;
+    cursor: pointer;
+}
+.profile .chat-icon {
+    width: 40px;
+    height: 40px;
+    transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out; /* Transições suaves para transformação e filtro */
+}
+
+.profile .chat-icon:hover {
+    transform: scale(1.1); /* Aumenta o tamanho em 10% */
+    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2)); /* Adiciona uma leve sombra ao passar o mouse */
+}
+
