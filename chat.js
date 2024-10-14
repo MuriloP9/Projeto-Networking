@@ -24,7 +24,7 @@ function addMessage(text, sender) {
 // Simular resposta automática
 function autoReply() {
     setTimeout(() => {
-        addMessage('Esta é uma resposta automática.', 'other');
+        addMessage('Esta é uma resposta teste.', 'other');
     }, 1000);
 }
 

@@ -525,7 +525,7 @@ footer {
 }
 /* Seção de Contato */
 .contact-section {
-    background-color: rgb(228, 244, 247); /* Ciano bem claro, quase branco */
+    background-color: rgb(228, 244, 247); 
     padding: 80px;
     display: flex;
     justify-content: center;
@@ -544,7 +544,7 @@ footer {
 
 .contact-info {
     font-size: 1.2em;
-    color: #555555; /* Cor do texto em cinza */
+    color: #555555; 
 }
 
 .contact-info p {
@@ -556,7 +556,7 @@ footer {
     display: block;
     text-align: center;
     font-weight: bold;
-    color: #555252; /* Cinza escuro */
+    color: #555252; 
     font-size: 2em;
     margin-bottom: 20px; /* Espacamento entre o título e o conteúdo da seção */
 }
