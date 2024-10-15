@@ -216,6 +216,11 @@
             opacity: 1;
         }
 
+        .stars {
+            margin-top: 5px;
+            color: #ffcc00;
+        }
+
     </style>
 </head>
 <body>
@@ -226,21 +231,21 @@
                 <img src="./img/Perfil1.jpg" alt="Perfil">
                 <div class="name">Rafael de Souza</div>
                 <div class="stars">
-                    <i>★</i><i>★</i><i>★</i><i>☆</i><i>☆</i>
+                    ★★★★☆
                 </div>
             </div>
             <div class="conversation-item" onclick="selectConversation(this)">
                 <img src="./img/perfil2.jpg" alt="Perfil">
                 <div class="name">Luiza Magalhães</div>
                 <div class="stars">
-                    <i>★</i><i>★</i><i>★</i><i>★</i><i>☆</i>
+                    ★★★★★
                 </div>
             </div>
             <div class="conversation-item" onclick="selectConversation(this)">
                 <img src="./img/perfil3.jpg" alt="Perfil">
                 <div class="name">Carlos Silva</div>
                 <div class="stars">
-                    <i>★</i><i>★</i><i>★</i><i>★</i><i>★</i>
+                    ★★★☆☆
                 </div>
             </div>
         </div>
@@ -261,7 +266,7 @@
             </div>
         </div>
     </div>
-    
+
 <script>document.getElementById('send-btn').addEventListener('click', sendMessage);
 
     function sendMessage() {
