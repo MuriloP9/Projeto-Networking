@@ -615,7 +615,7 @@ footer {
 }
 
 .profile .chat-icon:hover {
-    transform: scale(1.1); /* Aumenta o tamanho em 10% */
+    transform: scale(1.1); 
     filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2)); /* Adiciona uma leve sombra ao passar o mouse */
 }
 

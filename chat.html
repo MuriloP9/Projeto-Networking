@@ -6,6 +6,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <title>ProLink Chat</title>
     <style>
         * {
@@ -20,7 +22,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #1c1c1c; /* Preto mais claro */
+            background-color: #1c1c1c;
             color: #fff;
         }
 
@@ -34,7 +36,6 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         }
 
-        /* Lista de conversas */
         .conversation-list {
             width: 30%;
             background-color: #3a3a3a;
@@ -103,7 +104,6 @@
             position: relative;
         }
 
-        /* Círculo do status online */
         .online-status {
             width: 12px;
             height: 12px;
@@ -111,22 +111,21 @@
             border: 2px solid white;
             border-radius: 50%;
             position: absolute;
-            bottom: 5px; /* Ajusta a posição vertical */
-            right: 40px; /* Ajusta a posição horizontal */
-            z-index: 1; /* Coloca na frente da imagem de perfil */
+            bottom: 5px;
+            right: 40px;
+            z-index: 1;
         }
 
-        /* Círculo do perfil do usuário */
         .user-profile-pic {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-image: url('./img/133285127.jpg'); /* Coloque aqui a URL da imagem do seu perfil */
+            background-image: url('./img/133285127.jpg');
             background-size: cover;
             background-position: center;
-            margin-left: 10px; /* Espaçamento entre o status online e o círculo de perfil */
-            position: relative; /* Para a sobreposição */
-            z-index: 0; /* Coloca atrás do círculo de online */
+            margin-left: 10px;
+            position: relative;
+            z-index: 0;
         }
 
         .back-btn {
@@ -155,7 +154,7 @@
             display: flex;
             padding: 10px;
             background-color: #3a3a3a;
-            align-items: center; /* Centraliza verticalmente os elementos */
+            align-items: center;
         }
 
         #message-input {
@@ -191,6 +190,8 @@
             border-radius: 15px;
             max-width: 80%;
             word-wrap: break-word;
+            opacity: 1;
+            transition: opacity 0.3s ease-in-out;
         }
 
         .message.user {
@@ -207,54 +208,111 @@
             margin-right: auto;
         }
 
+        .fade-out {
+            opacity: 0;
+        }
+
+        .fade-in {
+            opacity: 1;
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Lista de conversas -->
         <div class="conversation-list">
             <h3>Conversas</h3>
             <div class="conversation-item" onclick="selectConversation(this)">
                 <img src="./img/Perfil1.jpg" alt="Perfil">
                 <div class="name">Rafael de Souza</div>
                 <div class="stars">
-                    <i>★</i><i>★</i><i>★</i><i>☆</i><i>☆</i> <!-- Avaliação 3 estrelas -->
+                    <i>★</i><i>★</i><i>★</i><i>☆</i><i>☆</i>
                 </div>
             </div>
             <div class="conversation-item" onclick="selectConversation(this)">
                 <img src="./img/perfil2.jpg" alt="Perfil">
                 <div class="name">Luiza Magalhães</div>
                 <div class="stars">
-                    <i>★</i><i>★</i><i>★</i><i>★</i><i>☆</i> <!-- Avaliação 4 estrelas -->
+                    <i>★</i><i>★</i><i>★</i><i>★</i><i>☆</i>
                 </div>
             </div>
             <div class="conversation-item" onclick="selectConversation(this)">
                 <img src="./img/perfil3.jpg" alt="Perfil">
                 <div class="name">Carlos Silva</div>
                 <div class="stars">
-                    <i>★</i><i>★</i><i>★</i><i>★</i><i>★</i> <!-- Avaliação 5 estrelas -->
+                    <i>★</i><i>★</i><i>★</i><i>★</i><i>★</i>
                 </div>
             </div>
         </div>
 
-        <!-- Janela do chat -->
         <div class="chat-container">
             <div class="chat-header">
                 <button class="back-btn" onclick="window.location.href='index.html'">←</button>
                 <h2>ProLink Chat</h2>
                 <div style="display: flex; align-items: center;">
-                    <div class="online-status"></div> <!-- Status online -->
-                    <div class="user-profile-pic"></div> <!-- Círculo de perfil do usuário -->
+                    <div class="online-status"></div>
+                    <div class="user-profile-pic"></div>
                 </div>
             </div>
-            <div class="chat-box" id="chat-box">
-                <!-- Mensagens aparecerão aqui -->
-            </div>
+            <div class="chat-box" id="chat-box"></div>
             <div class="chat-input">
                 <input type="text" id="message-input" placeholder="Digite sua mensagem...">
                 <button id="send-btn">Enviar</button>
             </div>
         </div>
     </div>
-</body>
-</html>
+    
+<script>document.getElementById('send-btn').addEventListener('click', sendMessage);
+
+    function sendMessage() {
+        const messageInput = document.getElementById('message-input');
+        const messageText = messageInput.value.trim();
+    
+        if (messageText !== '') {
+            addMessage(messageText, 'user');
+            messageInput.value = ''; // Limpar campo após envio
+        }
+    }
+    
+    function addMessage(text, sender) {
+        const chatBox = document.getElementById('chat-box');
+    
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', sender);
+        messageDiv.innerText = text;
+    
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight; // Rolar automaticamente para a última mensagem
+    }
+    
+    // Simular resposta automática
+    function autoReply() {
+        setTimeout(() => {
+            addMessage('Esta é uma resposta teste.', 'other');
+        }, 1000);
+    }
+    
+    // Ativar a resposta automática após o envio de mensagem
+    document.getElementById('send-btn').addEventListener('click', autoReply);
+    
+    // Enviar com Enter
+    document.getElementById('message-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+            autoReply();
+        }
+    });
+    
+    function selectConversation(element) {
+        const chatBox = document.getElementById('chat-box');
+        // Adiciona a animação de fade-out
+        chatBox.style.opacity = '0';
+        setTimeout(() => {
+            // Limpa as mensagens anteriores (simula a seleção de outra conversa)
+            chatBox.innerHTML = '';
+            // Volta a opacidade para fade-in
+            chatBox.style.opacity = '1';
+        }, 300); // Tempo da animação
+    }
+    </script>
+
