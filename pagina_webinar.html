@@ -8,6 +8,116 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1200px;
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin: 20px auto;
+        }
+
+        .webinar-info {
+            background : linear-gradient(rgb(153, 153, 255),rgb(12, 12, 167));
+            padding: 30px;
+            flex: 1;
+            color: #fff;
+        }
+
+        .webinar-details h1 {
+            font-size: 2.5em;
+            margin: 20px 0;
+            line-height: 1.2;
+        }
+
+        .webinar-details p {
+            margin: 10px 0;
+        }
+
+        .webinar-meta {
+            margin: 20px 0;
+        }
+        .webinar-description{
+            color: #333;
+            background-color: gray;
+        }
+
+        .tutor-info {
+            display: flex;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .tutor-photo {
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            margin-right: 15px;
+        }
+
+        .registration-form {
+            background: linear-gradient(rgb(90, 89, 89),rgb(167, 167, 167));
+            color: #fff;
+            padding: 30px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .registration-form h2 {
+            color: rgb(103, 103, 253);
+            margin-bottom: 15px;
+        }
+
+        .registration-form form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .registration-form input,
+        .registration-form button {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            font-size: 1em;
+        }
+
+        .registration-form input {
+            background-color: #fff;
+            color: #333;
+        }
+
+        .registration-form button {
+            background-color: rgb(12, 12, 167);
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .registration-form button:hover {
+            background-color: #80a2ff;
+        }
+
+        .registration-form label {
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+
+        .registration-form label input {
+            margin-right: 5px;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -20,16 +130,52 @@
                 <li><a href="./index.html">Home</a></li>
                 <li><a href="./pagina_emprego.html">Oportunidades de Trabalho</a></li>
                 <li><a href="#contato">Contato</a></li>
-                <li><a href="./login.html">Login</a></li> <!-- Sem âncora, link externo -->
+                <li><a href="./login.html">Login</a></li>
             </ul>
             <div class="profile">
-                <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a> <!-- Sem âncora, link externo -->
-                <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a> <!-- Novo ícone de chat -->
+                <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a>
+                <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a>
             </div>
         </nav>
     </header>
 
-    
+    <div class="container">
+        <div class="webinar-info">
+            <div class="webinar-details">
+                <p class="webinar-date">Free Webinar, 20.02.18, 21:00</p>
+                <h1>The Best Annual <br> UX Design Webinar</h1>
+                <p class="webinar-description">
+                    Three-day conference focused on music and technology. This Event is inconspicuously simple but downright beautiful.
+                </p>
+                <div class="webinar-meta">
+                    <p><strong>Duration:</strong> 2 Hours 30 Minutes</p>
+                    <p><strong>Conference Date:</strong> 20.02.18, 21:00</p>
+                </div>
+                <div class="tutor-info">
+                    <img src="img/jonh.jpg" alt="Main Tutor" class="tutor-photo">
+                    <div class="tutor-details">
+                        <p class="tutor-name">John Jonson</p>
+                        <p class="tutor-title">Web Editor in Chief MGN</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="registration-form">
+            <h2>Do Not Hesitate! <br> Join The Best Webinar</h2>
+            <p>Add a description of your offer and key benefits. What it is and how it helps your customer.</p>
+            <form action="#">
+                <input type="text" placeholder="John Jonson" name="name">
+                <input type="email" placeholder="Webinar@test.com" name="email">
+                <input type="tel" placeholder="+1(555) 555-55-55" name="phone">
+                <label>
+                    <input type="checkbox" name="subscribe">
+                    I agree to receive commercial information from [Company Name] [read more]
+                </label>
+                <button type="submit">Join It Now</button>
+            </form>
+        </div>
+    </div>
+
     <section id="contato" class="contact-section">
         <div class="contact-container">
             <div class="map-container">
