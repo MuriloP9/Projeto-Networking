@@ -19,7 +19,7 @@ $(document).ready(function() {
 
     setInterval(nextItem, 3000);  // Muda de imagem a cada 3 segundos
 });
-
+// Seção de dúvidas
 $(document).ready(function() {
     $('.faq-question').on('click', function() {
         const faqItem = $(this).closest('.faq-item');
