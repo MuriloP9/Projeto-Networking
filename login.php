@@ -5,8 +5,8 @@ $error_message = ''; // Inicializa a variável de erro
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Obtendo dados via POST
-    $username = $_POST['usuario']; // Ajuste o nome do campo
-    $password = $_POST['senha']; // Ajuste o nome do campo
+    $username = $_POST['usuario']; 
+    $password = $_POST['senha']; 
 
     // Implementação B.D
     $valid_username = 'admin';
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

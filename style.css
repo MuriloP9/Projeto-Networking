@@ -1,4 +1,4 @@
-/* Reset and base styling */
+
 * {
     margin: 0;
     padding: 0;
@@ -10,10 +10,16 @@ body {
     font-family: "Montserrat", sans-serif;
     background: linear-gradient(to bottom, #00c2cb, #ffffff);
     color: #fff;
+    padding-top: 80px;
 }
 
 .navbar {
+    position: fixed;
+    z-index: 1000;
     display: flex;
+    width: 100%;
+    top: 0;
+    left: 0;
     justify-content: space-between;
     align-items: center;
     padding: 20px 50px;  /* Aumenta o tamanho da navbar */

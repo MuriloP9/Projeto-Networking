@@ -103,7 +103,7 @@ body * {
     color: #2b124b;
     background: hsl(187, 76%, 53%);;
     cursor: pointer;
-    box-shadow: 0px 10px 40px -12px #00ff8052;
+    box-shadow: 0px 10px 40px -12px #17d1d452;
 }
 @media only screen and (max-width: 950px){
     .card-login{
@@ -155,4 +155,24 @@ body * {
     color: hsl(187, 76%, 53%);; 
     background-color: #333; 
     border-color: hsl(187, 76%, 53%); 
+}
+
+/*Correção do problema de quebra das caixas de entrada*/
+form {
+    width: 100%; /* Garante que o formulário ocupe toda a largura disponível no card */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centraliza os itens dentro do form */
+}
+
+.textfield {
+    margin-bottom: 20px; /* Adiciona espaçamento entre os campos */
+}
+
+.textfield > input {
+    width: 100%; /* Ajusta a largura dos campos de entrada */
+}
+
+.btn-login {
+    width: 100%; /* Garante que o botão ocupe a largura total */
 }
