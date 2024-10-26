@@ -1,33 +1,31 @@
+//Container com imagens rodando
 $(document).ready(function() {
-    let currentIndex = 0;
-    const items = $('.carousel-item');
-    const itemCount = items.length;
+    let img = 0;
+    const itens = $('.carousel-item');
+    const totalItens = itens.length;
 
-    function cycleItems() {
-        const item = $('.carousel-item').eq(currentIndex);
-        items.css('opacity', '0');  // Esconde todas as imagens
-        item.css('opacity', '1');   // Mostra a imagem atual
+    function alternarItens() {
+        itens.css('opacity', '0'); // Esconde todas as imagens
+        itens.eq(img).css('opacity', '1'); // Mostra a imagem atual
     }
 
-    function nextItem() {
-        currentIndex += 1;
-        if (currentIndex >= itemCount) {
-            currentIndex = 0;
-        }
-        cycleItems();
+    function proximoItem() {
+        img = (img + 1) % totalItens;  // Alterna para o próximo índice ou volta ao 0
+        alternarItens();
     }
 
-    setInterval(nextItem, 3000);  // Muda de imagem a cada 3 segundos
+    setInterval(proximoItem, 3000);  // Muda de imagem a cada 3 segundos
 });
-// Seção de dúvidas
+
+// Seção de Dúvidas
 $(document).ready(function() {
     $('.faq-question').on('click', function() {
-        const faqItem = $(this).closest('.faq-item');
-        const faqAnswer = faqItem.find('.faq-answer');
+        const itemDuvida = $(this).closest('.faq-item');
+        const respostaDuvida = itemDuvida.find('.faq-answer');
 
-        // Toggle a visibilidade da resposta com uma transição
-        faqAnswer.slideToggle(300); // 300ms para a animação
-        faqItem.toggleClass('active'); // Alterna a classe 'active' no item
+        // Alterna a visibilidade da resposta com uma animação
+        respostaDuvida.slideToggle(300); // 300ms para a animação
+        itemDuvida.toggleClass('ativo'); // Alterna a classe 'ativo' no item
     });
 });
 
