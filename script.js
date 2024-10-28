@@ -28,6 +28,18 @@ $(document).ready(function() {
         itemDuvida.toggleClass('ativo'); // Alterna a classe 'ativo' no item
     });
 });
+$(document).ready(function() {
+    function verificarCredenciais() {
+        const usuario = $('input[name="usuario"]').val();
+        const senha = $('input[name="senha"]').val();
+        
+        if (usuario === "admin" && senha === "1234") {
+            alert("Inscrito!");
+            window.location.href = "perfil.html"; // Redireciona para a página de perfil
+        } else {
+            alert("Não inscrito!");
+        }
+    }
 
-
-
+    $('#btn-inscrever').on('click', verificarCredenciais);
+});
