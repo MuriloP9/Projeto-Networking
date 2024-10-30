@@ -371,16 +371,15 @@ body {
     </form>
 </section>
 
-<!-- Script para gerenciar salvamento de vagas -->
+<!-- Script para gerenciar salvamento de vagas, futuramente
 <script>
-    const saveButtons = document.querySelectorAll('.job-card .save-job-btn');
-    saveButtons.forEach(button => {
-        button.addEventListener('click', function() {
+    $(document).ready(function() {
+        $('.job-card .save-job-btn').on('click', function() {
             // Lógica para salvar vagas no sistema
             alert('Vaga salva com sucesso!');
         });
     });
-</script>
+</script>-->
 
     
     <section id="contato" class="contact-section">
