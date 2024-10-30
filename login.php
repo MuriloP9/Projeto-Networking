@@ -1,26 +1,25 @@
 <?php
 session_start();
 
-$error_message = ''; // Inicializa a variável de erro
+// Variável para mensagem de erro
+$mensagem_erro = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Obtendo dados via POST
-    $username = $_POST['usuario']; 
-    $password = $_POST['senha']; 
+// Verifica se o formulário foi enviado
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Recebe os dados do formulário
+    $usuario = $_POST['usuario'];
+    $senha = $_POST['senha'];
 
-    // Implementação B.D
-    $valid_username = 'admin';
-    $valid_password = '123';
-
-    if ($username === $valid_username && $password === $valid_password) {
+    // Usuário e senha válidos (futuramente virão do B.D)
+    if ($usuario == 'admin' && $senha == '123') {
         // Login bem-sucedido
-        $_SESSION['loggedin'] = true;
-        $_SESSION['username'] = $username;
-        header('Location: index.html'); // Redirecionar para a página de sucesso
+        $_SESSION['logado'] = true;
+        $_SESSION['usuario'] = $usuario;
+        header('Location: index.html'); // Redireciona para a página principal
         exit;
     } else {
-        // Login falhou
-        $error_message = "Usuário ou senha inválidos!";
+        // Mensagem de erro para login inválido
+        $mensagem_erro = "Usuário ou senha inválidos!";
     }
 }
 ?>
@@ -45,8 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="right-login">
             <div class="card-login">
                 <h1>LOGIN</h1>
-                <?php if ($error_message): ?>
-                    <p style="color: red;"><?php echo $error_message; ?></p>
+                <?php if ($mensagem_erro): ?>
+                    <p style="color: red;"><?php echo $mensagem_erro; ?></p>
                 <?php endif; ?>
                 <form method="post" action="">
                     <div class="textfield">

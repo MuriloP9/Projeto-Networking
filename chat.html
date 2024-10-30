@@ -257,57 +257,55 @@
         </div>
     </div>
 
-<script>document.getElementById('send-btn').addEventListener('click', sendMessage);
-
-    function sendMessage() {
-        const messageInput = document.getElementById('message-input');
-        const messageText = messageInput.value.trim();
+    <script>
+        $('#send-btn').on('click', enviarMensagem);
     
-        if (messageText !== '') {
-            addMessage(messageText, 'user');
-            messageInput.value = ''; // Limpar campo após envio
+        function enviarMensagem() {
+            const entradaMensagem = $('#message-input');
+            const textoMensagem = entradaMensagem.val().trim();
+    
+            if (textoMensagem !== '') {
+                adicionarMensagem(textoMensagem, 'user');
+                entradaMensagem.val(''); // Limpar campo após envio
+            }
         }
-    }
     
-    function addMessage(text, sender) {
-        const chatBox = document.getElementById('chat-box');
+        function adicionarMensagem(texto, remetente) {
+            const caixaChat = $('#chat-box');
+            const mensagemDiv = $('<div>').addClass('message').addClass(remetente).text(texto);
     
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message', sender);
-        messageDiv.innerText = text;
-    
-        chatBox.appendChild(messageDiv);
-        chatBox.scrollTop = chatBox.scrollHeight; // Rolar automaticamente para a última mensagem
-    }
-    
-    // Simular resposta automática
-    function autoReply() {
-        setTimeout(() => {
-            addMessage('Esta é uma resposta teste.', 'other');
-        }, 1000);
-    }
-    
-    // Ativar a resposta automática após o envio de mensagem
-    document.getElementById('send-btn').addEventListener('click', autoReply);
-    
-    // Enviar com Enter
-    document.getElementById('message-input').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            sendMessage();
-            autoReply();
+            caixaChat.append(mensagemDiv);
+            caixaChat.scrollTop(caixaChat.prop('scrollHeight')); // Rolar automaticamente para a última mensagem
         }
-    });
     
-    function selectConversation(element) {
-        const chatBox = document.getElementById('chat-box');
-        // Adiciona a animação de fade-out
-        chatBox.style.opacity = '0';
-        setTimeout(() => {
-            // Limpa as mensagens anteriores (simula a seleção de outra conversa)
-            chatBox.innerHTML = '';
-            // Volta a opacidade para fade-in
-            chatBox.style.opacity = '1';
-        }, 300); // Tempo da animação
-    }
+        // Simular resposta automática
+        function respostaAutomatica() {
+            setTimeout(() => {
+                adicionarMensagem('Esta é uma resposta teste.', 'other');
+            }, 1000);
+        }
+    
+        // Ativar a resposta automática após o envio de mensagem
+        $('#send-btn').on('click', respostaAutomatica);
+    
+        // Enviar com Enter
+        $('#message-input').on('keypress', function (e) {
+            if (e.key === 'Enter') {
+                enviarMensagem();
+                respostaAutomatica();
+            }
+        });
+    
+        // Selecionar nova conversa e limpar mensagens antigas com transição suave
+        function selecionarConversa() {
+            const caixaChat = $('#chat-box');
+    
+            // Apagar mensagens com efeito suave de opacidade
+            caixaChat.children('.message').animate({ opacity: 0 }, 300, function() {
+                $(this).remove(); // Remover cada mensagem após a animação
+            });
+        }
+    
+        // Vincula o evento de clique nas conversas
+        $('.conversation-item').on('click', selecionarConversa);
     </script>
-
