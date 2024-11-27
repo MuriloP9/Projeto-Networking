@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - ProLink</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo-container">
+                <img src="./img/icons8-network-96.png" alt="Logo" class="logo-icon">
+                <div class="logo">ProLink</div>
+            </div>
+           <a href="index.html" class="back-btn">Voltar para a Página Inicial</a>
+        </nav>
+    </header>
+    <main>
+        <section class="cadastro-container">
+            <!-- Div para os campos do formulário -->
+            <div class="form-container">
+                <h1>Cadastro</h1>
+                <form id="cadastroForm">
+                    <div class="form-group">
+                        <label for="nome">Nome Completo:</label>
+                        <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" placeholder="Digite seu email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="senha">Senha:</label>
+                        <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dataNascimento">Data de Nascimento:</label>
+                        <input type="date" id="dataNascimento" name="dataNascimento" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefone">Telefone:</label>
+                        <input type="tel" id="telefone" name="telefone" placeholder="Digite seu telefone" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Cadastrar</button>
+                </form>
+            </div>
+    
+            <!-- Div para a imagem -->
+            <div class="image-container">
+                <img src="./img/login-animate.svg" alt="Ilustração de cadastro" class="login-image">
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+<style>
+    body {
+    font-family: "Montserrat", sans-serif;
+    background: linear-gradient(to bottom, #00c2cb, #ffffff);
+    color: #333;
+    padding-top: 80px;
+}
+
+.navbar {
+    position: fixed;
+    z-index: 1000;
+    display: flex;
+    width: 100%;
+    top: 0;
+    left: 0;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background-color: #51ccd4;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo-icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+}
+
+.form-container {
+    max-width: 600px;
+    margin: 50px auto;
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.form-container h1 {
+    text-align: center;
+    color: #007a85;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.submit-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #007a85;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #005a6e;
+    transform: scale(1.05);
+}
+
+/* Botão de voltar para a página inicial */
+.back-btn {
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 20px;
+    background-color: #005a6e;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.back-btn:hover {
+    background-color: #003d47;
+    transform: scale(1.1);
+    color: #ffffff;
+}
+
+/* Centraliza o conteúdo principal e espaçamento */
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    color: #007a85;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer fixado */
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px 20px;
+    background-color: #0096a1;
+    color: #ffffff;
+}
+
+
+/* Container principal para o formulário e a imagem */
+.cadastro-container {
+    display: flex;
+    flex-wrap: nowrap; /* Garante que os elementos fiquem lado a lado */
+    align-items: center;
+    justify-content: space-between; /* Espaço entre o formulário e a imagem */
+    margin: 50px auto;
+    max-width: 1200px;
+    padding: 20px;
+    gap: 40px; /* Espaçamento entre os elementos */
+}
+
+/* Ajuste do tamanho da div do formulário */
+.form-container {
+    flex: 1; /* Ocupa metade do espaço */
+    max-width: 500px; /* Limita o tamanho máximo */
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Ajuste da div com a imagem */
+.image-container {
+    flex: 1; /* Ocupa metade do espaço */
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente a imagem */
+    align-items: center; /* Centraliza verticalmente a imagem */
+}
+
+/* Estilo da imagem */
+.login-image {
+    width: 100%;
+    max-width: 400px; /* Define o tamanho máximo da imagem */
+    height: auto;
+}
+
+/* Estilos adicionais para responsividade */
+@media (max-width: 768px) {
+    .cadastro-container {
+        flex-direction: column; /* Empilha os elementos no celular */
+        text-align: center;
+    }
+
+    .image-container {
+        margin-top: 20px;
+    }
+}
+</style>
