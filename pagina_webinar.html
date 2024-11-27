@@ -234,17 +234,18 @@
         </div>
         <div class="registration-form">
             <h2>Não Perca Tempo! <br> Participe do Melhor Webinar</h2>
-            <form action= "processa_inscricao.php" method="POST">
-                <input type="text" placeholder="Nome Completo" name="name">
-                <input type="email" placeholder="Webinar@exemplo.com" name="email">
+            <form action="processa_inscricao.php" method="POST">
+                <input type="text" placeholder="Nome Completo" name="name" required>
+                <input type="email" placeholder="Webinar@exemplo.com" name="email" required>
                 <input type="tel" placeholder="+55(11) 5555-5555" name="phone">
                 <label>
                     <input type="checkbox" name="subscribe">
                     Eu concordo em receber notificações sobre a Conferência e eventos
                     <br>
                     <input type="checkbox" id="lgpd-consent" name="lgpd-consent" required>
-                    Eu concordo que os meus dados pessoais fornecidos sejam armazenados e tratados pela ProLink, conforme descrito na <a href="politica-de-privacidade.html" target="_blank">Política de Privacidade</a>, e estou ciente de que posso solicitar a exclusão dos meus dados a qualquer momento.
-                 </label>
+                    Eu concordo que os meus dados pessoais fornecidos sejam armazenados e tratados pela ProLink, conforme descrito na 
+                    <a href="politica-de-privacidade.html" target="_blank">Política de Privacidade</a>, e estou ciente de que posso solicitar a exclusão dos meus dados a qualquer momento.
+                </label>
                 <button type="submit">Inscreva-se Agora</button>
             </form>
         </div>
