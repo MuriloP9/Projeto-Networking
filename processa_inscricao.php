@@ -45,3 +45,4 @@ try {
     echo "ATENÇÃO, erro na inscrição: " . $erro->getMessage();
 }
 ?>
+//
