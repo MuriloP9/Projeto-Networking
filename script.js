@@ -32,9 +32,8 @@ $(document).ready(function() {
 
 
 //Ajax para o cadastro
-$(document).ready(function() {
-    $('#submitBtn').click(function() {
-        // Previne o comportamento padrão de enviar o formulário
+$(document).ready(function () {
+    $('#submitBtn').click(function () {
         var nome = $('#nome').val();
         var email = $('#email').val();
         var senha = $('#senha').val();
@@ -43,7 +42,6 @@ $(document).ready(function() {
 
         // Verifica se os campos obrigatórios estão preenchidos
         if (nome && email && senha && dataNascimento && telefone) {
-            // Cria o objeto FormData para enviar os dados
             var formData = new FormData();
             formData.append('nome', nome);
             formData.append('email', email);
@@ -51,20 +49,21 @@ $(document).ready(function() {
             formData.append('dataNascimento', dataNascimento);
             formData.append('telefone', telefone);
 
-            // Envia os dados para o PHP usando AJAX
+            // Envia os dados para o PHP
             $.ajax({
-                url: 'cadastro.php', // Nome do arquivo PHP para processar o cadastro
+                url: 'cadastro.php',
                 type: 'POST',
                 data: formData,
                 contentType: false,
                 processData: false,
-                success: function(response) {
-                    // Exibe a resposta do PHP (sucesso ou erro)
-                    alert(response);
-                    // Limpa os campos do formulário
-                    $('#cadastroForm')[0].reset();
+                success: function (response) {
+                    if (response.trim() === 'sucesso') {
+                        window.location.href = 'inclusaoCadastro.html'; // Redireciona em caso de sucesso
+                    } else {
+                        alert(response); // Mostra mensagem de erro enviada pelo PHP
+                    }
                 },
-                error: function() {
+                error: function () {
                     alert('Erro ao processar o cadastro.');
                 }
             });
@@ -73,4 +72,3 @@ $(document).ready(function() {
         }
     });
 });
-//
