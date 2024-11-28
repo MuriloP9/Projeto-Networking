@@ -1,4 +1,4 @@
-<?php
+<//?php
 session_start();
 
 // Variável para mensagem de erro
@@ -44,9 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="right-login">
             <div class="card-login">
                 <h1>LOGIN</h1>
-                <?php if ($mensagem_erro): ?>
-                    <p style="color: red;"><?php echo $mensagem_erro; ?></p>
-                <?php endif; ?>
                 <form method="post" action="">
                     <div class="textfield">
                         <label for="usuario">Usuário</label>
@@ -67,5 +64,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <li><a href="index.html">Voltar</a></li>
         </ul>
     </div>
+</body>
+</html>
+
+    <script>
+        $(document).ready(function () {
+            $('#loginForm').on('submit', function (e) {
+                e.preventDefault(); // Evita o envio do formulário padrão
+
+                const usuario = $('#usuario').val();
+                const senha = $('#senha').val();
+
+                $.ajax({
+                    url: 'verifica_login.php', // Arquivo PHP para validar login
+                    type: 'POST',
+                    data: { usuario, senha },
+                    dataType: 'json',
+                    success: function (resposta) {
+                        if (resposta.sucesso) {
+                            alert('Login realizado com sucesso!');
+                            // Redirecionar para a página inicial ou dashboard
+                            window.location.href = 'dashboard.html';
+                        } else {
+                            alert(resposta.mensagem); // Exibe erro
+                        }
+                    },
+                    error: function () {
+                        alert('Erro na comunicação com o servidor.');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

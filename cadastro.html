@@ -17,7 +17,7 @@
                 <img src="./img/icons8-network-96.png" alt="Logo" class="logo-icon">
                 <div class="logo">ProLink</div>
             </div>
-           <a href="index.html" class="back-btn">Voltar para a Página Inicial</a>
+            <a href="index.html" class="back-btn">Voltar para a Página Inicial</a>
         </nav>
     </header>
     <main>
@@ -25,7 +25,7 @@
             <!-- Div para os campos do formulário -->
             <div class="form-container">
                 <h1>Cadastro</h1>
-                <form id="cadastroForm">
+                <form id="cadastroForm" method="POST">
                     <div class="form-group">
                         <label for="nome">Nome Completo:</label>
                         <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
@@ -46,10 +46,9 @@
                         <label for="telefone">Telefone:</label>
                         <input type="tel" id="telefone" name="telefone" placeholder="Digite seu telefone" required>
                     </div>
-                    <button type="submit" class="submit-btn">Cadastrar</button>
+                    <button type="button" id="submitBtn" class="submit-btn">Cadastrar</button>
                 </form>
             </div>
-    
             <!-- Div para a imagem -->
             <div class="image-container">
                 <img src="./img/login-animate.svg" alt="Ilustração de cadastro" class="login-image">
