@@ -1,35 +1,29 @@
-$('#btnLogin').click(function () {
-    var email = $('#email').val();
-    var senha = $('#senha').val();
+$(document).ready(function() {
+    $('#btnLogin').on('click', function() {
+        const email = $('#email').val();
+        const senha = $('#senha').val();
 
-    // Verifica se os campos de email e senha estão preenchidos
-    if (email && senha) {
-        var formData = new FormData();
-        formData.append('email', email);
-        formData.append('senha', senha);
-
-        console.log("Enviando Email: " + email); // Depuração: Verificando o email
-        console.log("Enviando Senha: " + senha); // Depuração: Verificando a senha
+        if (email.trim() === '' || senha.trim() === '') {
+            $('#mensagem').text('Por favor, preencha todos os campos!');
+            return;
+        }
 
         $.ajax({
-            url: 'login.php',
+            url: 'validarLogin.php',
             type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                console.log("Resposta do servidor: " + response); // Depuração: Verificando a resposta
-                if (response.trim() === 'sucesso') {
-                    window.location.href = 'index.html'; // Redireciona para a página inicial (home)
+            data: { email: email, senha: senha },
+            dataType: 'json',
+            success: function(response) {
+                if (response.sucesso) {
+                    window.location.href = 'index.html'; // Redirecione para a página inicial após login bem-sucedido
                 } else {
-                    $('#mensagem').text('Email ou senha incorretos.'); // Exibe a mensagem de erro
+                    $('#mensagem').text(response.mensagem); // Exibe mensagem de erro
                 }
             },
-            error: function () {
-                alert('Erro ao processar o login.');
+            error: function(xhr, status, error) {
+                console.error('Erro na requisição:', error);
+                $('#mensagem').text('Erro na comunicação com o servidor.');
             }
         });
-    } else {
-        alert('Por favor, preencha todos os campos.');
-    }
+    });
 });
