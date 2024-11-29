@@ -31,7 +31,7 @@ $(document).ready(function() {
 
 
 
-//Ajax para o cadastro
+//Ajax para o cadastro.php
 $(document).ready(function () {
     $('#submitBtn').click(function () {
         var nome = $('#nome').val();
@@ -49,7 +49,7 @@ $(document).ready(function () {
             formData.append('dataNascimento', dataNascimento);
             formData.append('telefone', telefone);
 
-            // Envia os dados para o PHP
+            // Envia os dados para o cadastro.php
             $.ajax({
                 url: 'cadastro.php',
                 type: 'POST',

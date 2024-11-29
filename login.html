@@ -1,28 +1,3 @@
-<//?php
-session_start();
-
-// Variável para mensagem de erro
-$mensagem_erro = '';
-
-// Verifica se o formulário foi enviado
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Recebe os dados do formulário
-    $usuario = $_POST['usuario'];
-    $senha = $_POST['senha'];
-
-    // Usuário e senha válidos (futuramente virão do B.D)
-    if ($usuario == 'admin' && $senha == '123') {
-        // Login bem-sucedido
-        $_SESSION['logado'] = true;
-        $_SESSION['usuario'] = $usuario;
-        header('Location: index.html'); // Redireciona para a página principal
-        exit;
-    } else {
-        // Mensagem de erro para login inválido
-        $mensagem_erro = "Usuário ou senha inválidos!";
-    }
-}
-?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -32,6 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;900&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="loginpage.css"> <!-- Certifique-se que este arquivo está no mesmo diretório -->
     <title>Login</title>
 </head>
@@ -44,18 +20,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="right-login">
             <div class="card-login">
                 <h1>LOGIN</h1>
-                <form method="post" action="">
+                <form id="loginForm">
                     <div class="textfield">
-                        <label for="usuario">Usuário</label>
-                        <input type="text" name="usuario" placeholder="Usuário" required>
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Digite seu Email" required>
                     </div>
                     <div class="textfield">
                         <br>
                         <label for="senha">Senha</label>
-                        <input type="password" name="senha" placeholder="Digite sua Senha" required>
+                        <input type="password" id="senha" name="senha" placeholder="Digite sua Senha" required>
                     </div>
-                    <button type="submit" class="btn-login">Login</button>
+                    <button type="button" class="btn-login" id="btnLogin">Login</button>
                 </form>
+                <p id="mensagem" style="color: red;"></p> <!-- Mostra mensagens de erro -->
             </div>
         </div>
     </div>
@@ -64,37 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <li><a href="index.html">Voltar</a></li>
         </ul>
     </div>
+    <script src="login.js"></script> 
 </body>
 </html>
 
-    <script>
-        $(document).ready(function () {
-            $('#loginForm').on('submit', function (e) {
-                e.preventDefault(); // Evita o envio do formulário padrão
-
-                const usuario = $('#usuario').val();
-                const senha = $('#senha').val();
-
-                $.ajax({
-                    url: 'verifica_login.php', // Arquivo PHP para validar login
-                    type: 'POST',
-                    data: { usuario, senha },
-                    dataType: 'json',
-                    success: function (resposta) {
-                        if (resposta.sucesso) {
-                            alert('Login realizado com sucesso!');
-                            // Redirecionar para a página inicial ou dashboard
-                            window.location.href = 'dashboard.html';
-                        } else {
-                            alert(resposta.mensagem); // Exibe erro
-                        }
-                    },
-                    error: function () {
-                        alert('Erro na comunicação com o servidor.');
-                    }
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+       
