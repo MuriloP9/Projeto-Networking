@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Declara a query SQL para buscar a senha associada ao email informado
-        $sql = "SELECT senha FROM cadastro WHERE email = :email";
+        $sql = "SELECT senha FROM Usuario WHERE email = :email";
         $stmt = $pdo->prepare($sql); // Prepara a consulta SQL
         $stmt->bindParam(':email', $email, PDO::PARAM_STR); // Substitui o parâmetro :email pela variável $email
         $stmt->execute(); // Executa a consulta no banco de dados

@@ -18,7 +18,7 @@ function conectar() {
 
 $pdo = conectar(); // Estabelece a conexão com o banco de dados
 
-$tabela = "cadastro"; // Nome da tabela
+$tabela = "Usuario"; // Nome da tabela
 
 // Inclusão de dados
 try {
