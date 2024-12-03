@@ -49,15 +49,20 @@ CREATE TABLE ProfissionalArea (
     id_area INT NOT NULL FOREIGN KEY REFERENCES AreaAtuacao(id_area)
 );
 
+drop table Vagas;
 -- Tabela de Vagas de Emprego
-CREATE TABLE Vaga (
+CREATE TABLE Vagas (
     id_vaga INT IDENTITY(1,1) PRIMARY KEY,
     titulo_vaga NVARCHAR(255) NOT NULL,
-    descricao NVARCHAR(MAX),
-    localizacao NVARCHAR(100),
-    tipo_emprego NVARCHAR(50),
-    data_postagem DATETIME DEFAULT GETDATE()
+    descricao NVARCHAR(MAX) NOT NULL,
+    localizacao NVARCHAR(255),
+    tipo_emprego NVARCHAR(20) NOT NULL,
+    data_postagem DATE NOT NULL,
+    id_area INT,
+    FOREIGN KEY (id_area) REFERENCES AreaAtuacao(id_area),
+    CONSTRAINT chk_tipo_emprego CHECK (tipo_emprego IN ('full-time', 'part-time', 'internship'))
 );
+
 
 -- Tabela de Mensagens (Chat)
 CREATE TABLE Mensagem (
