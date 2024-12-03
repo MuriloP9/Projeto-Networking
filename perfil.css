@@ -1,3 +1,4 @@
+/* Configurações básicas */
 * {
     margin: 0;
     padding: 0;
@@ -18,8 +19,8 @@ body {
 header {
     width: 100%;
     background-color: #004f6a;
-    padding: 10px 0;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 1% 0;
+    box-shadow: 0 0.4em 1em rgba(0, 0, 0, 0.1);
     position: fixed;
     top: 0;
     left: 0;
@@ -30,9 +31,8 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1200px;
+    max-width: 90%;
     margin: 0 auto;
-    padding: 0 20px;
 }
 
 .logo-container {
@@ -41,13 +41,13 @@ header {
 }
 
 .logo-icon {
-    width: 40px;
-    height: 40px;
-    margin-right: 15px;
+    width: 3em;
+    height: 3em;
+    margin-right: 0.5em;
 }
 
 .logo {
-    font-size: 28px;
+    font-size: 1.75em;
     font-weight: bold;
     color: #fff;
 }
@@ -55,14 +55,13 @@ header {
 .menu {
     list-style: none;
     display: flex;
-    gap: 30px;
-    margin-left: auto;
+    gap: 2em;
 }
 
 .menu li a {
     color: #fff;
     text-decoration: none;
-    font-size: 18px;
+    font-size: 1.2em;
     font-weight: 500;
     transition: color 0.3s ease;
 }
@@ -73,231 +72,200 @@ header {
 
 .cabecalho {
     text-align: center;
-    padding: 50px 20px;
+    padding: 5% 3%;
     background-color: #004f6a;
     color: #fff;
-    border-radius: 15px;
-    margin: 90px 10% 30px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 80%;
+    border-radius: 0.9em;
+    margin: 8em 5%;
+    box-shadow: 0 0.4em 2em rgba(0, 0, 0, 0.1);
+    width: 90%;
 }
 
 .cabecalho h1 {
-    font-size: 48px;
-    margin-bottom: 10px;
+    font-size: 2.5em;
+    margin-bottom: 0.5em;
 }
 
 .cabecalho p {
-    font-size: 22px;
+    font-size: 1.5em;
     font-weight: 300;
 }
 
-
-
-.detalhes {
-    text-align: left;
-    padding: 30px 20px;
-    background-color: #ffffff;
-    margin: 20px 10%;
-    border-radius: 15px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 80%;
+.perfil-imagem {
+    width: 10em;
+    height: 10em;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1em;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0.4em 2em rgba(0, 0, 0, 0.1);
 }
 
-.detalhes h2 {
-    text-align: left;
-    font-size: 36px;
-    color: #004f6a;
-    margin-bottom: 20px;
+.perfil-imagem:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0.8em 3em rgba(0, 0, 0, 0.2);
 }
 
-.detalhes div {
-    margin-bottom: 15px;
-}
-
-.imagem-projeto-perfil{ 
-    height: auto;
-    margin-left: 20px; 
-    width: 20vw;
-}
-
-.detalhes strong {
-    font-size: 20px;
-    color: #444;
-}
-
-.detalhes p {
-    font-size: 18px;
-    color: #444;
-}
-
-.projetos {
-    text-align: left;
-    padding: 30px 20px;
-    background-color: #ffffff;
-    margin: 20px 10%;
-    border-radius: 15px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 80%;
-}
-
-.projetos .conteudo {
-    display: flex; 
-    justify-content: space-between;
-    width: 100%;
-}
-
-
-.projetos h2 {
-    font-size: 36px;
-    color: #004f6a;
-    margin-bottom: 20px;
-}
-
-.projetos ul {
-    list-style: none;
-    padding-left: 0;
-    font-size: 18px;
-    color: #444;
-}
-
-.projetos ul li {
-    margin-bottom: 15px;
-}
-
-.habilidades {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 30px 20px;
-    background-color: #ffffff;
-    margin: 20px 10%;
-    border-radius: 15px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 80%;
-    height: auto;
-}
-
-.habilidades h2 {
-    font-size: 36px;
-    color: #004f6a;
-    margin-bottom: 20px;
-    width: 100%;
-    text-align: center;
-}
-
-.habilidades ul {
-    list-style: none;
-    padding-left: 0;
-    font-size: 18px;
-    color: #444;
-    text-align: center;
-}
-
-.habilidades ul li {
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.habilidades ul li img {
-    width: 40px;
-    height: 40px;
-    margin-right: 15px;
-}
-
+.detalhes,
+.projetos,
+.habilidades,
 .contato {
-    text-align: center;
-    padding: 30px 20px;
+    padding: 3%;
     background-color: #ffffff;
-    margin: 20px 10%;
-    border-radius: 15px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 80%;
+    margin: 2% 5%;
+    border-radius: 0.9em;
+    box-shadow: 0 0.4em 2em rgba(0, 0, 0, 0.1);
+    width: 90%;
 }
 
+.detalhes h2,
+.projetos h2,
+.habilidades h2,
 .contato h2 {
-    font-size: 36px;
+    font-size: 2em;
     color: #004f6a;
-    margin-bottom: 20px;
+    margin-bottom: 1em;
 }
 
-.contato p {
-    font-size: 18px;
-    color: #444;
+.detalhes div,
+.projetos ul li,
+.habilidades ul li {
+    font-size: 1.2em;
+    margin-bottom: 1em;
 }
 
 .banners {
     display: flex;
     justify-content: center;
-    gap: 20px;
-    margin-top: 30px;
+    gap: 2em;
+    margin-top: 2%;
 }
 
 .banners img {
-    width: 60px;
-    height: 60px;
+    width: 3.5em;
+    height: 3.5em;
     border-radius: 50%;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 4px solid #fff;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 0.3em solid #fff;
+    box-shadow: 0 0.4em 2em rgba(0, 0, 0, 0.1);
 }
 
 .banners img:hover {
     transform: scale(1.1);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0.8em 3em rgba(0, 0, 0, 0.2);
 }
 
-.perfil-imagem {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 20px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+.projetos .conteudo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Alinha ao topo dos tópicos */
+    width: 100%;
+}
+
+.imagem-projeto-perfil {
+    width: 17vw;
+    height: auto;
+    margin-left: 20px; /* Mantém um espaço entre os tópicos e a imagem */
+    align-self: flex-start; /* Garante o alinhamento ao topo */
+}
+
+.habilidades {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Garante o alinhamento central */
+    text-align: center; /* Centraliza o texto */
+    padding: 30px 20px;
+    background-color: #ffffff;
+    margin: 20px auto; /* Centraliza horizontalmente */
+    border-radius: 15px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 90%; /* Ajuste de largura para centralizar melhor */
+    height: auto;
 }
 
-.perfil-imagem:hover {
-    transform: scale(1.1);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+.contato {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Garante o alinhamento central */
+    text-align: center; /* Centraliza o texto */
+    padding: 30px 20px;
+    background-color: #ffffff;
+    margin: 20px auto; /* Centraliza horizontalmente */
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 90%; /* Ajuste de largura para centralizar melhor */
+}
+
+
+
+/* Estilos responsivos */
+@media (max-width: 1200px) {
+    .cabecalho {
+        width: 95%;
+        margin: 9em 2.5%;
+    }
+    .menu {
+        gap: 1.5em;
+    }
+    .menu li a {
+        font-size: 1.1em;
+    }
+    .banners img {
+        width: 3em;
+        height: 3em;
+    }
 }
 
 @media (max-width: 768px) {
     .navbar {
         flex-direction: column;
-        align-items: center;
-        gap: 20px;
+        gap: 1em;
     }
-
     .menu {
         flex-direction: column;
         align-items: center;
-        gap: 15px;
+        gap: 1em;
     }
-
     .menu li a {
-        font-size: 20px;
+        font-size: 1.3em;
     }
-
-    .banners {
-        flex-wrap: wrap;
-        justify-content: center;
+    .cabecalho h1 {
+        font-size: 2em;
     }
-
-    .banners img {
-        width: 50px;
-        height: 50px;
+    .cabecalho p {
+        font-size: 1.2em;
     }
-
     .perfil-imagem {
-        width: 120px;
-        height: 120px;
+        width: 8em;
+        height: 8em;
     }
+    .detalhes,
+    .projetos,
+    .habilidades,
+    .contato {
+        width: 95%;
+        padding: 5%;
+    }
+}
 
-    .habilidades {
-        flex-direction: column;
+@media (max-width: 480px) {
+    .cabecalho h1 {
+        font-size: 1.75em;
+    }
+    .cabecalho p {
+        font-size: 1em;
+    }
+    .menu li a {
+        font-size: 1em;
+    }
+    .perfil-imagem {
+        width: 6em;
+        height: 6em;
+    }
+    .banners img {
+        width: 2.5em;
+        height: 2.5em;
     }
 }
