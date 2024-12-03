@@ -54,14 +54,13 @@ drop table Vagas;
 CREATE TABLE Vagas (
     id_vaga INT IDENTITY(1,1) PRIMARY KEY,
     titulo_vaga NVARCHAR(255) NOT NULL,
-    descricao NVARCHAR(MAX) NOT NULL,
     localizacao NVARCHAR(255),
     tipo_emprego NVARCHAR(20) NOT NULL,
-    data_postagem DATE NOT NULL,
     id_area INT,
     FOREIGN KEY (id_area) REFERENCES AreaAtuacao(id_area),
     CONSTRAINT chk_tipo_emprego CHECK (tipo_emprego IN ('full-time', 'part-time', 'internship'))
 );
+select*from Vagas;
 
 
 -- Tabela de Mensagens (Chat)
@@ -83,3 +82,4 @@ CREATE TABLE inscricoes_webinar(
     data_inscricao DATETIME DEFAULT GETDATE()
 );
 select*from inscricoes_webinar;
+
