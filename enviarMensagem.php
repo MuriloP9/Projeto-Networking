@@ -1,9 +1,9 @@
 <?php
 function conectar() {
-    $local_server = "PC_NASA\SQLEXPRESS"; // Nome do servidor
-    $usuario_server = "sa";               // Usuário do servidor
-    $senha_server = "etesp";              // Senha do servidor
-    $banco_de_dados = "prolink";          // Nome do banco de dados
+    $local_server = "PC_NASA\SQLEXPRESS"; 
+    $usuario_server = "sa";               
+    $senha_server = "etesp";             
+    $banco_de_dados = "prolink";          
 
     try {
         $pdo = new PDO("sqlsrv:server=$local_server;database=$banco_de_dados", $usuario_server, $senha_server);
@@ -31,10 +31,10 @@ try {
 
     $sql->execute();
 
-    echo "sucesso"; // Retorna 'sucesso' em caso de sucesso
+    echo "sucesso"; 
     exit;
 } catch (Exception $erro) {
-    echo "Erro: " . $erro->getMessage(); // Retorna a mensagem de erro em caso de falha
+    echo "Erro: " . $erro->getMessage(); 
     exit;
 }
 ?>
