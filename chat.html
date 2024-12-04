@@ -258,7 +258,36 @@
     </div>
 
     <script>
-        $('#send-btn').on('click', enviarMensagem);
+       $('#send-btn').click(function () {
+    const mensagem = $('#message-input').val().trim();
+
+    if (mensagem) {
+        const formData = new FormData();
+        formData.append('mensagem', mensagem); // Nome correto do campo
+
+        $.ajax({
+            url: 'enviarMensagem.php',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.trim() === 'sucesso') {
+                    adicionarMensagem(mensagem, 'user');
+                    $('#message-input').val('');
+                } else {
+                    alert(response);
+                }
+            },
+            error: function () {
+                alert('Erro ao enviar a mensagem.');
+            }
+        });
+    } else {
+        alert('Por favor, digite uma mensagem.');
+    }
+});
+
     
         function enviarMensagem() {
             const entradaMensagem = $('#message-input');
@@ -272,7 +301,10 @@
     
         function adicionarMensagem(texto, remetente) {
             const caixaChat = $('#chat-box');
-            const mensagemDiv = $('<div>').addClass('message').addClass(remetente).text(texto);
+            const mensagemDiv = $('<div>')
+                .addClass('message')
+                .addClass(remetente)
+                .text(texto);
     
             caixaChat.append(mensagemDiv);
             caixaChat.scrollTop(caixaChat.prop('scrollHeight')); // Rolar automaticamente para a última mensagem
@@ -291,6 +323,7 @@
         // Enviar com Enter
         $('#message-input').on('keypress', function (e) {
             if (e.key === 'Enter') {
+                e.preventDefault(); // Evita o envio padrão do formulário
                 enviarMensagem();
                 respostaAutomatica();
             }
@@ -301,11 +334,12 @@
             const caixaChat = $('#chat-box');
     
             // Apagar mensagens com efeito suave de opacidade
-            caixaChat.children('.message').animate({ opacity: 0 }, 300, function() {
+            caixaChat.children('.message').animate({ opacity: 0 }, 300, function () {
                 $(this).remove(); // Remover cada mensagem após a animação
             });
         }
     
         // Vincula o evento de clique nas conversas
-        $('.conversation-item').on('click', selecionarConversa);
+        $(document).on('click', '.conversation-item', selecionarConversa);
+    
     </script>

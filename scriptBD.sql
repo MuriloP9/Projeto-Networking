@@ -10,12 +10,13 @@ drop database prolink;
 -- Tabela de Usuários
 CREATE TABLE Usuario (
     id_usuario INT IDENTITY(1,1) PRIMARY KEY,
-    nome NVARCHAR(100) NOT NULL,
+    nome NVARCHAR(255) NOT NULL,
     email NVARCHAR(100) UNIQUE NOT NULL,
     senha NVARCHAR(255) NOT NULL,
     dataNascimento DATE NOT NULL,
     telefone NVARCHAR(15) NOT NULL
 );
+
 
 select*from Usuario;
 
@@ -65,12 +66,19 @@ select*from Vagas;
 
 -- Tabela de Mensagens (Chat)
 CREATE TABLE Mensagem (
-    id_mensagem INT IDENTITY(1,1) PRIMARY KEY,
-    id_usuario_remetente INT NOT NULL FOREIGN KEY REFERENCES Usuario(id_usuario),
-    id_usuario_destinatario INT NOT NULL FOREIGN KEY REFERENCES Usuario(id_usuario),
-    texto NVARCHAR(MAX) NOT NULL,
-    data_hora DATETIME DEFAULT GETDATE()
+    id_mensagem INT IDENTITY(1,1) PRIMARY KEY, -- Identificador único para mensagens
+    id_usuario_remetente INT,         -- ID do usuário que envia a mensagem
+    id_usuario_destinatario INT ,      -- ID do usuário que recebe a mensagem
+    texto NVARCHAR(MAX) NOT NULL,             -- Conteúdo da mensagem
+    data_hora DATETIME DEFAULT GETDATE(),     -- Data e hora da mensagem
+    CONSTRAINT FK_Remetente FOREIGN KEY (id_usuario_remetente) REFERENCES Usuario(id_usuario),
+    CONSTRAINT FK_Destinatario FOREIGN KEY (id_usuario_destinatario) REFERENCES Usuario(id_usuario)
 );
+
+select * from Mensagem;
+
+drop table Mensagem;
+
 
 CREATE TABLE inscricoes_webinar(
     id INT IDENTITY(1,1) PRIMARY KEY,
