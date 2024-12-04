@@ -206,7 +206,7 @@ footer {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra leve */
 }
 
-.search-bar .search-btn {
+.search-bar .search-btn1 {
     padding: 15px 30px;
     border: none;
     background-color: #0096a1;
@@ -217,7 +217,7 @@ footer {
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.search-bar .search-btn:hover {
+.search-bar .search-btn1:hover {
     background-color: #005a6e;
     transform: scale(1.1); /* Efeito de zoom */
 }
@@ -228,7 +228,7 @@ footer {
         width: 80%; /* Ajuste da barra para dispositivos móveis */
     }
 
-    .search-btn {
+    .search-btn1 {
         padding: 15px 20px;
     }
 }
