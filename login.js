@@ -15,7 +15,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.sucesso) {
-                    window.location.href = 'index.html'; // Redirecione para a página inicial após login bem-sucedido
+                    window.location.href = 'index.php'; // Redirecione para a página inicial após login bem-sucedido
                 } else {
                     $('#mensagem').text(response.mensagem); // Exibe mensagem de erro
                 }
