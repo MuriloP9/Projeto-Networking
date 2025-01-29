@@ -115,3 +115,45 @@ $(document).ready(function () {
 });
 
 
+ // Verifica se o usuário está logado
+$(document).ready(function() {
+    function checkLoginStatus() {
+        $.ajax({
+            url: 'checkLoginStatus.php',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.loggedIn) {
+                    $('#loginBtn').hide();
+                    $('#signupBtn').hide();
+                    $('#userGreeting').show();
+                    $('#userName').text(response.userName);
+                } else {
+                    $('#loginBtn').show();
+                    $('#signupBtn').show();
+                    $('#userGreeting').hide();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Erro na requisição:', error);
+            }
+        });
+    }
+
+    // Verifica o status do login ao carregar a página
+    checkLoginStatus();
+
+    // Logout (opcional)
+    $('#userGreeting').on('click', function() {
+        $.ajax({
+            url: 'logout.php',
+            type: 'POST',
+            success: function(response) {
+                window.location.href = 'index.php';
+            },
+            error: function(xhr, status, error) {
+                console.error('Erro na requisição:', error);
+            }
+        });
+    });
+});

@@ -10,26 +10,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="logo-container">
-                <img src="./img/icons8-network-96.png" alt="Logo" class="logo-icon">
-                <div class="logo">ProLink</div>
-            </div>
-            <ul class="menu">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#webinars">Webinars</a></li>
-                <li><a href="#job-opportunities">Oportunidades de Trabalho</a></li>
-                <li><a href="#contato">Contato</a></li>
-                <li><a href="login.html">Login</a></li> <!-- Sem âncora, link externo -->
-                <li><a href="cadastro.html" class="signup-btn">Cadastre-se</a></li> <!-- Botão "Cadastre-se" -->
-            </ul>
-            <div class="profile">
-                <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a> <!-- Sem âncora, link externo -->
-                <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a> <!-- Novo ícone de chat -->
-            </div>
-        </nav>
-    </header>
+<header>
+    <nav class="navbar">
+        <div class="logo-container">
+            <img src="./img/icons8-network-96.png" alt="Logo" class="logo-icon">
+            <div class="logo">ProLink</div>
+        </div>
+        <ul class="menu">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#webinars">Webinars</a></li>
+            <li><a href="#job-opportunities">Oportunidades de Trabalho</a></li>
+            <li><a href="#contato">Contato</a></li>
+            <li><a href="login.html" id="loginBtn">Login</a></li>
+            <li><a href="cadastro.html" id="signupBtn" class="signup-btn">Cadastre-se</a></li>
+            <li id="userGreeting" style="display: none;"><a href="#" class="user-greeting-btn">Olá, <span id="userName"></span></a></li>
+        </ul>
+        <div class="profile">
+            <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a>
+            <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a>
+        </div>
+    </nav>
+</header>
 
     <section id="home" class="carousel">
         <div class="carousel-container">

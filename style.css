@@ -744,3 +744,18 @@ footer {
     }
 }
 
+/*Botão de confirmação de usuário*/
+
+.user-greeting-btn {
+    background-color: #005a6e;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.user-greeting-btn:hover {
+    background-color: #004050;
+    transform: scale(1.1);
+}

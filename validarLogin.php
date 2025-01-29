@@ -1,6 +1,26 @@
 <?php
+session_start();
 
-function conectar() {
+$pdo = conectar();
+
+$email = $_POST['email'];
+$senha = $_POST['senha'];
+
+$sql = $pdo->prepare("SELECT id_usuario, nome FROM Usuario WHERE email = :email AND senha = :senha");
+$sql->bindValue(":email", $email);
+$sql->bindValue(":senha", $senha);
+$sql->execute();
+
+if ($sql->rowCount() > 0) {
+    $user = $sql->fetch(PDO::FETCH_ASSOC);
+    $_SESSION['user_id'] = $user['id_usuario'];
+    $_SESSION['user_name'] = $user['nome'];
+    echo json_encode(['sucesso' => true]);
+} else {
+    echo json_encode(['sucesso' => false, 'mensagem' => 'Email ou senha incorretos.']);
+}
+
+/*function conectar() {
     
     $local_server = "PC_NASA\SQLEXPRESS"; 
     $usuario_server = "sa";               
@@ -55,5 +75,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Captura e retorna qualquer erro 
         echo json_encode(["sucesso" => false, "mensagem" => "Erro no servidor: " . $erro->getMessage()]);
     }
-}
+}*/
 ?>
