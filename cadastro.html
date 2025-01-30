@@ -242,3 +242,40 @@ footer {
     }
 }
 </style>
+
+<script>
+    $(document).ready(function() {
+    $('#submitBtn').on('click', function() {
+        const nome = $('#nome').val();
+        const email = $('#email').val();
+        const senha = $('#senha').val();
+        const dataNascimento = $('#dataNascimento').val();
+        const telefone = $('#telefone').val();
+
+        if (nome.trim() === '' || email.trim() === '' || senha.trim() === '' || dataNascimento.trim() === '' || telefone.trim() === '') {
+            alert('Por favor, preencha todos os campos!');
+            return;
+        }
+
+        $.ajax({
+            url: 'cadastro.php',
+            type: 'POST',
+            data: {
+                nome: nome,
+                email: email,
+                senha: senha,
+                dataNascimento: dataNascimento,
+                telefone: telefone
+            },
+            success: function(response) {
+                // Redireciona para a página de sucesso
+                window.location.href = 'inclusaoCadastro.html';
+            },
+            error: function(xhr, status, error) {
+                console.error('Erro na requisição:', error);
+                alert('Erro na comunicação com o servidor. Tente novamente.');
+            }
+        });
+    });
+});
+</script>

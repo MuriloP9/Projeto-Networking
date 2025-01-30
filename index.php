@@ -1,3 +1,12 @@
+<?php
+session_start();
+
+// Limpa todas as variáveis de sessão
+/*session_unset();
+
+// Destrói a sessão
+session_destroy();*/
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -11,26 +20,31 @@
 </head>
 <body>
 <header>
-    <nav class="navbar">
-        <div class="logo-container">
-            <img src="./img/icons8-network-96.png" alt="Logo" class="logo-icon">
-            <div class="logo">ProLink</div>
-        </div>
-        <ul class="menu">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#webinars">Webinars</a></li>
-            <li><a href="#job-opportunities">Oportunidades de Trabalho</a></li>
-            <li><a href="#contato">Contato</a></li>
-            <li><a href="login.html" id="loginBtn">Login</a></li>
-            <li><a href="cadastro.html" id="signupBtn" class="signup-btn">Cadastre-se</a></li>
-            <li id="userGreeting" style="display: none;"><a href="#" class="user-greeting-btn">Olá, <span id="userName"></span></a></li>
-        </ul>
-        <div class="profile">
-            <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a>
-            <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a>
-        </div>
-    </nav>
-</header>
+        <nav class="navbar">
+            <div class="logo-container">
+                <img src="./img/icons8-network-96.png" alt="Logo" class="logo-icon">
+                <div class="logo">ProLink</div>
+            </div>
+            <ul class="menu">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#webinars">Webinars</a></li>
+                <li><a href="#job-opportunities">Oportunidades de Trabalho</a></li>
+                <li><a href="#contato">Contato</a></li>
+                <?php if (!isset($_SESSION['usuario_logado'])): ?>
+                    <li><a href="login.html">Login</a></li>
+                    <?php if (!isset($_SESSION['cadastro_realizado'])): ?>
+                        <li><a href="cadastro.html" class="signup-btn">Cadastre-se</a></li>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <li><button class="logout-btn" onclick="logout()">Olá, <?php echo $_SESSION['nome_usuario']; ?></button></li>
+                <?php endif; ?>
+            </ul>
+            <div class="profile">
+                <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a>
+                <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a>
+            </div>
+        </nav>
+    </header>
 
     <section id="home" class="carousel">
         <div class="carousel-container">
@@ -184,5 +198,11 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="script.js"></script>
+    <script>
+        function logout() {
+            // Redireciona para o arquivo de logout (que destruirá a sessão)
+            window.location.href = 'logout.php';
+        }
+    </script>
 </body>
 </html>

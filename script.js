@@ -57,18 +57,15 @@ $(document).ready(function () {
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    if (response.trim() === 'sucesso') {
-                        window.location.href = 'inclusaoCadastro.html'; // Redireciona em caso de sucesso
-                    } else {
-                        alert(response); // Mostra mensagem de erro enviada pelo PHP
-                    }
+                    // Redireciona diretamente para a página de sucesso
+                    window.location.href = 'inclusaoCadastro.html';
                 },
                 error: function () {
-                    alert('Erro ao processar o cadastro.');
+                    alert('Erro ao processar o cadastro.'); // Mensagem de erro genérica
                 }
             });
         } else {
-            alert('Por favor, preencha todos os campos.');
+            alert('Por favor, preencha todos os campos.'); // Mensagem de validação
         }
     });
 });

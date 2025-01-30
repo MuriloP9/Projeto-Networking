@@ -1,6 +1,5 @@
 <?php
-
-session_start();
+session_start(); // Inicia a sessão
 
 function conectar() {
     $local_server = "PC_NASA\SQLEXPRESS"; 
@@ -17,27 +16,38 @@ function conectar() {
     }
 }
 
-$pdo = conectar();
+$pdo = conectar(); 
 
-$nome = $_POST["nome"];
-$email = $_POST["email"];
-$senha = $_POST["senha"];
-$dataNascimento = $_POST["dataNascimento"];
-$telefone = $_POST["telefone"];
+$tabela = "Usuario"; 
 
-$sql = $pdo->prepare("INSERT INTO Usuario (nome, email, senha, dataNascimento, telefone) VALUES (:nome, :email, :senha, :dataNascimento, :telefone);");
-$sql->bindValue(":nome", $nome);
-$sql->bindValue(":email", $email);
-$sql->bindValue(":senha", $senha);
-$sql->bindValue(":dataNascimento", $dataNascimento);
-$sql->bindValue(":telefone", $telefone);
+try {
+    $nome = $_POST["nome"];
+    $email = $_POST["email"];
+    $senha = $_POST["senha"];
+    $dataNascimento = $_POST["dataNascimento"];
+    $telefone = $_POST["telefone"];
 
-if ($sql->execute()) {
-    $_SESSION['user_id'] = $pdo->lastInsertId();
-    $_SESSION['user_name'] = $nome;
-    echo json_encode(['sucesso' => true]);
-} else {
-    echo json_encode(['sucesso' => false, 'mensagem' => 'Erro ao cadastrar.']);
+    $sql = $pdo->prepare("INSERT INTO $tabela 
+        (nome, email, senha, dataNascimento, telefone) 
+        VALUES (:nome, :email, :senha, :dataNascimento, :telefone);");
+
+    $sql->bindValue(":nome", $nome);
+    $sql->bindValue(":email", $email);
+    $sql->bindValue(":senha", $senha);
+    $sql->bindValue(":dataNascimento", $dataNascimento);
+    $sql->bindValue(":telefone", $telefone);
+
+    $sql->execute();
+
+    // Define uma variável de sessão para indicar que o cadastro foi realizado
+    $_SESSION['cadastro_realizado'] = true;
+
+    // Redireciona para a página de sucesso
+    header('Location: inclusaoCadastro.html');
+    exit;
+} catch (Exception $erro) {
+    // Exibe uma mensagem de erro
+    echo "Erro ao cadastrar: " . $erro->getMessage();
+    exit;
 }
-
 ?>
