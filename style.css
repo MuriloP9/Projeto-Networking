@@ -744,18 +744,27 @@ footer {
     }
 }
 
-/*Botão de confirmação de usuário*/
-
-.user-greeting-btn {
-    background-color: #005a6e;
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+/* Estilo dos itens do menu (incluindo o botão de logout) */
+.menu li {
+    display: flex;
+    align-items: center; 
 }
 
-.user-greeting-btn:hover {
-    background-color: #004050;
-    transform: scale(1.1);
+/* Estilo do botão de logout */
+.logout-btn {
+    background-color: green; 
+    color: white; 
+    padding: 12px 20px; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; /* Tamanho da fonte */
+    transition: background-color 0.3s ease, transform 0.3s ease; 
+    text-decoration: none; 
+    display: inline-block; 
+}
+
+/* Efeito ao passar o cursor por cima */
+.logout-btn:hover {
+    background-color: red; 
+    transform: scale(1.1); 
 }
