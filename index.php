@@ -87,7 +87,7 @@ session_destroy();*/
             <div class="webinar-description">
                 <h3>Descubra Novas Oportunidades no Próximo Webinar!</h3>
                 <p>Participe do nosso próximo webinar sobre networking global e descubra como expandir suas conexões profissionais.</p>
-                <a href="./pagina_webinar.html" class="webinar-link">Saiba mais</a>
+                <a href="./pagina_webinar.php" class="webinar-link">Saiba mais</a>
                 <img src="./img/undraw_Graduation_re_gthn.png" alt="Imagem do Webinar">
             </div>
             <div class="webinar-image">
@@ -103,7 +103,7 @@ session_destroy();*/
                 <div class="job-description">
                     <h3>Encontre a Oportunidade dos Seus Sonhos!</h3>
                     <p>Confira as vagas abertas em diversas áreas profissionais e conecte-se com empregadores ao redor do mundo.</p>
-                    <a href="./pagina_emprego.html" class="job-link">Saiba mais</a>
+                    <a href="./pagina_emprego.php" class="job-link">Saiba mais</a>
                     <img src="./img/undraw_Finance_re_gnv2.png" alt="Imagem Oportunidade de Trabalho">
                 </div>
                 <div class="job-image">

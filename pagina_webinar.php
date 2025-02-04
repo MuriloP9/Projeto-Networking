@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -202,8 +205,10 @@
             </div>
             <ul class="menu">
                 <li><a href="./index.php">Home</a></li>
-                <li><a href="./pagina_emprego.html">Oportunidades de Trabalho</a></li>
-                <li><a href="./login.html">Login</a></li>
+                <li><a href="./pagina_emprego.php">Oportunidades de Trabalho</a></li>
+                <?php if (!isset($_SESSION['usuario_logado'])): ?>
+                <li><a href="login.html">Login</a></li>
+                <?php endif; ?>
             </ul>
             <div class="profile">
                 <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a>
