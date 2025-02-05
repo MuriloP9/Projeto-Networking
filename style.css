@@ -768,3 +768,204 @@ footer {
     background-color: red; 
     transform: scale(1.1); 
 }
+
+/* Estilos gerais */
+.menu-toggle {
+    display: none;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.menu-icon {
+    width: 30px;
+    height: 30px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.menu {
+    display: flex;
+    list-style: none;
+    gap: 20px; /* Espaçamento reduzido entre os itens */
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.menu li {
+    margin: 0;
+}
+
+.profile-item, .chat-item {
+    display: none; /* Esconde os ícones de perfil e chat por padrão */
+}
+
+/* Efeito de "ser comido pela cor" no ícone do menu */
+.menu-toggle.active .menu-icon {
+    transform: scale(0.8);
+    opacity: 0;
+}
+
+.menu-toggle.active::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    background-color: #51ccd4;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    animation: eatIcon 0.3s ease forwards;
+}
+
+@keyframes eatIcon {
+    to {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Estilos para telas pequenas (celulares) */
+@media (max-width: 767px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .menu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background-color: #51ccd4;
+        padding: 10px 0;
+        align-items: flex-start; /* Alinha os itens à esquerda */
+        padding-left: 20px; /* Adiciona um padding à esquerda */
+    }
+
+    .menu.active {
+        display: flex;
+    }
+
+    .menu li {
+        text-align: left;
+        margin: 10px 0;
+    }
+
+    .profile-item, .chat-item {
+        display: block; /* Mostra os ícones de perfil e chat no menu */
+    }
+
+    .profile-item img, .chat-item img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .timeline {
+        display: none;
+    }
+}
+
+/* Estilos para telas médias (tablets e notebooks) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .menu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background-color: #51ccd4;
+        padding: 10px 0;
+        align-items: flex-start; /* Alinha os itens à esquerda */
+        padding-left: 20px; /* Adiciona um padding à esquerda */
+    }
+
+    .menu.active {
+        display: flex;
+    }
+
+    .menu li {
+        text-align: left;
+        margin: 10px 0;
+    }
+
+    .profile-item, .chat-item {
+        display: block; /* Mostra os ícones de perfil e chat no menu */
+    }
+
+    .profile-item img, .chat-item img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .timeline {
+        display: none;
+    }
+}
+
+/* Estilos para telas grandes (desktop) */
+@media (min-width: 1024px) {
+    .menu-toggle {
+        display: none;
+    }
+
+    .menu {
+        display: flex;
+    }
+
+    .profile-item, .chat-item {
+        display: none; /* Esconde os ícones de perfil e chat no desktop */
+    }
+
+    .profile {
+        display: flex;
+    }
+
+    .timeline {
+        display: block;
+    }
+}
+
+/* Efeito de rotação no ícone do menu */
+.menu-toggle.active .menu-icon {
+    transform: rotate(90deg);
+}
+
+/* Efeito de hover nos botões do menu */
+.menu li a, .profile-item a, .chat-item a {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.menu li a:hover, .profile-item a:hover, .chat-item a:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+}
+
+/* Efeito de fade-in nos botões do menu */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.menu.active li {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.menu.active li:nth-child(1) { animation-delay: 0.1s; }
+.menu.active li:nth-child(2) { animation-delay: 0.2s; }
+.menu.active li:nth-child(3) { animation-delay: 0.3s; }
+.menu.active li:nth-child(4) { animation-delay: 0.4s; }
+.menu.active li:nth-child(5) { animation-delay: 0.5s; }
+.menu.active li:nth-child(6) { animation-delay: 0.6s; }
+.menu.active li:nth-child(7) { animation-delay: 0.7s; }

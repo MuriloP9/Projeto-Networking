@@ -20,31 +20,39 @@ session_destroy();*/
 </head>
 <body>
 <header>
-        <nav class="navbar">
-            <div class="logo-container">
-                <img src="./img/icons8-network-96.png" alt="Logo" class="logo-icon">
-                <div class="logo">ProLink</div>
+    <nav class="navbar">
+        <div class="logo-container">
+            <img src="./img/icons8-network-96.png" alt="Logo" class="logo-icon">
+            <div class="logo">ProLink</div>
+        </div>
+        <div class="menu-toggle" id="mobile-menu">
+            <div class="menu-icon">
+                <img src="./img/icons8-menu-48.png" alt="Menu">
             </div>
-            <ul class="menu">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#webinars">Webinars</a></li>
-                <li><a href="#job-opportunities">Oportunidades de Trabalho</a></li>
-                <li><a href="#contato">Contato</a></li>
-                <?php if (!isset($_SESSION['usuario_logado'])): ?>
-                    <li><a href="login.html">Login</a></li>
-                    <?php if (!isset($_SESSION['cadastro_realizado'])): ?>
-                        <li><a href="cadastro.html" class="signup-btn">Cadastre-se</a></li>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <li><button class="logout-btn" onclick="logout()">Olá, <?php echo $_SESSION['nome_usuario']; ?></button></li>
+        </div>
+        <ul class="menu" id="menu">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#webinars">Webinars</a></li>
+            <li><a href="#job-opportunities">Oportunidades de Trabalho</a></li>
+            <li><a href="#contato">Contato</a></li>
+            <?php if (!isset($_SESSION['usuario_logado'])): ?>
+                <li><a href="login.html">Login</a></li>
+                <?php if (!isset($_SESSION['cadastro_realizado'])): ?>
+                    <li><a href="cadastro.html" class="signup-btn">Cadastre-se</a></li>
                 <?php endif; ?>
-            </ul>
-            <div class="profile">
+            <?php else: ?>
+                <li><button class="logout-btn" onclick="logout()">Olá, <?php echo $_SESSION['nome_usuario']; ?></button></li>
+            <?php endif; ?>
+            <!-- Botões de Perfil e Chat movidos para o menu -->
+            <li class="profile-item">
                 <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a>
+            </li>
+            <li class="chat-item">
                 <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a>
-            </div>
-        </nav>
-    </header>
+            </li>
+        </ul>
+    </nav>
+</header>
 
     <section id="home" class="carousel">
         <div class="carousel-container">

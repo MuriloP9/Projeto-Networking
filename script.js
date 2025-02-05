@@ -154,3 +154,22 @@ $(document).ready(function() {
         });
     });
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menu = document.getElementById('menu');
+
+    // Abrir/fechar o menu ao clicar no ícone
+    mobileMenu.addEventListener('click', function() {
+        menu.classList.toggle('active');
+        mobileMenu.classList.toggle('active');
+    });
+
+    // Fechar o menu ao rolar a página
+    window.addEventListener('scroll', function() {
+        if (menu.classList.contains('active')) {
+            menu.classList.remove('active');
+            mobileMenu.classList.remove('active');
+        }
+    });
+});
