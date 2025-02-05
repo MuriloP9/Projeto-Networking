@@ -180,7 +180,6 @@ session_start();
             color: #357ABD;
         }
 
-        
         .inscreva-se-btn {
             background-color: #4a90e2;
             color: #fff;
@@ -194,6 +193,177 @@ session_start();
         .inscreva-se-btn:hover {
             background-color: #357ABD;
         }
+
+        /* Novas Seções Adicionadas */
+        .testimonials-section {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        .testimonials-section h2 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .testimonial {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .testimonial img {
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            margin-right: 15px;
+        }
+
+        .testimonial p {
+            font-size: 1.1em;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .faq-section {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        .faq-section h2 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .faq-item {
+            margin-bottom: 15px;
+        }
+
+        .faq-item h3 {
+            font-size: 1.2em;
+            color: #357ABD;
+            margin-bottom: 10px;
+        }
+
+        .faq-item p {
+            font-size: 1em;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .webinar-info, .registration-form {
+                padding: 20px;
+            }
+
+            .webinar-details h1 {
+                font-size: 2em;
+            }
+
+            .registration-form h2 {
+                font-size: 1.5em;
+            }
+
+            .live-webinar-section iframe {
+                height: 300px;
+            }
+
+            .testimonial {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .testimonial img {
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .webinar-details h1 {
+                font-size: 1.5em;
+            }
+
+            .registration-form h2 {
+                font-size: 1.2em;
+            }
+
+            .live-webinar-section iframe {
+                height: 200px;
+            }
+
+            .calendar-table th, .calendar-table td {
+                padding: 10px;
+            }
+
+            .inscreva-se-btn {
+                padding: 8px 16px;
+                font-size: 0.9em;
+            }
+        }
+
+    /* Estilização da seção FAQ */
+.faq-section {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.faq-section h2 {
+    font-size: 28px;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.faq-item {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+}
+
+.faq-item:hover {
+    background: #eef7ff;
+}
+
+.faq-question {
+    font-size: 18px;
+    color: #007bff;
+    cursor: pointer;
+    margin: 0;
+}
+
+.faq-answer {
+    font-size: 16px;
+    color: #333;
+    display: none;
+    padding-top: 10px;
+}
+
+/* Efeito de expansão */
+.faq-item.active .faq-answer {
+    display: block;
+}
+
     </style>
 </head>
 <body>
@@ -307,6 +477,37 @@ session_start();
         </table>
     </section>
 
+    <!-- Nova Seção: Depoimentos -->
+    <section class="testimonials-section">
+        <h2>Depoimentos</h2>
+        <div class="testimonial">
+            <img src="img/user1.jpg" alt="Usuário 1">
+            <p>"O webinar foi incrível! Aprendi muito sobre UX Design e pôr em prática imediatamente."</p>
+        </div>
+        <div class="testimonial">
+            <img src="img/user2.jpg" alt="Usuário 2">
+            <p>"A ProLink sempre traz conteúdos de alta qualidade. Recomendo a todos!"</p>
+        </div>
+    </section>
+
+    <!-- Nova Seção: Perguntas Frequentes -->
+<section class="faq-section">
+    <h2>Perguntas Frequentes</h2>
+    <div class="faq-item">
+        <h3 class="faq-question">Como posso participar do webinar?</h3>
+        <p class="faq-answer">Basta se inscrever no formulário acima e aguardar o link de acesso por e-mail.</p>
+    </div>
+    <div class="faq-item">
+        <h3 class="faq-question">O webinar é gratuito?</h3>
+        <p class="faq-answer">Sim, todos os webinars da ProLink são gratuitos.</p>
+    </div>
+    <div class="faq-item">
+        <h3 class="faq-question">Posso assistir ao webinar depois?</h3>
+        <p class="faq-answer">Sim, disponibilizamos a gravação do webinar para todos os inscritos.</p>
+    </div>
+</section>
+
+
     <footer class="footer-section">
         <div class="footer-content">
             <img src="./img/icons8-network-96.png" alt="Logo da Empresa" class="footer-logo">
@@ -316,5 +517,14 @@ session_start();
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="script.js"></script>
+    <script>
+        // Script para expandir respostas ao clicar na pergunta
+document.querySelectorAll(".faq-question").forEach(item => {
+    item.addEventListener("click", () => {
+        item.parentElement.classList.toggle("active");
+    });
+});
+
+    </script>
 </body>
 </html>
