@@ -25,12 +25,22 @@ session_destroy();*/
             <img src="./img/icons8-network-96.png" alt="Logo" class="logo-icon">
             <div class="logo">ProLink</div>
         </div>
+        <!-- Botão de lista (ícone de hambúrguer) -->
         <div class="menu-toggle" id="mobile-menu">
             <div class="menu-icon">
                 <img src="./img/icons8-menu-48.png" alt="Menu">
             </div>
         </div>
+        <!-- Menu de navegação -->
         <ul class="menu" id="menu">
+            <!-- Botão de lista dentro do menu (para telas pequenas/médias) -->
+            <li class="menu-close-item">
+                <div class="menu-toggle close-toggle" id="close-menu">
+                    <div class="menu-icon">
+                        <img src="./img/icons8-menu-48.png" alt="Fechar Menu">
+                    </div>
+                </div>
+            </li>
             <li><a href="#home">Home</a></li>
             <li><a href="#webinars">Webinars</a></li>
             <li><a href="#job-opportunities">Oportunidades de Trabalho</a></li>
@@ -43,7 +53,7 @@ session_destroy();*/
             <?php else: ?>
                 <li><button class="logout-btn" onclick="logout()">Olá, <?php echo $_SESSION['nome_usuario']; ?></button></li>
             <?php endif; ?>
-            <!-- Botões de Perfil e Chat movidos para o menu -->
+            <!-- Botões de Perfil e Chat (dentro do menu para telas pequenas/médias) -->
             <li class="profile-item">
                 <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a>
             </li>
@@ -51,6 +61,11 @@ session_destroy();*/
                 <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a>
             </li>
         </ul>
+        <!-- Botões de Perfil e Chat (fora do menu para telas grandes) -->
+        <!<div class="profile-desktop">
+            <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a>
+            <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a>
+        </div>
     </nav>
 </header>
 

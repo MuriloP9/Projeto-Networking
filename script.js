@@ -157,19 +157,23 @@ $(document).ready(function() {
 
 document.addEventListener('DOMContentLoaded', function() {
     const mobileMenu = document.getElementById('mobile-menu');
+    const closeMenu = document.getElementById('close-menu');
     const menu = document.getElementById('menu');
 
-    // Abrir/fechar o menu ao clicar no ícone
+    // Abrir o menu ao clicar no ícone de hambúrguer
     mobileMenu.addEventListener('click', function() {
-        menu.classList.toggle('active');
-        mobileMenu.classList.toggle('active');
+        menu.classList.add('active');
+    });
+
+    // Fechar o menu ao clicar no ícone de hambúrguer dentro do menu
+    closeMenu.addEventListener('click', function() {
+        menu.classList.remove('active');
     });
 
     // Fechar o menu ao rolar a página
     window.addEventListener('scroll', function() {
         if (menu.classList.contains('active')) {
             menu.classList.remove('active');
-            mobileMenu.classList.remove('active');
         }
     });
 });

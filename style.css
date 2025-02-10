@@ -779,8 +779,8 @@ footer {
 }
 
 .menu-icon {
-    width: 30px;
-    height: 30px;
+    width: 24px; /* Tamanho reduzido */
+    height: 24px;
     transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
@@ -797,39 +797,32 @@ footer {
     margin: 0;
 }
 
-.profile-item, .chat-item {
-    display: none; /* Esconde os ícones de perfil e chat por padrão */
+.profile-item, .chat-item, .menu-close-item {
+    display: none; /* Esconde os ícones de perfil, chat e fechar por padrão */
 }
 
-/* Efeito de "ser comido pela cor" no ícone do menu */
-.menu-toggle.active .menu-icon {
-    transform: scale(0.8);
-    opacity: 0;
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Espaçamento entre os ícones de perfil e chat */
 }
 
-.menu-toggle.active::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
+.profile-icon, .chat-icon {
     width: 30px;
     height: 30px;
-    background-color: #51ccd4;
-    border-radius: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    animation: eatIcon 0.3s ease forwards;
+    transition: transform 0.3s ease;
 }
 
-@keyframes eatIcon {
-    to {
-        transform: translate(-50%, -50%) scale(1);
-    }
+.profile-icon:hover, .chat-icon:hover {
+    transform: scale(1.1);
 }
 
 /* Estilos para telas pequenas (celulares) */
 @media (max-width: 767px) {
     .menu-toggle {
         display: block;
+        position: absolute;
+        right: 20px; /* Posiciona o botão à direita */
     }
 
     .menu {
@@ -854,13 +847,17 @@ footer {
         margin: 10px 0;
     }
 
-    .profile-item, .chat-item {
-        display: block; /* Mostra os ícones de perfil e chat no menu */
+    .profile-item, .chat-item, .menu-close-item {
+        display: block; /* Mostra os ícones de perfil, chat e fechar no menu */
     }
 
-    .profile-item img, .chat-item img {
-        width: 30px;
-        height: 30px;
+    .menu-close-item {
+        align-self: flex-end; /* Alinha o botão de fechar à direita */
+        margin-right: 20px; /* Adiciona um margin à direita */
+    }
+
+    .profile {
+        display: none; /* Esconde os ícones de perfil e chat fora do menu */
     }
 
     .timeline {
@@ -872,6 +869,8 @@ footer {
 @media (min-width: 768px) and (max-width: 1023px) {
     .menu-toggle {
         display: block;
+        position: absolute;
+        right: 20px; /* Posiciona o botão à direita */
     }
 
     .menu {
@@ -896,13 +895,17 @@ footer {
         margin: 10px 0;
     }
 
-    .profile-item, .chat-item {
-        display: block; /* Mostra os ícones de perfil e chat no menu */
+    .profile-item, .chat-item, .menu-close-item {
+        display: block; /* Mostra os ícones de perfil, chat e fechar no menu */
     }
 
-    .profile-item img, .chat-item img {
-        width: 30px;
-        height: 30px;
+    .menu-close-item {
+        align-self: flex-end; /* Alinha o botão de fechar à direita */
+        margin-right: 20px; /* Adiciona um margin à direita */
+    }
+
+    .profile {
+        display: none; /* Esconde os ícones de perfil e chat fora do menu */
     }
 
     .timeline {
@@ -913,19 +916,19 @@ footer {
 /* Estilos para telas grandes (desktop) */
 @media (min-width: 1024px) {
     .menu-toggle {
-        display: none;
+        display: none; /* Esconde o ícone de hambúrguer */
     }
 
     .menu {
-        display: flex;
+        display: flex; /* Mostra o menu normalmente */
     }
 
-    .profile-item, .chat-item {
-        display: none; /* Esconde os ícones de perfil e chat no desktop */
+    .profile-item, .chat-item, .menu-close-item {
+        display: none; /* Esconde os ícones de perfil, chat e fechar dentro do menu */
     }
 
     .profile {
-        display: flex;
+        display: flex; /* Mostra os ícones de perfil e chat fora do menu */
     }
 
     .timeline {
