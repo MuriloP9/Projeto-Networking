@@ -61,11 +61,6 @@ session_destroy();*/
                 <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a>
             </li>
         </ul>
-        <!-- Botões de Perfil e Chat (fora do menu para telas grandes) -->
-        <!<div class="profile-desktop">
-            <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a>
-            <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a>
-        </div>
     </nav>
 </header>
 

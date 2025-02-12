@@ -162,17 +162,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Abrir o menu ao clicar no ícone de hambúrguer
     mobileMenu.addEventListener('click', function() {
-        menu.classList.add('active');
+        menu.classList.toggle('active'); // Alterna a classe 'active'
     });
 
-    // Fechar o menu ao clicar no ícone de hambúrguer dentro do menu
+    // Fechar o menu ao clicar no ícone de fechar
     closeMenu.addEventListener('click', function() {
-        menu.classList.remove('active');
+        menu.classList.remove('active'); // Remove a classe 'active'
     });
 
-    // Fechar o menu ao rolar a página
-    window.addEventListener('scroll', function() {
-        if (menu.classList.contains('active')) {
+    // Fechar o menu ao clicar fora dele
+    document.addEventListener('click', function(event) {
+        if (!menu.contains(event.target) && !mobileMenu.contains(event.target)) {
             menu.classList.remove('active');
         }
     });

@@ -770,7 +770,6 @@ footer {
 }
 
 
-
 /* Estilos gerais */
 .menu-toggle {
     display: none;
@@ -779,7 +778,7 @@ footer {
 }
 
 .menu-icon {
-    width: 24px; /* Tamanho reduzido */
+    width: 24px;
     height: 24px;
     transition: transform 0.3s ease, opacity 0.3s ease;
 }
@@ -787,7 +786,7 @@ footer {
 .menu {
     display: flex;
     list-style: none;
-    gap: 20px; /* Espaçamento reduzido entre os itens */
+    gap: 20px;
     align-items: center;
     margin: 0;
     padding: 0;
@@ -798,23 +797,7 @@ footer {
 }
 
 .profile-item, .chat-item, .menu-close-item {
-    display: none; /* Esconde os ícones de perfil, chat e fechar por padrão */
-}
-
-.profile {
-    display: flex;
-    align-items: center;
-    gap: 15px; /* Espaçamento entre os ícones de perfil e chat */
-}
-
-.profile-icon, .chat-icon {
-    width: 30px;
-    height: 30px;
-    transition: transform 0.3s ease;
-}
-
-.profile-icon:hover, .chat-icon:hover {
-    transform: scale(1.1);
+    display: none;
 }
 
 /* Estilos para telas pequenas (celulares) */
@@ -822,7 +805,7 @@ footer {
     .menu-toggle {
         display: block;
         position: absolute;
-        right: 20px; /* Posiciona o botão à direita */
+        right: 20px;
     }
 
     .menu {
@@ -834,8 +817,8 @@ footer {
         width: 100%;
         background-color: #51ccd4;
         padding: 10px 0;
-        align-items: flex-start; /* Alinha os itens à esquerda */
-        padding-left: 20px; /* Adiciona um padding à esquerda */
+        align-items: flex-start;
+        padding-left: 20px;
     }
 
     .menu.active {
@@ -848,19 +831,15 @@ footer {
     }
 
     .profile-item, .chat-item, .menu-close-item {
-        display: block; /* Mostra os ícones de perfil, chat e fechar no menu */
+        display: block;
     }
 
     .menu-close-item {
-        align-self: flex-end; /* Alinha o botão de fechar à direita */
-        margin-right: 20px; /* Adiciona um margin à direita */
+        align-self: flex-end;
+        margin-right: 20px;
     }
 
     .profile {
-        display: none; /* Esconde os ícones de perfil e chat fora do menu */
-    }
-
-    .timeline {
         display: none;
     }
 }
@@ -870,7 +849,7 @@ footer {
     .menu-toggle {
         display: block;
         position: absolute;
-        right: 20px; /* Posiciona o botão à direita */
+        right: 20px;
     }
 
     .menu {
@@ -882,8 +861,8 @@ footer {
         width: 100%;
         background-color: #51ccd4;
         padding: 10px 0;
-        align-items: flex-start; /* Alinha os itens à esquerda */
-        padding-left: 20px; /* Adiciona um padding à esquerda */
+        align-items: flex-start;
+        padding-left: 20px;
     }
 
     .menu.active {
@@ -896,19 +875,15 @@ footer {
     }
 
     .profile-item, .chat-item, .menu-close-item {
-        display: block; /* Mostra os ícones de perfil, chat e fechar no menu */
+        display: block;
     }
 
     .menu-close-item {
-        align-self: flex-end; /* Alinha o botão de fechar à direita */
-        margin-right: 20px; /* Adiciona um margin à direita */
+        align-self: flex-end;
+        margin-right: 20px;
     }
 
     .profile {
-        display: none; /* Esconde os ícones de perfil e chat fora do menu */
-    }
-
-    .timeline {
         display: none;
     }
 }
@@ -916,23 +891,19 @@ footer {
 /* Estilos para telas grandes (desktop) */
 @media (min-width: 1024px) {
     .menu-toggle {
-        display: none; /* Esconde o ícone de hambúrguer */
+        display: none;
     }
 
     .menu {
-        display: flex; /* Mostra o menu normalmente */
+        display: flex;
     }
 
     .profile-item, .chat-item, .menu-close-item {
-        display: none; /* Esconde os ícones de perfil, chat e fechar dentro do menu */
+        display: none;
     }
 
     .profile {
-        display: flex; /* Mostra os ícones de perfil e chat fora do menu */
-    }
-
-    .timeline {
-        display: block;
+        display: flex;
     }
 }
 
