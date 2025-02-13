@@ -155,25 +155,52 @@ $(document).ready(function() {
     });
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+
+document.addEventListener('DOMContentLoaded', function () {
     const mobileMenu = document.getElementById('mobile-menu');
     const closeMenu = document.getElementById('close-menu');
     const menu = document.getElementById('menu');
 
-    // Abrir o menu ao clicar no ícone de hambúrguer
-    mobileMenu.addEventListener('click', function() {
-        menu.classList.toggle('active'); // Alterna a classe 'active'
+    mobileMenu.addEventListener('click', function () {
+        menu.classList.toggle('active');
+        mobileMenu.style.display = 'none'; // Esconde o botão do menu
     });
 
-    // Fechar o menu ao clicar no ícone de fechar
-    closeMenu.addEventListener('click', function() {
-        menu.classList.remove('active'); // Remove a classe 'active'
+    closeMenu.addEventListener('click', function () {
+        menu.classList.remove('active');
+        mobileMenu.style.display = 'block'; // Mostra o botão de menu novamente
+    });
+});
+
+
+$(document).ready(function () {
+    const $menu = $('#menu');
+    const $mobileMenu = $('#mobile-menu');
+    const $closeMenu = $('#close-menu');
+    const $menuLinks = $('.menu li a'); // Seleciona todos os links do menu
+
+    // Abrir menu
+    $mobileMenu.on('click', function () {
+        $menu.addClass('active');
+        $mobileMenu.hide(); // Esconde o botão ao abrir o menu
     });
 
-    // Fechar o menu ao clicar fora dele
-    document.addEventListener('click', function(event) {
-        if (!menu.contains(event.target) && !mobileMenu.contains(event.target)) {
-            menu.classList.remove('active');
+    $closeMenu.on('click', function () {
+        $menu.removeClass('active');
+
+        // Só exibe o botão de menu novamente se a tela for menor que 1024px
+        if ($(window).width() < 1024) {
+            $mobileMenu.show();
+        }
+    });
+
+    // Fechar menu ao clicar em qualquer item da lista
+    $menuLinks.on('click', function () {
+        $menu.removeClass('active');
+
+        // Só exibe o botão de menu novamente se a tela for menor que 1024px
+        if ($(window).width() < 1024) {
+            $mobileMenu.show();
         }
     });
 });
