@@ -52,11 +52,40 @@ body {
 .menu li a {
     color: #0096a1;
     text-decoration: none;
-    padding: 12px 20px;
+    padding: 8px 20px;
     background-color: white;
     border-radius: 5px;
     transition: background-color 0.3s ease, transform 0.3s ease; /* Animação ao passar o mouse */
 }
+
+.menu li {
+    margin: 0 5px; /* Reduzindo a margem entre os botões */
+}
+
+
+/* Aplica o efeito de hover apenas nos botões comuns, excluindo perfil e chat */
+.menu li a:not(.profile-item a):not(.chat-item a):hover {
+    background-color: #005a6e;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+/* Ajuste para garantir que os ícones fiquem sem fundo no hover */
+.menu .profile-item a:hover,
+.menu .chat-item a:hover {
+    background-color: transparent;
+    transform: none;
+}
+
+/* Remove o fundo e o padding dos ícones de perfil e chat */
+.menu .profile-item a,
+.menu .chat-item a {
+    background-color: transparent; 
+    padding: 0; 
+    border-radius: 0;
+    transition: none; 
+}
+
 
 .menu li a:hover {
     background-color: #005a6e;
@@ -68,17 +97,30 @@ body {
     display: flex;
     align-items: center;
 }
-
 .profile-icon {
     width: 40px;
     height: 40px;
     border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: box-shadow 0.3s ease;
-}
+  }
+  
+  .profile-icon:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  }
 
-.profile-icon:hover {
-    box-shadow: 0 0 10px 5px white;
-}
+  .chat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .chat-icon:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  }
+
 
 .search-bar {
     display: flex;
@@ -901,6 +943,10 @@ footer {
 
     .menu {
         display: flex;
+        justify-content: center; /* Centraliza os itens do menu */
+        align-items: center; /* Alinha verticalmente */
+        flex: 1; /* Ocupa o espaço restante */
+        margin: 0 auto; /* Centraliza o menu */
     }
 
     .profile-item, .chat-item, .menu-close-item {
@@ -909,8 +955,10 @@ footer {
 
     .profile {
         display: flex;
+        align-items: center; /* Alinha verticalmente */
     }
 }
+
 
 /* Efeito de rotação no ícone do menu */
 .menu-toggle.active .menu-icon {
@@ -950,3 +998,4 @@ footer {
 .menu.active li:nth-child(5) { animation-delay: 0.5s; }
 .menu.active li:nth-child(6) { animation-delay: 0.6s; }
 .menu.active li:nth-child(7) { animation-delay: 0.7s; }
+
