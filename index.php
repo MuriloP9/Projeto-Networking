@@ -93,10 +93,30 @@ session_destroy();*/
     <section id="webinars" class="hero">
         <h1>Descubra. Aprenda. Aproveite</h1>
         <p>Plataforma para profissionais de todo o mundo</p>
+
         <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Pesquisar por profissionais, áreas...">
+    <button class="search-btn1" onclick="buscarProfissionais()">Procurar</button>
+    </div>
+
+    <script>
+    function buscarProfissionais() {
+        // Captura o valor da pesquisa
+        const searchQuery = document.getElementById('searchInput').value;
+
+        // Verifica se há um valor de pesquisa
+        if (searchQuery.trim() !== "") {
+            // Redireciona para a página lista_profissionais.html com a consulta na URL
+            window.location.href = `lista_profissionais.html?search=${encodeURIComponent(searchQuery)}`;
+        } else {
+            alert("Digite um termo de pesquisa.");
+        }
+    }
+</script>
+        <!-- <div class="search-bar">
             <input type="text" placeholder="Pesquisar por profissionais, áreas...">
             <a href="./lista_profissionais.html"><button class="search-btn1">Procurar</button></a>
-        </div>
+        </div> -->
     </section>
 
     <section id="webinars1" class="webinars">
