@@ -8,7 +8,7 @@
 
 body {
     font-family: "Montserrat", sans-serif;
-    background: linear-gradient(to bottom, #00c2cb, #ffffff);
+    background: linear-gradient(to bottom,  #050a37,  #0e1768);
     color: #fff;
     padding-top: 80px;
 }
@@ -23,7 +23,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 20px 50px;  /* Aumenta o tamanho da navbar */
-    background-color: #51ccd4;
+    background-color: linear-gradient(to bottom,  #050a37,  #0e1768);
 }
 
 .logo-container {
@@ -50,12 +50,12 @@ body {
 }
 
 .menu li a {
-    color: #0096a1;
+    color: #0a0a0a;
     text-decoration: none;
     padding: 8px 20px;
     background-color: white;
     border-radius: 5px;
-    transition: background-color 0.3s ease, transform 0.3s ease; /* Animação ao passar o mouse */
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .menu li {
@@ -65,7 +65,7 @@ body {
 
 /* Aplica o efeito de hover apenas nos botões comuns, excluindo perfil e chat */
 .menu li a:not(.profile-item a):not(.chat-item a):hover {
-    background-color: #005a6e;
+    background-color: #3b6ebb;
     color: #fff;
     transform: scale(1.1);
 }
@@ -88,7 +88,7 @@ body {
 
 
 .menu li a:hover {
-    background-color: #005a6e;
+    background-color: #3b6ebb;
     color: #fff;
     transform: scale(1.1);  /* Pequeno efeito de zoom ao passar o mouse */
 }
@@ -139,20 +139,21 @@ body {
     padding: 12px 25px;
     border: none;
     background-color: white;
-    color: #007a85;
+    background: linear-gradient(to bottom, #0e1768, #3b6ebb);
     border-radius: 0 25px 25px 0;
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease; /* Animação ao passar o mouse */
 }
 
 .search-btn:hover {
-    background-color: #005a6e;
+    background-color:#3b6ebb;
     color: white;
 }
 
 /* Carousel Section */
 .carousel {
     display: flex;
+    background: linear-gradient(to bottom, #0e1768, #050a37,);
     justify-content: center;
     align-items: center;
     position: relative;
@@ -202,7 +203,7 @@ body {
 .hero {
     text-align: center;
     padding: 100px 0;
-    background: linear-gradient(to bottom, #00c2cb, #007a85);
+    background: linear-gradient(to bottom,  #050a37,  #0e1768);
 }
 
 .hero h1 {
@@ -224,7 +225,7 @@ body {
 footer {
     text-align: center;
     padding: 20px;
-    background-color: #0096a1;
+    background-color: #0e1768
 }
 
 /* Estilização da barra de pesquisa */
@@ -244,14 +245,14 @@ footer {
     font-size: 16px;
     outline: none;
     background-color: white;
-    color: #007a85;
+    color: #0e1768;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra leve */
 }
 
 .search-bar .search-btn1 {
     padding: 15px 30px;
     border: none;
-    background-color: #0096a1;
+    background-color:#0e1768;
     color: white;
     font-size: 16px;
     border-radius: 0 50px 50px 0; /* Arredonda o lado direito */
@@ -260,7 +261,7 @@ footer {
 }
 
 .search-bar .search-btn1:hover {
-    background-color: #005a6e;
+    background-color: #3b6ebb;
     transform: scale(1.1); /* Efeito de zoom */
 }
 
@@ -302,7 +303,7 @@ footer {
 .webinar-description h3 {
     font-size: 24px;
     margin-bottom: 15px;
-    color: #007a85;
+    color: #3b6ebb;
 }
 
 .webinar-description p {
