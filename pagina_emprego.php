@@ -18,7 +18,7 @@ body {
             font-family: 'Montserrat', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background: linear-gradient(to bottom,  #050a37,  #0e1768);
         }
         /* Section - Oportunidades de Emprego */
         .job-opportunities {
