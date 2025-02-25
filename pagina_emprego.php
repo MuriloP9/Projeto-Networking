@@ -269,7 +269,7 @@ body {
     <header>
         <nav class="navbar">
             <div class="logo-container">
-                <img src="./img/icons8-network-96.png" alt="Logo" class="logo-icon">
+                <img src="./img/globo-mundial.png" alt="Logo" class="logo-icon">
                 <div class="logo">ProLink</div>
             </div>
             <ul class="menu">
