@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro - ProLink</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <header>
@@ -17,16 +14,14 @@
                 <img src="./img/icons8-network-96.png" alt="Logo" class="logo-icon">
                 <div class="logo">ProLink</div>
             </div>
-            <br>
             <a href="index.php" class="back-btn">Voltar para a Página Inicial</a>
         </nav>
     </header>
     <main>
         <section class="cadastro-container">
-            <!-- Div para os campos do formulário -->
             <div class="form-container">
                 <h1>Cadastro</h1>
-                <form id="cadastroForm" method="POST">
+                <form id="cadastroForm" action="cadastro.php" method="POST">
                     <div class="form-group">
                         <label for="nome">Nome Completo:</label>
                         <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
@@ -47,12 +42,8 @@
                         <label for="telefone">Telefone:</label>
                         <input type="tel" id="telefone" name="telefone" placeholder="Digite seu telefone" required>
                     </div>
-                    <button type="button" id="submitBtn" class="submit-btn">Cadastrar</button>
+                    <button type="submit" class="submit-btn">Cadastrar</button>
                 </form>
-            </div>
-            <!-- Div para a imagem -->
-            <div class="image-container">
-                <img src="./img/login-animate.svg" alt="Ilustração de cadastro" class="login-image">
             </div>
         </section>
     </main>
@@ -62,6 +53,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 <style>

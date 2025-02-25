@@ -32,43 +32,42 @@ $(document).ready(function() {
 
 
 //Ajax para o cadastro.php
-$(document).ready(function () {
-    $('#submitBtn').click(function () {
-        var nome = $('#nome').val();
-        var email = $('#email').val();
-        var senha = $('#senha').val();
-        var dataNascimento = $('#dataNascimento').val();
-        var telefone = $('#telefone').val();
+$(document).ready(function() {
+    $('#cadastroForm').on('submit', function(event) {
+        event.preventDefault(); // Impede o envio padrão do formulário
 
-      
-        if (nome && email && senha && dataNascimento && telefone) {
-            var formData = new FormData();
-            formData.append('nome', nome);
-            formData.append('email', email);
-            formData.append('senha', senha);
-            formData.append('dataNascimento', dataNascimento);
-            formData.append('telefone', telefone);
+        const nome = $('#nome').val();
+        const email = $('#email').val();
+        const senha = $('#senha').val();
+        const dataNascimento = $('#dataNascimento').val();
+        const telefone = $('#telefone').val();
 
-           
-            $.ajax({
-                url: 'cadastro.php',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    // Redireciona diretamente para a página de sucesso
-                    window.location.href = 'inclusaoCadastro.html';
-                },
-                error: function () {
-                    alert('Erro ao processar o cadastro.'); // Mensagem de erro genérica
-                }
-            });
-        } else {
-            alert('Por favor, preencha todos os campos.'); // Mensagem de validação
+        if (nome.trim() === '' || email.trim() === '' || senha.trim() === '' || dataNascimento.trim() === '' || telefone.trim() === '') {
+            alert('Por favor, preencha todos os campos!');
+            return;
         }
+
+        $.ajax({
+            url: 'cadastro.php',
+            type: 'POST',
+            data: {
+                nome: nome,
+                email: email,
+                senha: senha,
+                dataNascimento: dataNascimento,
+                telefone: telefone
+            },
+            success: function(response) {
+                alert('Cadastro realizado com sucesso!');
+                window.location.href = 'inclusaoCadastro.html'; // Redireciona para a página de sucesso
+            },
+            error: function() {
+                alert('Ocorreu um erro ao cadastrar!');
+            }
+        });
     });
 });
+
 
 
 //ajax da página de Vagas (oportunidades de emprego)

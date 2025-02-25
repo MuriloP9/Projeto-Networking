@@ -1,11 +1,6 @@
 <?php
 session_start();
 
-// Limpa todas as variáveis de sessão
-/*session_unset();
-
-// Destrói a sessão
-session_destroy();*/
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -55,7 +50,7 @@ session_destroy();*/
             <?php endif; ?>
             <!-- Botões de Perfil e Chat (dentro do menu para telas pequenas/médias) -->
             <li class="profile-item">
-                <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a>
+                <a href="./perfil.php"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a>
             </li>
             <li class="chat-item">
                 <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a>
