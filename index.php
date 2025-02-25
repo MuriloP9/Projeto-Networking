@@ -107,7 +107,7 @@ session_destroy();*/
         // Verifica se há um valor de pesquisa
         if (searchQuery.trim() !== "") {
             // Redireciona para a página lista_profissionais.html com a consulta na URL
-            window.location.href = `lista_profissionais.html?search=${encodeURIComponent(searchQuery)}`;
+            window.location.href = `lista_profissionais.php?search=${encodeURIComponent(searchQuery)}`;
         } else {
             alert("Digite um termo de pesquisa.");
         }
