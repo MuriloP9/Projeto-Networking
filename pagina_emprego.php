@@ -5,20 +5,24 @@ session_start();
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProLink - Oportunidades</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <style>
-body {
-            font-family: 'Montserrat', sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom,  #050a37,  #0e1768);
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(to bottom, #050a37, #0e1768);
+            color: #fff;
         }
         /* Section - Oportunidades de Emprego */
         .job-opportunities {
@@ -43,6 +47,8 @@ body {
             padding: 10px;
             font-size: 1em;
             border-radius: 5px;
+            margin-bottom: 10px;
+            width: 100%;
             border: 1px solid #ccc;
         }
 
