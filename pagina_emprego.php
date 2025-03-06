@@ -59,7 +59,7 @@ session_start();
         .search-btn {
             padding: 10px 20px;
             font-size: 1em;
-            background-color: #00bcd4;
+            background-color: #0e1768;
             color: white;
             border: none;
             border-radius: 5px;
@@ -68,7 +68,7 @@ session_start();
         }
 
         .search-btn:hover {
-            background-color: #0097a7;
+            background-color: #3b6ebb;
         }
 
         /* Job Listings */
@@ -101,13 +101,13 @@ session_start();
         .job-card .job-link {
             display: inline-block;
             margin-top: 10px;
-            color: #00bcd4;
+            color: #333;
             text-decoration: none;
             transition: color 0.3s;
         }
 
         .job-card .job-link:hover {
-            color: #0097a7;
+            color: #0e1768;
             text-decoration: underline;
         }
 
@@ -124,7 +124,7 @@ session_start();
         }
 
         .highlight {
-            border: 2px solid #00bcd4;
+            border: 2px solid #0e1768;
         }
 
         /* Apply Section */
@@ -151,7 +151,7 @@ session_start();
             width: 100%;
             padding: 10px;
             font-size: 1em;
-            background-color: #00bcd4;
+            background-color: #0e1768;
             color: rgb(0, 0, 0);
             border: none;
             border-radius: 5px;
@@ -160,12 +160,13 @@ session_start();
         }
 
         .apply-btn:hover {
-            background-color: #0097a7;
+            background-color: #0e1768;
         }
 
         /* Saved Jobs Section */
         .saved-jobs-section {
             padding: 40px;
+
             background-color: #ffffff;
         }
 
@@ -173,7 +174,7 @@ session_start();
             border: 2px solid #ccc;
             border-radius: 15px;
             padding: 20px;
-            background-color:#00bcd4;
+            background-color: #0e1768;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             max-width: 600px;
             margin: 0 auto;
@@ -197,7 +198,7 @@ session_start();
             padding: 10px;
             margin: 10px 0;
             border-radius: 5px;
-            border: 1px solid #00bcd4;
+            border: 1px solid #0e1768;
             font-size: 1em;
         }
 
@@ -205,7 +206,7 @@ session_start();
             width: 100%;
             padding: 10px;
             font-size: 1em;
-            background-color: #00bcd4;
+            background-color: #0e1768;
             color: white;
             border: none;
             border-radius: 5px;
@@ -214,7 +215,7 @@ session_start();
         }
 
         .notifications-btn:hover {
-            background-color: #0097a7;
+            background-color: #3b6ebb;
         }
 
         /* Contact Section */
@@ -422,7 +423,7 @@ session_start();
 
     <footer class="footer-section">
         <div class="footer-content">
-            <img src="./img/icons8-network-96.png" alt="Logo da Empresa" class="footer-logo">
+            <img src="./img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
             <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
         </div>
     </footer>

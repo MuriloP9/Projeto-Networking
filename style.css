@@ -23,7 +23,6 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 20px 50px;  /* Aumenta o tamanho da navbar */
-    background-color: linear-gradient(to bottom,  #050a37,  #0e1768);
 }
 
 .logo-container {
@@ -314,7 +313,7 @@ footer {
 .webinar-description a {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #0096a1;
+    background-color:#0e1768;
     color: white;
     border-radius: 25px;
     text-decoration: none;
@@ -322,7 +321,7 @@ footer {
 }
 
 .webinar-description a:hover {
-    background-color: #005a6e;
+    background-color:#0e1768;
 }
 
 .webinar-description img {
@@ -383,7 +382,7 @@ footer {
 .job-description h3 {
     font-size: 24px;
     margin-bottom: 15px;
-    color: #007a85;
+    color: #3b6ebb;
 }
 
 .job-description p {
@@ -394,7 +393,7 @@ footer {
 .job-description a {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #0096a1;
+    background-color: #0e1768;
     color: white;
     border-radius: 25px;
     text-decoration: none;
@@ -402,7 +401,7 @@ footer {
 }
 
 .job-description a:hover {
-    background-color: #005a6e;
+    background-color: #0e1768;
 }
 
 .job-description img {
@@ -545,7 +544,7 @@ footer {
 /* Estilo dos botões das perguntas */
 .faq-question {
     background-color: #ffffff;
-    border: 2px solid #00a8cc; /* Borda mais suave, ciano */
+    border: 2px solid#2f3fca; /* Borda mais suave, ciano */
     border-radius: 30px; /* Deixa os botões arredondados */
     padding: 15px 20px; /* Ajusta o preenchimento para melhor espaçamento */
     width: 100%;
@@ -553,11 +552,11 @@ footer {
     font-size: 1.2em;
     cursor: pointer;
     transition: background-color 0.4s ease, transform 0.3s ease; /* Transição mais suave */
-    color: #00a8cc; /* Cor do texto ciano */
+    color: #0e1768; /* Cor do texto ciano */
 }
 
 .faq-question:hover {
-    background-color: #00a8cc; /* Muda o fundo para ciano ao passar o mouse */
+    background-color:#0e1768; /* Muda o fundo para ciano ao passar o mouse */
     color: #ffffff; /* Texto fica branco ao passar o mouse */
     transform: translateY(-2px); /* Leve efeito de elevação */
 }
@@ -626,7 +625,7 @@ footer {
 
 /* Seção de Footer */
 .footer-section {
-    background-color: #51ccd4;
+    background-color:#0e1768;
     padding: 20px;
     text-align: center;
     color: white;
@@ -861,7 +860,7 @@ footer {
         left: 0;
         width: 100vw; /* Garante que o menu ocupe toda a largura */
         height: 100vh;
-        background-color: #51ccd4;
+        background-color: #0e1768;
         padding: 20px;
         align-items: center;
         justify-content: center;
@@ -907,7 +906,7 @@ footer {
         top: 80px;
         left: 0;
         width: 100%;
-        background-color: #51ccd4;
+        background-color: #0e1768;
         padding: 10px 0;
         align-items: flex-start;
         padding-left: 20px;

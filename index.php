@@ -224,7 +224,7 @@ session_start();
 
     <footer class="footer-section">
         <div class="footer-content">
-            <img src="./img/icons8-network-96.png" alt="Logo da Empresa" class="footer-logo">
+            <img src="./img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
             <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
         </div>
     </footer>
