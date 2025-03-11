@@ -77,54 +77,49 @@ try {
     </div>
 
     <div class="detalhes">
-        <h2>Detalhes</h2>
-        <div>
-            <strong class="Atributos">Nome: </strong><p><?php echo htmlspecialchars($usuario['nome']); ?></p>
-        </div>
-        <div>
-            <strong class="Atributos">Idade: </strong><p><?php echo ($usuario['idade'] !== NULL) ? htmlspecialchars($usuario['idade']) : 'Não informado'; ?></p>
-        </div>
-        <div>
-            <strong class="Atributos">Localização: </strong><p><?php echo htmlspecialchars($usuario['localizacao']); ?></p>
-        </div>
-        <div>
-            <strong class="Atributos">Formação: </strong><p><?php echo htmlspecialchars($usuario['formacao']); ?></p>
-        </div>
-        <div>
-            <strong class="Atributos">Experiência Profissional: </strong><p><?php echo nl2br(htmlspecialchars($usuario['experiencia_profissional'])); ?></p>
-        </div>
-        <div>
-            <strong class="Atributos">Interesses: </strong><p><?php echo nl2br(htmlspecialchars($usuario['interesses'])); ?></p>
-        </div>
+    <h2>Detalhes</h2>
+    <div>
+        <strong class="Atributos">Nome: </strong><p><?php echo htmlspecialchars($usuario['nome']); ?></p>
     </div>
-
-    <div class="projetos">
-        <h2>Projetos e Especializações</h2>
-        <div class="conteudo">
-            <ul>
-                <li><?php echo nl2br(htmlspecialchars($usuario['projetos_especializacoes'])); ?></li>
-            </ul>
-            <img src="./img/organizing-projects-animate.svg" class="imagem-projeto-perfil" alt="Projetos">
-        </div>
+    <div>
+        <strong class="Atributos">Idade: </strong><p><?php echo ($usuario['idade'] !== NULL) ? htmlspecialchars($usuario['idade']) : 'Não informado'; ?></p>
     </div>
+    <div>
+        <strong class="Atributos">Localização: </strong><p><?php echo htmlspecialchars($usuario['localizacao']); ?></p>
+    </div>
+    <div>
+        <strong class="Atributos">Formação: </strong><p><?php echo htmlspecialchars($usuario['formacao']); ?></p>
+    </div>
+    <div>
+        <strong class="Atributos">Experiência Profissional: </strong><p><?php echo nl2br(htmlspecialchars($usuario['experiencia_profissional'])); ?></p>
+    </div>
+    <div>
+        <strong class="Atributos">Interesses: </strong><p><?php echo nl2br(htmlspecialchars($usuario['interesses'])); ?></p>
+    </div>
+</div>
 
-    <div class="habilidades">
-        <h2>Habilidades</h2>
+<div class="projetos">
+    <h2>Projetos e Especializações</h2>
+    <div class="conteudo">
         <ul>
-            <li><?php echo nl2br(htmlspecialchars($usuario['habilidades'])); ?></li>
+            <li><?php echo nl2br(htmlspecialchars($usuario['projetos_especializacoes'])); ?></li>
         </ul>
+        <img src="./img/organizing-projects-animate.svg" class="imagem-projeto-perfil" alt="Projetos">
     </div>
+</div>
 
-    <div class="contato">
-        <h2>Contato</h2>
-        <p><strong>E-mail:</strong> <?php echo htmlspecialchars($usuario['contato_email']); ?></p>
-        <p><strong>Telefone:</strong> <?php echo htmlspecialchars($usuario['contato_telefone']); ?></p>
-    </div>
+<div class="habilidades">
+    <h2>Habilidades</h2>
+    <ul>
+        <li><?php echo nl2br(htmlspecialchars($usuario['habilidades'])); ?></li>
+    </ul>
+</div>
 
-    <div class="banners">
-        <img src="./img/icons8-insta-60.png" class="icone" alt="Instagram">
-        <img src="./img/icons8-facebook-novo-60.png" class="icone" alt="Facebook">
-    </div>
+<div class="contato">
+    <h2>Contato</h2>
+    <p><strong>E-mail:</strong> <?php echo htmlspecialchars($usuario['contato_email']); ?></p>
+    <p><strong>Telefone:</strong> <?php echo htmlspecialchars($usuario['contato_telefone']); ?></p>
+</div>
 </body>
 </html>
 
