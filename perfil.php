@@ -71,9 +71,9 @@ try {
 
     <div class="cabecalho">
         <h1>Perfil</h1>
-        <p>Sou um Professor de Programação</p>
+        <p>Sou um Desenvolvedor</p>
         <br>
-        <img src="./img/133285127.jpg" alt="Avatar" class="perfil-imagem">
+        <img src="./img/296fe121-5dfa-43f4-98b5-db50019738a7.jpg" alt="Avatar" class="perfil-imagem">
     </div>
 
     <div class="detalhes">
@@ -123,83 +123,93 @@ try {
 </body>
 </html>
 
-<style>
-    /* Configurações básicas */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+<style> * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-        font-family: "Montserrat", sans-serif;
-        background-color: #f4f7fb;
-        color: #333;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        min-height: 100vh;
-    }
+        body {
+            font-family: "Montserrat", sans-serif;
+            background-color: #f4f7fb;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+        }
 
-    header {
-        width: 100%;
-        background-color: #004f6a;
-        padding: 1% 0;
-        box-shadow: 0 0.4em 1em rgba(0, 0, 0, 0.1);
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 1000;
-    }
+        header {
+            width: 100%;
+            background-color: #3b6ebb;
+            padding: 1% 0;
+            box-shadow: 0 0.4em 1em rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
 
-    .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        max-width: 90%;
-        margin: 0 auto;
-    }
+        .navbar {
+            position: fixed;
+            z-index: 1000;
+            display: flex;
+            width: 100%;
+            top: 0;
+            left: 0;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;  /* Aumenta o tamanho da navbar */
+            background-color: #3b6ebb;
+        }
 
-    .logo-container {
-        display: flex;
-        align-items: center;
-    }
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
 
-    .logo-icon {
-        width: 3em;
-        height: 3em;
-        margin-right: 0.5em;
-    }
+        .logo-icon {
+            width: 50px;  /* Tamanho da imagem do logo */
+            height: 50px;
+            margin-right: 15px;
+        }
 
-    .logo {
-        font-size: 1.75em;
-        font-weight: bold;
-        color: #fff;
-    }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #fff;
+        }
 
-    .menu {
-        list-style: none;
-        display: flex;
-        gap: 2em;
-    }
+        .menu {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 30px; /* Aumenta a distância entre os itens do menu */
+        }
 
-    .menu li a {
-        color: #fff;
-        text-decoration: none;
-        font-size: 1.2em;
-        font-weight: 500;
-        transition: color 0.3s ease;
-    }
+        .menu li a {
+            color: #0a0a0a;
+            text-decoration: none;
+            padding: 8px 20px;
+            background-color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
 
-    .menu li a:hover {
-        color: #0096a1;
-    }
+        .menu li {
+            margin: 0 5px; /* Reduzindo a margem entre os botões */
+        }
 
+        .menu li a:hover {
+            background-color: #3b6ebb;
+            color: #fff;
+            transform: scale(1.1);  /* Pequeno efeito de zoom ao passar o mouse */
+        }
     .cabecalho {
         text-align: center;
         padding: 5% 3%;
-        background-color: #004f6a;
+        background-color: #3b6ebb;
         color: #fff;
         border-radius: 0.9em;
         margin: 8em 5%;
@@ -249,7 +259,7 @@ try {
     .habilidades h2,
     .contato h2 {
         font-size: 2em;
-        color: #004f6a;
+        color: #3b6ebb;
         margin-bottom: 1em;
     }
 

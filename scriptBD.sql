@@ -36,6 +36,8 @@ CREATE TABLE Perfil (
     contato_telefone NVARCHAR(15)
 );
 
+select * from Perfil;
+
 -- Tabela de Áreas de Atuação
 CREATE TABLE AreaAtuacao (
     id_area INT IDENTITY(1,1) PRIMARY KEY,
