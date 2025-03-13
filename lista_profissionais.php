@@ -113,9 +113,9 @@
     </style>
 </head>
 <body>
+
 <?php
 session_start(); // Inicia a sessão
-
 function conectar() {
     $local_server = "PC_NASA\SQLEXPRESS"; 
     $usuario_server = "sa";               
@@ -123,7 +123,6 @@ function conectar() {
     $banco_de_dados = "prolink";         
 
     try {
-        // Conecta ao banco de dados usando PDO
         $pdo = new PDO("sqlsrv:server=$local_server;database=$banco_de_dados", $usuario_server, $senha_server);
         return $pdo;
     } catch (Exception $erro) {
@@ -134,28 +133,38 @@ function conectar() {
 
 $pdo = conectar(); 
 
-// Captura o parâmetro de pesquisa da URL
-$searchQuery = isset($_GET['search']) ? $_GET['search'] : '';
+$searchQuery = isset($_GET['search']) ? trim($_GET['search']) : ''; //Captura do Termo de Pesquisa -> $_GET['search']: Obtém o termo de pesquisa enviado via URL 
+//Operador ternário (?:):
+//Se search for informado, usa o valor.
+//Se não for informado, define searchQuery como string vazia ('').
 
 if ($searchQuery !== '') {
     try {
-        // Consulta no banco de dados buscando profissionais pelo nome
-        $sql = $pdo->prepare("SELECT * FROM Profissionais WHERE nome LIKE :searchQuery");
+        // Consulta para buscar profissionais pela formação
+        $sql = $pdo->prepare("
+            SELECT U.nome, P.formacao, P.experiencia_profissional, P.contato_email, P.contato_telefone 
+            FROM Perfil P
+            INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
+            WHERE P.formacao LIKE :searchQuery
+        ");
+
         $sql->bindValue(":searchQuery", "%" . $searchQuery . "%");
         $sql->execute();
 
         $profissionais = $sql->fetchAll(PDO::FETCH_ASSOC);
 
         if ($profissionais) {
-            // Exibe os resultados encontrados
             foreach ($profissionais as $profissional) {
                 echo "<div class='profissional'>";
-                echo "<h3>" . htmlspecialchars($profissional['nome']) . "</h3>";  // Nome do profissional
-                echo "<p>" . htmlspecialchars($profissional['especialidade']) . "</p>";  // Especialidade do profissional
+                echo "<h3>" . htmlspecialchars($profissional['nome']) . "</h3>";  
+                echo "<p><strong>Formação:</strong> " . htmlspecialchars($profissional['formacao']) . "</p>";
+                echo "<p><strong>Experiência:</strong> " . nl2br(htmlspecialchars($profissional['experiencia_profissional'])) . "</p>";
+                echo "<p><strong>Email:</strong> " . htmlspecialchars($profissional['contato_email']) . "</p>";
+                echo "<p><strong>Telefone:</strong> " . htmlspecialchars($profissional['contato_telefone']) . "</p>";
                 echo "</div>";
             }
         } else {
-            echo "Nenhum profissional encontrado para o termo '$searchQuery'.";
+            echo "Nenhum profissional encontrado para a formação '$searchQuery'.";
         }
     } catch (Exception $erro) {
         echo "Erro ao buscar profissionais: " . $erro->getMessage();
@@ -166,6 +175,7 @@ if ($searchQuery !== '') {
 ?>
 
 
+
     <header>
         <nav class="navbar">
             <div class="logo-container">
@@ -174,9 +184,8 @@ if ($searchQuery !== '') {
             </div>
             <ul class="menu">
                 <li><a href="./index.php">Home</a></li>
-                <li><a href="./pagina_emprego.html">Oportunidades de Trabalho</a></li>
+                <li><a href="./pagina_emprego.php">Oportunidades de Trabalho</a></li>
                 <li><a href="./pagina_webinar.html">Webinars</a></li>
-                <li><a href="./login.html">Login</a></li>
             </ul>
             <div class="profile">
                 <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a>

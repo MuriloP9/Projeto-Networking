@@ -53,17 +53,16 @@ try {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
     <title>Perfil - ProLink</title>
 </head>
 <body>
     <header>
         <nav class="navbar">
+            <ul class="menu">
             <div class="logo-container">
                 <img src="img/globo-mundial.png" alt="Logo" class="logo-icon">
                 <div class="logo">ProLink</div>
             </div>
-            <ul class="menu">
                 <li><a href="index.php">Home</a></li>
             </ul>
         </nav>
@@ -123,89 +122,96 @@ try {
 </body>
 </html>
 
-<style> * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        body {
-            font-family: "Montserrat", sans-serif;
-            background-color: #f4f7fb;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-        }
+    body {
+        font-family: "Montserrat", sans-serif;
+        background-color: #f4f7fb;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+    }
 
-        header {
-            width: 100%;
-            background-color: #3b6ebb;
-            padding: 1% 0;
-            box-shadow: 0 0.4em 1em rgba(0, 0, 0, 0.1);
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-        }
+    header {
+        width: 100%;
+        background-color: #3b6ebb;
+        padding: 1% 0;
+        box-shadow: 0 0.4em 1em rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+    }
 
-        .navbar {
-            position: fixed;
-            z-index: 1000;
-            display: flex;
-            width: 100%;
-            top: 0;
-            left: 0;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 50px;  /* Aumenta o tamanho da navbar */
-            background-color: #3b6ebb;
-        }
+    .navbar {
+        position: fixed;
+        z-index: 1000;
+        display: flex;
+        width: 100%;
+        top: 0;
+        left: 0;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 50px;
+        background-color: #3b6ebb;
+    }
 
-        .logo-container {
-            display: flex;
-            align-items: center;
-        }
+    .logo-container {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0; /* Impede que a logo diminua */
+    }
 
-        .logo-icon {
-            width: 50px;  /* Tamanho da imagem do logo */
-            height: 50px;
-            margin-right: 15px;
-        }
+    .logo-icon {
+        width: 50px;
+        height: 50px;
+        margin-right: 15px;
+    }
 
-        .logo {
-            font-size: 28px;
-            font-weight: bold;
-            color: #fff;
-        }
+    .logo {
+        font-size: 28px;
+        font-weight: bold;
+        color: #fff;
+    }
 
-        .menu {
-            list-style: none;
-            display: flex;
-            justify-content: center;
-            gap: 30px; /* Aumenta a distância entre os itens do menu */
-        }
+    .menu {
+        list-style: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        padding: 0;
+        margin: 0;
+        flex-grow: 1; /* Ocupa o espaço restante */
+    }
 
-        .menu li a {
-            color: #0a0a0a;
-            text-decoration: none;
-            padding: 8px 20px;
-            background-color: white;
-            border-radius: 5px;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
+    .menu li {
+        margin: 0;
+    }
 
-        .menu li {
-            margin: 0 5px; /* Reduzindo a margem entre os botões */
-        }
+    .menu li a {
+        color: #0a0a0a;
+        text-decoration: none;
+        padding: 8px 20px;
+        background-color: white;
+        border-radius: 5px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
 
-        .menu li a:hover {
-            background-color: #3b6ebb;
-            color: #fff;
-            transform: scale(1.1);  /* Pequeno efeito de zoom ao passar o mouse */
-        }
+    .menu li a:hover {
+        background-color: #3b6ebb;
+        color: #fff;
+        transform: scale(1.1);
+    }
+
     .cabecalho {
         text-align: center;
         padding: 5% 3%;
@@ -334,7 +340,7 @@ try {
         width: 90%;
     }
 
-    /* Estilos responsivos */
+    /* Responsividade */
     @media (max-width: 1200px) {
         .cabecalho {
             width: 95%;
@@ -355,26 +361,35 @@ try {
     @media (max-width: 768px) {
         .navbar {
             flex-direction: column;
+            align-items: center;
             gap: 1em;
+            padding: 20px;
         }
+
         .menu {
             flex-direction: column;
             align-items: center;
             gap: 1em;
+            width: 100%;
         }
+
         .menu li a {
             font-size: 1.3em;
         }
+
         .cabecalho h1 {
             font-size: 2em;
         }
+
         .cabecalho p {
             font-size: 1.2em;
         }
+
         .perfil-imagem {
             width: 8em;
             height: 8em;
         }
+
         .detalhes,
         .projetos,
         .habilidades,
@@ -388,16 +403,20 @@ try {
         .cabecalho h1 {
             font-size: 1.75em;
         }
+
         .cabecalho p {
             font-size: 1em;
         }
+
         .menu li a {
             font-size: 1em;
         }
+
         .perfil-imagem {
             width: 6em;
             height: 6em;
         }
+
         .banners img {
             width: 2.5em;
             height: 2.5em;
