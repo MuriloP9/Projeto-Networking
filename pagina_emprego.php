@@ -288,8 +288,7 @@ session_start();
                 <?php endif; ?>
             </ul>
             <div class="profile">
-                <a href="./perfil.html"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a> <!-- Sem âncora, link externo -->
-                <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a> <!-- Novo ícone de chat -->
+                <a href="./perfil.php"><img src="./img/user-48.png" alt="Profile" class="profile-icon"></a> <!-- Sem âncora, link externo -->
             </div>
         </nav>
     </header>

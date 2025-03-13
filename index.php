@@ -50,10 +50,7 @@ session_start();
             <?php endif; ?>
             <!-- Botões de Perfil e Chat (dentro do menu para telas pequenas/médias) -->
             <li class="profile-item">
-                <a href="./perfil.php"><img src="./img/Perfil2.png" alt="Profile" class="profile-icon"></a>
-            </li>
-            <li class="chat-item">
-                <a href="./chat.html"><img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></a>
+                <a href="./perfil.php"><img src="./img/user-48.png" alt="Profile" class="profile-icon"></a>
             </li>
         </ul>
     </nav>
