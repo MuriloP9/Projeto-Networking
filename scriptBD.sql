@@ -1,12 +1,13 @@
-CREATE DATABASE prolink;
-
-use prolink;
-
 use master;
 
 drop database prolink;
 
 
+
+CREATE DATABASE prolink;
+go
+use prolink;
+go
 -- Tabela de Usuários
 CREATE TABLE Usuario (
     id_usuario INT IDENTITY(1,1) PRIMARY KEY,
@@ -16,11 +17,7 @@ CREATE TABLE Usuario (
     dataNascimento DATE NOT NULL,
     telefone NVARCHAR(15) NOT NULL
 );
-
-select*from Usuario;
-
-drop table Usuario;
-
+go
 -- Tabela de Perfil 
 CREATE TABLE Perfil (
     id_perfil INT IDENTITY(1,1) PRIMARY KEY,
@@ -35,22 +32,20 @@ CREATE TABLE Perfil (
     contato_email NVARCHAR(100),
     contato_telefone NVARCHAR(15)
 );
-
-select * from Perfil;
-
+go
 -- Tabela de Áreas de Atuação
 CREATE TABLE AreaAtuacao (
     id_area INT IDENTITY(1,1) PRIMARY KEY,
     nome_area NVARCHAR(100) NOT NULL
 );
-
+go
 -- Tabela de Profissionais em Áreas
 CREATE TABLE ProfissionalArea (
     id_profissional_area INT IDENTITY(1,1) PRIMARY KEY,
     id_usuario INT NOT NULL FOREIGN KEY REFERENCES Usuario(id_usuario),
     id_area INT NOT NULL FOREIGN KEY REFERENCES AreaAtuacao(id_area)
 );
-
+go
 -- Tabela de Vagas de Emprego
 CREATE TABLE Vagas (
     id_vaga INT IDENTITY(1,1) PRIMARY KEY,
@@ -62,10 +57,7 @@ CREATE TABLE Vagas (
     FOREIGN KEY (id_area) REFERENCES AreaAtuacao(id_area),
     CONSTRAINT chk_tipo_emprego CHECK (tipo_emprego IN ('full-time', 'part-time', 'internship'))
 );
-select*from Vagas;
-
-drop table Vagas;
-
+go
 CREATE TABLE Mensagem (
     id_mensagem INT IDENTITY(1,1) PRIMARY KEY, 
     id_usuario_remetente INT,        
@@ -75,12 +67,7 @@ CREATE TABLE Mensagem (
     CONSTRAINT FK_Remetente FOREIGN KEY (id_usuario_remetente) REFERENCES Usuario(id_usuario),
     CONSTRAINT FK_Destinatario FOREIGN KEY (id_usuario_destinatario) REFERENCES Usuario(id_usuario)
 );
-
-select * from Mensagem;
-
-drop table Mensagem;
-
-
+go
 CREATE TABLE inscricoes_webinar(
     id INT IDENTITY(1,1) PRIMARY KEY,
     nome_completo VARCHAR(100) NOT NULL,
@@ -91,7 +78,14 @@ CREATE TABLE inscricoes_webinar(
 	id_usuario INT FOREIGN KEY REFERENCES Usuario(id_usuario),
     data_inscricao DATETIME DEFAULT GETDATE()
 );
+
+
+select * from Perfil;
+
 select*from inscricoes_webinar;
 
-drop table inscricoes_webinar;
+select*from Usuario;
 
+select * from Mensagem;
+
+select*from Vagas;
