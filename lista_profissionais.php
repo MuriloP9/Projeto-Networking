@@ -154,23 +154,29 @@ if ($searchQuery !== '') {
         $profissionais = $sql->fetchAll(PDO::FETCH_ASSOC);
 
         if ($profissionais) {
+            echo "<div class='professional-list'>";
             foreach ($profissionais as $profissional) {
-                echo "<div class='profissional'>";
-                echo "<h3>" . htmlspecialchars($profissional['nome']) . "</h3>";  
-                echo "<p><strong>Formação:</strong> " . htmlspecialchars($profissional['formacao']) . "</p>";
+                echo "<div class='professional-item'>";
+                echo "<div class='profile-pic' style='background-image: url(./img/userp.jpg);'></div>"; // Imagem de perfil padrão
+                echo "<div class='professional-info'>";
+                echo "<div class='professional-name'>" . htmlspecialchars($profissional['nome']) . "</div>";
+                echo "<div class='professional-specialization'>" . htmlspecialchars($profissional['formacao']) . "</div>";
                 echo "<p><strong>Experiência:</strong> " . nl2br(htmlspecialchars($profissional['experiencia_profissional'])) . "</p>";
                 echo "<p><strong>Email:</strong> " . htmlspecialchars($profissional['contato_email']) . "</p>";
                 echo "<p><strong>Telefone:</strong> " . htmlspecialchars($profissional['contato_telefone']) . "</p>";
                 echo "</div>";
+                echo "<a href='./chat.html'><button class='chat-btn'>Chat <img src='./img/chat-icon.svg' alt='Chat' class='chat-icon'></button></a>";
+                echo "</div>";
             }
+            echo "</div>";
         } else {
-            echo "Nenhum profissional encontrado para a formação '$searchQuery'.";
+            echo "<div class='professional-list'><p>Nenhum profissional encontrado para a formação '$searchQuery'.</p></div>";
         }
     } catch (Exception $erro) {
-        echo "Erro ao buscar profissionais: " . $erro->getMessage();
+        echo "<div class='professional-list'><p>Erro ao buscar profissionais: " . $erro->getMessage() . "</p></div>";
     }
 } else {
-    echo "Por favor, forneça um termo de pesquisa.";
+    echo "<div class='professional-list'><p>Por favor, forneça um termo de pesquisa.</p></div>";
 }
 ?>
 
@@ -179,7 +185,7 @@ if ($searchQuery !== '') {
     <header>
         <nav class="navbar">
             <div class="logo-container">
-                <img src="./img/icons8-network-96.png" alt="Logo" class="logo-icon">
+                <img src="./img/globo-mundial.png" alt="Logo" class="logo-icon">
                 <div class="logo">ProLink</div>
             </div>
             <ul class="menu">
@@ -193,44 +199,6 @@ if ($searchQuery !== '') {
         </nav>
     </header>
 
-<div Lista de profissionais 
-     class="professional-list">
-        <div class="professional-item">
-            <div class="profile-pic" style="background-image: url('./img/Perfil1.jpg');"></div>
-            <div class="professional-info">
-                <div class="professional-name">Rafael de Souza</div>
-                <div class="professional-specialization">Desenvolvedor Frontend</div>
-                <div class="stars">★★★★☆</div>
-            </div>
-            <a href="./chat.html">
-                <button class="chat-btn">Chat <img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></button>
-            </a>
-        </div>
-
-        <div class="professional-item">
-            <div class="profile-pic" style="background-image: url('./img/perfil2.jpg');"></div>
-            <div class="professional-info">
-                <div class="professional-name">Luiza Magalhães</div>
-                <div class="professional-specialization">Especialista em Redes</div>
-                <div class="stars">★★★★★</div>
-            </div>
-            <a href="./chat.html">
-                <button class="chat-btn">Chat <img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></button>
-            </a>
-        </div>
-
-        <div class="professional-item">
-            <div class="profile-pic" style="background-image: url('./img/perfil3.jpg');"></div>
-            <div class="professional-info">
-                <div class="professional-name">Carlos Silva</div>
-                <div class="professional-specialization">Engenheiro de Dados</div>
-                <div class="stars">★★★☆☆</div>
-            </div>
-            <a href="./chat.html">
-                <button class="chat-btn">Chat <img src="./img/chat-icon.svg" alt="Chat" class="chat-icon"></button>
-            </a>
-        </div>
-    </div>
 
     <footer class="footer-section">
         <div class="footer-content">

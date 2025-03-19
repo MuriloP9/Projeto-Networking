@@ -7,6 +7,28 @@ if (!isset($_SESSION['id_usuario'])) {
     exit();
 }
 
+if (isset($_SESSION['id_usuario'])) {
+    $id_usuario = $_SESSION['id_usuario'];
+
+    // Conecta ao banco de dados
+    $pdo = conectar(); // Use a função conectar() que você já tem
+
+    // Busca o nome do usuário no banco de dados
+    $sql = $pdo->prepare("SELECT nome FROM Usuario WHERE id_usuario = :id_usuario");
+    $sql->bindValue(":id_usuario", $id_usuario);
+    $sql->execute();
+
+    $usuario = $sql->fetch(PDO::FETCH_ASSOC);
+
+    if ($usuario) {
+        $nome = $usuario['nome'];
+    } else {
+        $nome = "Usuário"; // Valor padrão caso o usuário não seja encontrado
+    }
+} else {
+    $nome = "Usuário"; // Valor padrão caso o ID do usuário não esteja na sessão
+}
+
 $id_usuario = $_SESSION['id_usuario'];
 
 try {
@@ -70,9 +92,9 @@ try {
 
     <div class="cabecalho">
         <h1>Perfil</h1>
-        <p>Sou um Desenvolvedor</p>
+        <p><?php echo htmlspecialchars($nome); ?></p>
         <br>
-        <img src="./img/296fe121-5dfa-43f4-98b5-db50019738a7.jpg" alt="Avatar" class="perfil-imagem">
+        <img src="img/userp.jpg" alt="Avatar" class="perfil-imagem">
     </div>
 
     <div class="detalhes">
