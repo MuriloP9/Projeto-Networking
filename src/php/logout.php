@@ -8,6 +8,6 @@ session_unset();
 session_destroy();
 
 // Redireciona para a página inicial
-header('Location: index.php');
+header('Location: ../php/index.php');
 exit;
 ?>

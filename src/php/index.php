@@ -8,7 +8,7 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProLink - Networking Platform</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -17,13 +17,13 @@ session_start();
 <header>
     <nav class="navbar">
         <div class="logo-container">
-            <img src="./img/globo-mundial.png" alt="Logo" class="logo-icon">
+        <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
             <div class="logo">ProLink</div>
         </div>
         <!-- Botão de lista (ícone de hambúrguer) -->
         <div class="menu-toggle" id="mobile-menu">
             <div class="menu-icon">
-                <img src="./img/icons8-menu-48.png" alt="Menu">
+                <img src="../assets/img/icons8-menu-48.png" alt="Menu">
             </div>
         </div>
         <!-- Menu de navegação -->
@@ -32,7 +32,7 @@ session_start();
             <li class="menu-close-item">
                 <div class="menu-toggle close-toggle" id="close-menu">
                     <div class="menu-icon">
-                        <img src="./img/icons8-menu-48.png" alt="Fechar Menu">
+                        <img src="../assets/img/icons8-menu-48.png" alt="Fechar Menu">
                     </div>
                 </div>
             </li>
@@ -43,14 +43,14 @@ session_start();
             <?php if (!isset($_SESSION['usuario_logado'])): ?>
                 <li><a href="login.html">Login</a></li>
                 <?php if (!isset($_SESSION['cadastro_realizado'])): ?>
-                    <li><a href="cadastro.html" class="signup-btn">Cadastre-se</a></li>
+                    <li><a href="../pages/cadastro.html" class="signup-btn">Cadastre-se</a></li>
                 <?php endif; ?>
             <?php else: ?>
                 <li><button class="logout-btn" onclick="logout()">Olá, <?php echo $_SESSION['nome_usuario']; ?></button></li>
             <?php endif; ?>
             <!-- Botões de Perfil e Chat (dentro do menu para telas pequenas/médias) -->
             <li class="profile-item">
-                <a href="./perfil.php"><img src="./img/user-48.png" alt="Profile" class="profile-icon"></a>
+                <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
             </li>
         </ul>
     </nav>
@@ -59,21 +59,21 @@ session_start();
     <section id="home" class="carousel">
         <div class="carousel-container">
             <div class="carousel-item">
-                <img src="./img/group-people-working-out-business-plan-office.jpg" alt="Imagem 1">
+                <img src="../assets/img/group-people-working-out-business-plan-office.jpg" alt="Imagem 1">
                 <div class="carousel-text">
                     <h2>ProLink: Networking Simplificado</h2>
                     <p>Conecte-se com profissionais ao redor do mundo!</p>
                 </div>
             </div>
             <div class="carousel-item">
-                <img src="./img/group-people-working-out-business-plan-office2.jpg" alt="Imagem 2">
+                <img src="../assets/img/group-people-working-out-business-plan-office2.jpg" alt="Imagem 2">
                 <div class="carousel-text">
                     <h2>ProLink: Oportunidades Globais</h2>
                     <p>Encontre empregos e webinars em várias áreas.</p>
                 </div>
             </div>
             <div class="carousel-item">
-                <img src="./img/view-from-group-young-professional-entrepreneurs-sitting-table-coworking-space-discussing-profits-last-team-project-using-laptop-digital-tablet-smartphone.jpg" alt="Imagem 3">
+                <img src="../assets/img/view-from-group-young-professional-entrepreneurs-sitting-table-coworking-space-discussing-profits-last-team-project-using-laptop-digital-tablet-smartphone.jpg" alt="Imagem 3">
                 <div class="carousel-text">
                     <h2>Junte-se à Comunidade ProLink</h2>
                     <p>Seja parte de uma rede global de profissionais.</p>
@@ -117,11 +117,11 @@ session_start();
             <div class="webinar-description">
                 <h3>Descubra Novas Oportunidades no Próximo Webinar!</h3>
                 <p>Participe do nosso próximo webinar sobre networking global e descubra como expandir suas conexões profissionais.</p>
-                <a href="./pagina_webinar.php" class="webinar-link">Saiba mais</a>
-                <img src="./img/undraw_Graduation_re_gthn.png" alt="Imagem do Webinar">
+                <a href="../php/pagina_webinar.php" class="webinar-link">Saiba mais</a>
+                <img src="../assets/img/undraw_Graduation_re_gthn.png" alt="Imagem do Webinar">
             </div>
             <div class="webinar-image">
-                <img src="./img/webinar-animate.svg" width="600px" height="600px" alt="Imagem de Capa do Webinar">
+                <img src="../assets/img/webinar-animate.svg" width="600px" height="600px" alt="Imagem de Capa do Webinar">
             </div>
         </div>
     </section>
@@ -133,11 +133,11 @@ session_start();
                 <div class="job-description">
                     <h3>Encontre a Oportunidade dos Seus Sonhos!</h3>
                     <p>Confira as vagas abertas em diversas áreas profissionais e conecte-se com empregadores ao redor do mundo.</p>
-                    <a href="./pagina_emprego.php" class="job-link">Saiba mais</a>
-                    <img src="./img/undraw_Finance_re_gnv2.png" alt="Imagem Oportunidade de Trabalho">
+                    <a href="../php/pagina_emprego.php" class="job-link">Saiba mais</a>
+                    <img src="../assets/img/undraw_Finance_re_gnv2.png" alt="Imagem Oportunidade de Trabalho">
                 </div>
                 <div class="job-image">
-                    <img src="./img/task-animate.svg" width="600px" height="600px"  alt="Imagem de Oportunidade de Trabalho">
+                    <img src="../assets/img/task-animate.svg" width="600px" height="600px"  alt="Imagem de Oportunidade de Trabalho">
                 </div>
             </div>
     </section> 
@@ -148,7 +148,7 @@ session_start();
             <div class="timeline-container">
                 <div class="timeline-item">
                     <div class="timeline-icon">
-                        <img src="./img/lupa.svg" alt="Icone de busca">
+                        <img src="../assets/img/lupa.svg" alt="Icone de busca">
                     </div>
                     <div class="timeline-content">
                         <h3>Conecte-se Facilmente</h3>
@@ -157,7 +157,7 @@ session_start();
                 </div>
                 <div class="timeline-item">
                     <div class="timeline-icon">
-                        <img src="./img/envelope.svg" alt="Icone de marcador">
+                        <img src="../assets/img/envelope.svg" alt="Icone de marcador">
                     </div>
                     <div class="timeline-content">
                         <h3>Salve e Organize</h3>
@@ -166,7 +166,7 @@ session_start();
                 </div>
                 <div class="timeline-item">
                     <div class="timeline-icon">
-                        <img src="./img/book.svg" alt="Icone de leitura">
+                        <img src="../assets/img/book.svg" alt="Icone de leitura">
                     </div>
                     <div class="timeline-content">
                         <h3>Aprenda e Cresça</h3>
@@ -180,7 +180,7 @@ session_start();
     <section class="faq-section">
         <div class="faq-container">
             <div class="faq-image">
-                <img src="./img/duvida.svg" alt="Imagem Perguntas Frequentes">
+                <img src="../assets/img/duvida.svg" alt="Imagem Perguntas Frequentes">
             </div>
             <div class="faq-content">
                 <h2>Perguntas Frequentes</h2>
@@ -221,17 +221,17 @@ session_start();
 
     <footer class="footer-section">
         <div class="footer-content">
-            <img src="./img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
+            <img src="../assets/img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
             <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
         </div>
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="script.js"></script>
+    <script src="../assets/js/script.js"></script>
     <script>
         function logout() {
             // Redireciona para o arquivo de logout (que destruirá a sessão)
-            window.location.href = 'logout.php';
+            window.location.href = '../php/logout.php';
         }
     </script>
 </body>

@@ -48,7 +48,7 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: 'cadastro.php',
+            url: '../php/cadastro.php',
             type: 'POST',
             data: {
                 nome: nome,
@@ -88,7 +88,7 @@ $(document).ready(function () {
 
             // Envia os dados para o arquivo PHP de backend
             $.ajax({
-                url: 'cadastroVagas.php',
+                url: '../php/cadastroVagas.php',
                 type: 'POST',
                 data: formData,
                 contentType: false,
@@ -115,7 +115,7 @@ $(document).ready(function () {
 $(document).ready(function() {
     function checkLoginStatus() {
         $.ajax({
-            url: 'checkLoginStatus.php',
+            url: '../php/checkLoginStatus.php',
             type: 'GET',
             dataType: 'json',
             success: function(response) {
@@ -142,10 +142,10 @@ $(document).ready(function() {
     // Logout (opcional)
     $('#userGreeting').on('click', function() {
         $.ajax({
-            url: 'logout.php',
+            url: '../php/logout.php',
             type: 'POST',
             success: function(response) {
-                window.location.href = 'index.php';
+                window.location.href = '../php/index.php';
             },
             error: function(xhr, status, error) {
                 console.error('Erro na requisição:', error);

@@ -436,7 +436,7 @@ footer {
 }
 /* Estilo da linha do tempo */
 .timeline {
-    background-image: url('./img/colegas-sorridentes-de-tiro-medio-no-trabalho.jpg');
+    background-image: url('../img/colegas-sorridentes-de-tiro-medio-no-trabalho.jpg');
     background-size: cover;
     background-position: center;
     padding: 80px 0;

@@ -8,7 +8,7 @@ session_start();
 <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProLink - Oportunidades</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
@@ -276,19 +276,19 @@ session_start();
     <header>
         <nav class="navbar">
             <div class="logo-container">
-                <img src="./img/globo-mundial.png" alt="Logo" class="logo-icon">
+                <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
                 <div class="logo">ProLink</div>
             </div>
             <ul class="menu">
-                <li><a href="./index.php">Home</a></li>
-                <li><a href="./pagina_webinar.php">Webinars</a></li>
+                <li><a href="../php/index.php">Home</a></li>
+                <li><a href="../php/pagina_webinar.php">Webinars</a></li>
                 <li><a href="#contato">Contato</a></li>
                 <?php if (!isset($_SESSION['usuario_logado'])): ?>
-                <li><a href="login.html">Login</a></li>
+                <li><a href="../pages/login.html">Login</a></li>
                 <?php endif; ?>
             </ul>
             <div class="profile">
-                <a href="./perfil.php"><img src="./img/user-48.png" alt="Profile" class="profile-icon"></a> <!-- Sem âncora, link externo -->
+                <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a> <!-- Sem âncora, link externo -->
             </div>
         </nav>
     </header>
@@ -297,7 +297,7 @@ session_start();
     
         <!-- Barra de pesquisa e filtros -->
         <div class="search-filter-container">
-            <form id="search-form" action="cadastroVagas.php" method="post" class="search-form">
+            <form id="search-form" action="../php/cadastroVagas.php" method="post" class="search-form">
                 <input type="text" placeholder="Pesquisar vagas..." class="search-bar" name="search-keyword">
                 <select name="location" class="filter-dropdown">
                     <option value="">Selecione a localização</option>
@@ -352,7 +352,7 @@ session_start();
                 <p>
                     Requisitos incluem graduação em Administração, Engenharia ou áreas relacionadas, certificação PMP será um diferencial. Oferecemos um pacote de benefícios atrativo, incluindo plano de saúde, bônus por performance e oportunidade de crescimento dentro da empresa.
                 </p>
-                <a href="./pagina_emprego.html" class="job-link">Saiba mais</a>
+                <a href="../php/pagina_emprego.php" class="job-link">Saiba mais</a>
             </div>
             
             <div class="job-card highlight">
@@ -365,7 +365,7 @@ session_start();
                 <p>
                     Requisitos incluem domínio de ferramentas como Adobe Photoshop, Illustrator e Figma, além de experiência prévia em design gráfico. Conhecimento em motion design será considerado um diferencial. Oferecemos flexibilidade de horário, ambiente colaborativo e oportunidade de crescimento em projetos desafiadores.
                 </p>
-                <a href="./pagina_emprego.html" class="job-link">Saiba mais</a>
+                <a href="../php/pagina_emprego.php" class="job-link">Saiba mais</a>
             </div>
             
             <!-- Mais vagas em destaque -->
@@ -422,12 +422,12 @@ session_start();
 
     <footer class="footer-section">
         <div class="footer-content">
-            <img src="./img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
+            <img src="../assets/img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
             <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
         </div>
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="script.js"></script>
+    <script src="../assets/js/script.js"></script>
 </body>
 </html>

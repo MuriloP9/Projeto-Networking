@@ -75,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql_perfil->execute();
 
         $_SESSION['cadastro_realizado'] = true;
-        header('Location: inclusaoCadastro.html'); // Redireciona para a página de sucesso
+        header('Location: ../pages/inclusaoCadastro.html'); // Redireciona para a página de sucesso
         exit;
     } catch (Exception $erro) {
         echo "Erro ao cadastrar: " . $erro->getMessage();

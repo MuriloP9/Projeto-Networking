@@ -1,9 +1,9 @@
 <?php
-include("cadastro.php"); 
+include("../php/cadastro.php"); 
 
 // Verifica se o usuário está logado
 if (!isset($_SESSION['id_usuario'])) {
-    header("Location: login.php");
+    header("Location: ../php/login.php");
     exit();
 }
 
@@ -82,10 +82,10 @@ try {
         <nav class="navbar">
             <ul class="menu">
             <div class="logo-container">
-                <img src="img/globo-mundial.png" alt="Logo" class="logo-icon">
+                <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
                 <div class="logo">ProLink</div>
             </div>
-                <li><a href="index.php">Home</a></li>
+                <li><a href="../php/index.php">Home</a></li>
             </ul>
         </nav>
     </header>
@@ -94,7 +94,7 @@ try {
         <h1>Perfil</h1>
         <p><?php echo htmlspecialchars($nome); ?></p>
         <br>
-        <img src="img/userp.jpg" alt="Avatar" class="perfil-imagem">
+        <img src="../assets/img/userp.jpg" alt="Avatar" class="perfil-imagem">
     </div>
 
     <div class="detalhes">
@@ -125,7 +125,7 @@ try {
         <ul>
             <li><?php echo nl2br(htmlspecialchars($usuario['projetos_especializacoes'])); ?></li>
         </ul>
-        <img src="./img/organizing-projects-animate.svg" class="imagem-projeto-perfil" alt="Projetos">
+        <img src="../assets/img/organizing-projects-animate.svg" class="imagem-projeto-perfil" alt="Projetos">
     </div>
 </div>
 

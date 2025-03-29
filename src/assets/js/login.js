@@ -9,13 +9,13 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: 'validarLogin.php',
+            url: '../php/validarLogin.php',
             type: 'POST',
             data: { email: email, senha: senha },
             dataType: 'json',
             success: function(response) {
                 if (response.sucesso) {
-                    window.location.href = 'index.php'; // Redireciona para a página inicial após login bem-sucedido
+                    window.location.href = '../php/index.php'; // Redireciona para a página inicial após login bem-sucedido
                 } else {
                     $('#mensagem').text(response.mensagem); // Exibe mensagem de erro
                 }

@@ -7,7 +7,7 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProLink - Webinar</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -370,18 +370,18 @@ session_start();
     <header>
         <nav class="navbar">
             <div class="logo-container">
-                <img src="img/globo-mundial.png" alt="Logo" class="logo-icon">
+                <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
                 <div class="logo">ProLink</div>
             </div>
             <ul class="menu">
-                <li><a href="./index.php">Home</a></li>
-                <li><a href="./pagina_emprego.php">Oportunidades de Trabalho</a></li>
+                <li><a href="../php/index.php">Home</a></li>
+                <li><a href="../php/pagina_emprego.php">Oportunidades de Trabalho</a></li>
                 <?php if (!isset($_SESSION['usuario_logado'])): ?>
-                <li><a href="login.html">Login</a></li>
+                <li><a href="../pages/login.html">Login</a></li>
                 <?php endif; ?>
             </ul>
             <div class="profile">
-                <a href="./perfil.php"><img src="./img/user-48.png" alt="Profile" class="profile-icon"></a>
+                <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
             </div>
         </nav>
     </header>
@@ -398,7 +398,7 @@ session_start();
                     <p><strong>Data da Conferência:</strong> 14.10.24, 21:00</p>
                 </div>
                 <div class="tutor-info">
-                    <img src="img/jonh.jpg" alt="Instrutor Principal" class="tutor-photo">
+                    <img src="../assets/img/jonh.jpg" alt="Instrutor Principal" class="tutor-photo">
                     <div class="tutor-details">
                         <p class="tutor-name">John Jonson</p>
                         <p class="tutor-title">Editor Chefe Web MGN</p>
@@ -408,7 +408,7 @@ session_start();
         </div>
         <div class="registration-form">
             <h2>Não Perca Tempo! <br> Participe do Melhor Webinar</h2>
-            <form action="processa_inscricao.php" method="POST">
+            <form action="../php/processa_inscricao.php" method="POST">
                 <input type="text" placeholder="Nome Completo" name="name" required>
                 <input type="email" placeholder="Webinar@exemplo.com" name="email" required>
                 <input type="tel" placeholder="+55(11) 5555-5555" name="phone">
@@ -480,11 +480,11 @@ session_start();
     <section class="testimonials-section">
         <h2>Depoimentos</h2>
         <div class="testimonial">
-            <img src="img/user1.jpg" alt="Usuário 1">
+            <img src="..assets/img/user1.jpg" alt="Usuário 1">
             <p>"O webinar foi incrível! Aprendi muito sobre UX Design e pôr em prática imediatamente."</p>
         </div>
         <div class="testimonial">
-            <img src="img/user2.jpg" alt="Usuário 2">
+            <img src="../assets/img/user2.jpg" alt="Usuário 2">
             <p>"A ProLink sempre traz conteúdos de alta qualidade. Recomendo a todos!"</p>
         </div>
     </section>
@@ -509,13 +509,13 @@ session_start();
 
     <footer class="footer-section">
         <div class="footer-content">
-            <img src="./img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
+            <img src="../assets/img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
             <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
         </div>
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="script.js"></script>
+    <script src="../assets/js/script.js"></script>
     <script>
         // Script para expandir respostas ao clicar na pergunta
 document.querySelectorAll(".faq-question").forEach(item => {

@@ -4,24 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro - ProLink</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
         <nav class="navbar">
             <div class="logo-container">
-                <img src="img/globo-mundial.png" alt="Logo" class="logo-icon">
+                <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
                 <div class="logo">ProLink</div>
             </div>
-            <a href="index.php" class="back-btn">Voltar para a Página Inicial</a>
+            <a href="../php/index.php" class="back-btn">Voltar para a Página Inicial</a>
         </nav>
     </header>
     <main>
         <section class="cadastro-container">
             <div class="form-container">
                 <h1>Cadastro</h1>
-                <form id="cadastroForm" action="cadastro.php" method="POST">
+                <form id="cadastroForm" action="../php/cadastro.php" method="POST">
                     <div class="form-group">
                         <label for="nome">Nome Completo:</label>
                         <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
@@ -87,7 +87,7 @@
     <footer>
         <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
     </footer>
-    <script src="script.js"></script>
+    <script src="../assets/js/script.js"></script>
 </body>
 </html>
 
@@ -287,7 +287,7 @@ footer {
         }
 
         $.ajax({
-            url: 'cadastro.php',
+            url: '../php/cadastro.php',
             type: 'POST',
             data: {
                 nome: nome,
@@ -298,7 +298,7 @@ footer {
             },
             success: function(response) {
                 // Redireciona para a página de sucesso
-                window.location.href = 'inclusaoCadastro.html';
+                window.location.href = '../assets/html/inclusaoCadastro.html';
             },
             error: function(xhr, status, error) {
                 console.error('Erro na requisição:', error);

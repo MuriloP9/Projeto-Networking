@@ -39,7 +39,7 @@ try {
 
     $sql->execute();
 
-    header('Location: confirmacao_inscricao.html');
+    header('Location: ../pages/confirmacao_inscricao.html');
     die;
 } catch (Exception $erro) {
     echo "ATENÇÃO, erro na inscrição: " . $erro->getMessage();
