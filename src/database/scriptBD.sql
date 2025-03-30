@@ -52,9 +52,19 @@ CREATE TABLE ProfissionalArea (
 );
 GO
 
+CREATE TABLE Candidatura (
+    id_candidatura INT IDENTITY(1,1) PRIMARY KEY,
+    id_vaga INT NOT NULL FOREIGN KEY REFERENCES Vagas(id_vaga),
+    id_perfil INT NOT NULL FOREIGN KEY REFERENCES Perfil(id_perfil),
+    data_candidatura DATETIME DEFAULT GETDATE(),
+    status NVARCHAR(20) DEFAULT 'Pendente'
+);
+GO
+
 -- Tabela de Vagas de Emprego
 CREATE TABLE Vagas (
     id_vaga INT IDENTITY(1,1) PRIMARY KEY,
+    id_admin INT NOT NULL FOREIGN KEY REFERENCES Administrador(id_admin),
     titulo_vaga NVARCHAR(255) NOT NULL,
     localizacao NVARCHAR(255),
     tipo_emprego NVARCHAR(20) NOT NULL,
@@ -103,13 +113,24 @@ GO
 -- Tabela de Relatórios
 CREATE TABLE Relatorio (
     id_relatorio INT IDENTITY(1,1) PRIMARY KEY,
+    id_admin INT NOT NULL FOREIGN KEY REFERENCES Administrador(id_admin),
     tipo_relatorio NVARCHAR(50) NOT NULL,
-    data_geracao DATETIME DEFAULT GETDATE(),
-    arquivo NVARCHAR(255) NOT NULL
+    parametros NVARCHAR(MAX), -- Critérios usados para gerar o relatório
+    arquivo_path NVARCHAR(255) NOT NULL,
+    data_geracao DATETIME DEFAULT GETDATE()
 );
 GO
 
--- Tabela de QR Codes
+CREATE TABLE Administrador (
+    id_admin INT IDENTITY(1,1) PRIMARY KEY,
+    email NVARCHAR(100) UNIQUE NOT NULL,
+    senha NVARCHAR(255) NOT NULL,
+    data_cadastro DATETIME DEFAULT GETDATE(),
+    cnpj NVARCHAR(18) UNIQUE NOT NULL,
+    razao_social NVARCHAR(255) NOT NULL,
+    nome_fantasia NVARCHAR(255)
+);
+GO
 CREATE TABLE QRCode (
     id_qr_code INT IDENTITY(1,1) PRIMARY KEY,
     id_usuario INT NOT NULL FOREIGN KEY REFERENCES Usuario(id_usuario),
