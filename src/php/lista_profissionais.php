@@ -62,13 +62,8 @@
             color: #cccccc;
         }
 
-        .stars {
-            margin-top: 5px;
-            color: #ffcc00;
-        }
-
         .chat-btn {
-            background-color: #00bfa5;
+            background-color:rgb(21, 118, 228);
             color: white;
             border: none;
             padding: 10px 15px;
@@ -78,15 +73,16 @@
         }
 
         .chat-btn:hover {
-            background-color: #008f7a;
+            background-color:rgb(116, 154, 224);
             transform: scale(1.05);
         }
 
         .chat-icon {
-            width: 24px;
-            height: 24px;
-            margin-left: 10px;
+            width: 30px;
+            height: 30px;
+            margin-left: 20px;
         }
+
 
         /* Fixando o footer na parte inferior */
         .footer-section {
@@ -165,7 +161,7 @@ if ($searchQuery !== '') {
                 echo "<p><strong>Email:</strong> " . htmlspecialchars($profissional['contato_email']) . "</p>";
                 echo "<p><strong>Telefone:</strong> " . htmlspecialchars($profissional['contato_telefone']) . "</p>";
                 echo "</div>";
-                echo "<a href='#'><button class='chat-btn'>Chat <img src='../assets/img/chat-icon.svg' alt='Chat' class='chat-icon'></button></a>";
+                echo "<a href='#'><button class='chat-btn'>QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'></button></a>";
                 echo "</div>";
             }
             echo "</div>";
