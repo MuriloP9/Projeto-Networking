@@ -352,7 +352,6 @@ session_start();
                 <p>
                     Requisitos incluem graduação em Administração, Engenharia ou áreas relacionadas, certificação PMP será um diferencial. Oferecemos um pacote de benefícios atrativo, incluindo plano de saúde, bônus por performance e oportunidade de crescimento dentro da empresa.
                 </p>
-                <a href="../php/pagina_emprego.php" class="job-link">Saiba mais</a>
             </div>
             
             <div class="job-card highlight">
@@ -365,7 +364,6 @@ session_start();
                 <p>
                     Requisitos incluem domínio de ferramentas como Adobe Photoshop, Illustrator e Figma, além de experiência prévia em design gráfico. Conhecimento em motion design será considerado um diferencial. Oferecemos flexibilidade de horário, ambiente colaborativo e oportunidade de crescimento em projetos desafiadores.
                 </p>
-                <a href="../php/pagina_emprego.php" class="job-link">Saiba mais</a>
             </div>
             
             <!-- Mais vagas em destaque -->
@@ -384,28 +382,6 @@ session_start();
             </div>
         </form>
     </section>
-    
-    <!-- Notificações de Vagas -->
-    <section id="notifications-section" class="notifications-section">
-        <h2>Notificações</h2>
-        <p>Receba notificações de novas vagas compatíveis com seus interesses.</p>
-        <form action="notificacoes.php" method="post" id="notifications-form" class="notifications-form">
-            <label for="email-notifications">Email para notificações:</label>
-            <input type="email" id="email-notifications" name="notification-email" placeholder="Seu email" required class="form-input">
-            
-            <label for="job-preferences">Áreas de interesse:</label>
-            <select id="job-preferences" name="job-preferences[]" multiple class="form-input">
-                <option value="development">Desenvolvimento</option>
-                <option value="marketing">Marketing</option>
-                <option value="design">Design</option>
-                <option value="project-management">Gestão de Projetos</option>
-                <!-- Outras opções -->
-            </select>
-            
-            <button type="button" id="submit-notifications" class="notifications-btn">Receber Notificações</button>
-        </form>
-    </section>
-    
     
     <section id="contato" class="contact-section">
         <div class="contact-container">

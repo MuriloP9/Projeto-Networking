@@ -3,7 +3,8 @@ session_start(); // Verifica se a sessão está sendo iniciada corretamente
 
 // Função para conectar ao banco de dados
 function conectar() {
-    $local_server = "PC_NASA\SQLEXPRESS";
+    //$local_server = "PC_NASA\SQLEXPRESS";
+    $local_server = "Book3-Marina";
     $usuario_server = "sa";
     $senha_server = "etesp";
     $banco_de_dados = "prolink";

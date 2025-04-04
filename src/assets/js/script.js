@@ -3,7 +3,10 @@ $(document).ready(function() {
     let img = 0;
     const itens = $('.carousel-item');
     const totalItens = itens.length;
-
+    startCarousel();
+    function startCarousel() {
+        setInterval(proximoItem, 1800);
+      }
     function alternarItens() {
         itens.css('opacity', '0'); // Esconde todas as imagens
         itens.eq(img).css('opacity', '1'); // Mostra a imagem atual
@@ -14,7 +17,6 @@ $(document).ready(function() {
         alternarItens();
     }
 
-    setInterval(proximoItem, 3000);  // Muda de imagem a cada 3 segundos
 });
 
 // Seção de Dúvidas
