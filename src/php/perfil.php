@@ -19,14 +19,13 @@ try {
     $sql = $pdo->prepare("
         SELECT u.nome, u.email, u.dataNascimento, u.telefone, 
                COALESCE(p.idade, NULL) as idade, 
-               COALESCE(p.localizacao, 'Não informado') as localizacao, 
+               COALESCE(p.endereco, 'Não informado') as endereco, 
                COALESCE(p.formacao, 'Não informado') as formacao, 
                COALESCE(p.experiencia_profissional, 'Nenhuma informação') as experiencia_profissional, 
                COALESCE(p.interesses, 'Nenhuma informação') as interesses, 
                COALESCE(p.projetos_especializacoes, 'Nenhuma informação') as projetos_especializacoes, 
                COALESCE(p.habilidades, 'Nenhuma informação') as habilidades, 
-               COALESCE(p.contato_email, 'Não informado') as contato_email, 
-               COALESCE(p.contato_telefone, 'Não informado') as contato_telefone 
+               COALESCE(p.contato_email, 'Não informado') as contato_email
         FROM Usuario u
         LEFT JOIN Perfil p ON u.id_usuario = p.id_usuario
         WHERE u.id_usuario = :id_usuario
@@ -281,7 +280,7 @@ try {
     <h2>Detalhes</h2>
     <div><strong>Nome:</strong><p><?php echo htmlspecialchars($usuario['nome']); ?></p></div>
     <div><strong>Idade:</strong><p><?php echo $usuario['idade'] ?? 'Não informado'; ?></p></div>
-    <div><strong>Localização:</strong><p><?php echo htmlspecialchars($usuario['localizacao']); ?></p></div>
+    <div><strong>Endereço:</strong><p><?php echo htmlspecialchars($usuario['endereço']); ?></p></div>
     <div><strong>Formação:</strong><p><?php echo htmlspecialchars($usuario['formacao']); ?></p></div>
     <div><strong>Experiência Profissional:</strong><p><?php echo nl2br(htmlspecialchars($usuario['experiencia_profissional'])); ?></p></div>
     <div><strong>Interesses:</strong><p><?php echo nl2br(htmlspecialchars($usuario['interesses'])); ?></p></div>
@@ -303,7 +302,6 @@ try {
 <div class="caixa-central">
     <h2>Contato</h2>
     <p><strong>E-mail:</strong> <?php echo htmlspecialchars($usuario['contato_email']); ?></p>
-    <p><strong>Telefone:</strong> <?php echo htmlspecialchars($usuario['contato_telefone']); ?></p>
 </div>
 
 </body>

@@ -33,8 +33,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $interesses = isset($_POST["interesses"]) ? $_POST["interesses"] : null;
     $projetos_especializacoes = isset($_POST["projetos_especializacoes"]) ? $_POST["projetos_especializacoes"] : null;
     $habilidades = isset($_POST["habilidades"]) ? $_POST["habilidades"] : null;
-    $contato_email = isset($_POST["contato_email"]) ? $_POST["contato_email"] : null;
-    $contato_telefone = isset($_POST["contato_telefone"]) ? $_POST["contato_telefone"] : null;
 
     // Valida campos obrigatórios
     if (!$nome || !$email || !$senha || !$dataNascimento || !$telefone) {
@@ -72,7 +70,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql_perfil->bindValue(":projetos_especializacoes", $projetos_especializacoes);
         $sql_perfil->bindValue(":habilidades", $habilidades);
         $sql_perfil->bindValue(":contato_email", $contato_email);
-        $sql_perfil->bindValue(":contato_telefone", $contato_telefone);
         $sql_perfil->execute();
 
         $_SESSION['cadastro_realizado'] = true;
