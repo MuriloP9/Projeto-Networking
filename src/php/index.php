@@ -48,7 +48,7 @@ session_start();
             <?php else: ?>
                 <li><button class="logout-btn" onclick="logout()">Olá, <?php echo $_SESSION['nome_usuario']; ?></button></li>
             <?php endif; ?>
-            <!-- Botões de Perfil e Chat (dentro do menu para telas pequenas/médias) -->
+            <!-- Botões de Perfil (dentro do menu para telas pequenas/médias) -->
             <li class="profile-item">
                 <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
             </li>

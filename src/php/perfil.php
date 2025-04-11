@@ -2,7 +2,7 @@
 include("../php/cadastro.php"); 
 
 if (!isset($_SESSION['id_usuario'])) {
-    header("Location: ../php/login.php");
+    header("Location: ../pages/login.html");
     exit();
 }
 
@@ -24,8 +24,7 @@ try {
                COALESCE(p.experiencia_profissional, 'Nenhuma informação') as experiencia_profissional, 
                COALESCE(p.interesses, 'Nenhuma informação') as interesses, 
                COALESCE(p.projetos_especializacoes, 'Nenhuma informação') as projetos_especializacoes, 
-               COALESCE(p.habilidades, 'Nenhuma informação') as habilidades, 
-               COALESCE(p.contato_email, 'Não informado') as contato_email
+               COALESCE(p.habilidades, 'Nenhuma informação') as habilidades
         FROM Usuario u
         LEFT JOIN Perfil p ON u.id_usuario = p.id_usuario
         WHERE u.id_usuario = :id_usuario
@@ -301,7 +300,7 @@ try {
 
 <div class="caixa-central">
     <h2>Contato</h2>
-    <p><strong>E-mail:</strong> <?php echo htmlspecialchars($usuario['contato_email']); ?></p>
+    <p><strong>E-mail:</strong> <?php echo htmlspecialchars($usuario['email']); ?></p>
 </div>
 
 </body>

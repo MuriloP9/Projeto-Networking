@@ -151,7 +151,7 @@ body {
 /* Carousel Section */
 .carousel {
     display: flex;
-    background: linear-gradient(to bottom, #0e1768, #050a37,);
+    background: linear-gradient(to bottom, #0e1768, #050a37);
     justify-content: center;
     align-items: center;
     position: relative;
@@ -319,8 +319,9 @@ footer {
     transition: background-color 0.3s ease;
 }
 
-.webinar-description a:hover {
-    background-color:#0e1768;
+.webinar-description a:hover,
+.job-description a:hover {
+    background-color: #3b6ebb;
 }
 
 .webinar-description img {
@@ -397,10 +398,6 @@ footer {
     border-radius: 25px;
     text-decoration: none;
     transition: background-color 0.3s ease;
-}
-
-.job-description a:hover {
-    background-color: #0e1768;
 }
 
 .job-description img {

@@ -1,5 +1,5 @@
-$(document).ready(function() {
-    $('#btnLogin').on('click', function() {
+$(document).ready(function () {
+    function realizarLogin() {
         const email = $('#email').val();
         const senha = $('#senha').val();
 
@@ -8,22 +8,40 @@ $(document).ready(function() {
             return;
         }
 
+        $('#btnLogin').prop('disabled', true).text('Carregando...'); // Desabilita botão e muda texto
+
         $.ajax({
             url: '../php/validarLogin.php',
             type: 'POST',
             data: { email: email, senha: senha },
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 if (response.sucesso) {
-                    window.location.href = '../php/index.php'; // Redireciona para a página inicial após login bem-sucedido
+                    window.location.href = '../php/index.php';
                 } else {
-                    $('#mensagem').text(response.mensagem); // Exibe mensagem de erro
+                    $('#mensagem').text(response.mensagem);
                 }
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('Erro na requisição:', error);
                 $('#mensagem').text('Erro na comunicação com o servidor.');
+            },
+            complete: function () {
+                // Reabilita o botão depois da requisição, independentemente do resultado
+                $('#btnLogin').prop('disabled', false).text('Login');
             }
         });
+    }
+
+    // Clique no botão
+    $('#btnLogin').on('click', function () {
+        realizarLogin();
+    });
+
+    // Pressionar Enter no input
+    $('#form-login input').on('keypress', function (e) {
+        if (e.which === 13) { // Tecla Enter
+            realizarLogin();
+        }
     });
 });

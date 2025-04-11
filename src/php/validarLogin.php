@@ -19,8 +19,22 @@ function conectar() {
 
 $pdo = conectar(); 
 
-$email = $_POST['email'];
-$senha = $_POST['senha'];
+function limpar($valor) {
+    $valor = trim($valor);
+    $valor = filter_var($valor, FILTER_SANITIZE_EMAIL);
+    return $valor;
+}
+
+// Recebe e sanitiza os dados
+$email = isset($_POST['email']) ? limpar($_POST['email']) : null;
+$senha = isset($_POST['senha']) ? trim($_POST['senha']) : null;
+
+if (!$email || !$senha || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode(['sucesso' => false, 'mensagem' => 'Email ou senha inválidos.']);
+    exit;
+}
+
+$pdo = conectar();
 
 try {
     // Verifica se o usuário existe no banco de dados
