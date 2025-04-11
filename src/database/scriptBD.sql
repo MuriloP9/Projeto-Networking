@@ -30,7 +30,6 @@ CREATE TABLE Perfil (
     interesses NVARCHAR(MAX),
     projetos_especializacoes NVARCHAR(MAX),
     habilidades NVARCHAR(MAX),
-    contato_email NVARCHAR(100),
     qr_code NVARCHAR(255) -- Novo campo para QR Code
 );
 GO
@@ -134,11 +133,11 @@ VALUES
 ('Carla Menezes', 'carla@email.com', 'segura456', '1992-08-30', '(21)99876-5432'),
 ('Rafael Torres', 'rafael@email.com', 'pass789', '2000-01-20', '(31)98765-1234');
 
-INSERT INTO Perfil (id_usuario, idade, endereco, formacao, experiencia_profissional, interesses, projetos_especializacoes, habilidades, contato_email, qr_code)
+INSERT INTO Perfil (id_usuario, idade, endereco, formacao, experiencia_profissional, interesses, projetos_especializacoes, habilidades, qr_code)
 VALUES 
-(1, 29, 'Rua A, 123 - SP', 'Engenharia da Computação', '3 anos como dev backend', 'Tecnologia, inovação', 'API em Node.js, Projeto IoT', 'JavaScript, SQL, C#', 'lucas@email.com', 'qr_lucas.png'),
-(2, 32, 'Av. B, 456 - RJ', 'Design Gráfico', '6 anos em agências de publicidade', 'Artes, UX/UI', 'App de design colaborativo', 'Photoshop, Figma, Illustrator', 'carla@email.com', 'qr_carla.png'),
-(3, 24, 'Rua C, 789 - MG', 'Análise de Sistemas', '1 ano como suporte técnico', 'Redes, dados', 'Sistema de chamados', 'Python, MySQL', 'rafael@email.com', 'qr_rafael.png');
+(1, 29, 'Rua A, 123 - SP', 'Engenharia da Computação', '3 anos como dev backend', 'Tecnologia, inovação', 'API em Node.js, Projeto IoT', 'JavaScript, SQL, C#', 'qr_lucas.png'),
+(2, 32, 'Av. B, 456 - RJ', 'Design Gráfico', '6 anos em agências de publicidade', 'Artes, UX/UI', 'App de design colaborativo', 'Photoshop, Figma, Illustrator', 'qr_carla.png'),
+(3, 24, 'Rua C, 789 - MG', 'Análise de Sistemas', '1 ano como suporte técnico', 'Redes, dados', 'Sistema de chamados', 'Python, MySQL', 'qr_rafael.png');
 
 INSERT INTO Funcionario (email, senha, cnpj, razao_social, nome_fantasia)
 VALUES 
