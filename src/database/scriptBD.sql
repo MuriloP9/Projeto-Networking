@@ -15,15 +15,14 @@ CREATE TABLE Usuario (
     email NVARCHAR(100) UNIQUE NOT NULL,
     senha NVARCHAR(255) NOT NULL,
     dataNascimento DATE NOT NULL,
-    telefone NVARCHAR(15) NOT NULL,
+    telefone NVARCHAR(15) NOT NULL
 );
 GO
 
 -- Tabela de Perfil 
 CREATE TABLE Perfil (
     id_perfil INT IDENTITY(1,1) PRIMARY KEY,
-    id_usuario INT NOT NULL FOREIGN KEY REFERENCES Usuario(id_usuario),
-	email NVARCHAR(100) UNIQUE NOT NULL,
+    id_usuario INT NOT NULL,
     idade INT,
     endereco NVARCHAR(100),
     formacao NVARCHAR(255),
@@ -31,7 +30,11 @@ CREATE TABLE Perfil (
     interesses NVARCHAR(MAX),
     projetos_especializacoes NVARCHAR(MAX),
     habilidades NVARCHAR(MAX),
-    qr_code NVARCHAR(255) -- Novo campo para QR Code
+    qr_code NVARCHAR(255),
+    CONSTRAINT FK_Perfil_Usuario FOREIGN KEY (id_usuario)
+        REFERENCES Usuario(id_usuario)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 GO
 
@@ -127,8 +130,8 @@ CREATE TABLE QRCode (
     data_geracao DATETIME DEFAULT GETDATE()
 );
 GO 
-
-/*INSERT INTO Usuario (nome, email, senha, dataNascimento, telefone)
+/*
+INSERT INTO Usuario (nome, email, senha, dataNascimento, telefone)
 VALUES 
 ('Lucas Andrade', 'lucas@email.com', 'senha123', '1995-04-12', '(11)91234-5678'),
 ('Carla Menezes', 'carla@email.com', 'segura456', '1992-08-30', '(21)99876-5432'),
@@ -173,20 +176,13 @@ VALUES
 ('Carla Menezes', 'carla@email.com', '(21)99876-5432', 0, 1, 2);
 */
 
-
 select * from Perfil;
-
-select*from inscricoes_webinar;
 
 select*from Usuario;
 
-select * from Mensagem;
+select*from inscricoes_webinar;
 
 select*from Vagas;
-
-
-
-
 
 
 DROP TABLE perfil;
