@@ -139,7 +139,7 @@ if ($searchQuery !== '') {
     try {
         // Consulta para buscar profissionais pela formação
         $sql = $pdo->prepare("
-            SELECT U.nome, P.formacao, P.experiencia_profissional, P.email, P.contato_telefone 
+            SELECT U.nome, P.formacao, P.experiencia_profissional, U.email  
             FROM Perfil P
             INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
             WHERE P.formacao LIKE :searchQuery
@@ -160,7 +160,6 @@ if ($searchQuery !== '') {
                 echo "<div class='professional-specialization'>" . htmlspecialchars($profissional['formacao']) . "</div>";
                 echo "<p><strong>Experiência:</strong> " . nl2br(htmlspecialchars($profissional['experiencia_profissional'])) . "</p>";
                 echo "<p><strong>Email:</strong> " . htmlspecialchars($profissional['email']) . "</p>";
-                echo "<p><strong>Telefone:</strong> " . htmlspecialchars($profissional['contato_telefone']) . "</p>";
                 echo "</div>";
                 echo "<a href='#'><button class='chat-btn'>QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'></button></a>";
                 echo "</div>";

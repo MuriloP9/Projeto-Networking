@@ -70,49 +70,6 @@ $(document).ready(function() {
     });
 });
 
-
-
-//ajax da página de Vagas (oportunidades de emprego)
-$(document).ready(function () {
-    $('.search-btn').click(function (event) {
-        event.preventDefault(); 
-
-        var tituloVaga = $('.search-bar').val();
-        var localizacao = $('select[name="location"]').val();
-        var tipoEmprego = $('select[name="job-type"]').val();
-
-       
-        if (tituloVaga && tipoEmprego) {
-            var formData = new FormData();
-            formData.append('titulo_vaga', tituloVaga);
-            formData.append('localizacao', localizacao);
-            formData.append('tipo_emprego', tipoEmprego);
-
-            // Envia os dados para o arquivo PHP de backend
-            $.ajax({
-                url: '../php/cadastroVagas.php',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.trim() === 'Vaga cadastrada com sucesso!') {
-                        alert('Vaga cadastrada com sucesso!');
-                    } else {
-                        alert(response); //  mensagem de erro pelo PHP
-                    }
-                },
-                error: function () {
-                    alert('Erro ao cadastrar a vaga.');
-                }
-            });
-        } else {
-            alert('Por favor, preencha o título da vaga e o tipo de emprego.');
-        }
-    });
-});
-
-
  // Verifica se o usuário está logado
 $(document).ready(function() {
     function checkLoginStatus() {

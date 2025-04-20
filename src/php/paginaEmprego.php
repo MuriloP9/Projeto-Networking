@@ -273,67 +273,65 @@ session_start();
 </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="logo-container">
-                <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
-                <div class="logo">ProLink</div>
-            </div>
-            <ul class="menu">
-                <li><a href="../php/index.php">Home</a></li>
-                <li><a href="../php/pagina_webinar.php">Webinars</a></li>
-                <li><a href="#contato">Contato</a></li>
-                <?php if (!isset($_SESSION['usuario_logado'])): ?>
-                <li><a href="../pages/login.html">Login</a></li>
-                <?php endif; ?>
-            </ul>
-            <div class="profile">
-                <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a> <!-- Sem âncora, link externo -->
-            </div>
-        </nav>
-    </header>
-    <section id="job-opportunities" class="job-opportunities">
-        <h2>Oportunidades de Emprego</h2>
-    
-        <!-- Barra de pesquisa e filtros -->
-        <div class="search-filter-container">
-            <form id="search-form" action="../php/cadastroVagas.php" method="post" class="search-form">
-                <input type="text" placeholder="Pesquisar vagas..." class="search-bar" name="search-keyword">
-                <select name="location" class="filter-dropdown">
-                    <option value="">Selecione a localização</option>
-                    <option value="remote">Remoto</option>
-                    <option value="sp">São Paulo</option>
-                    <option value="rj">Rio de Janeiro</option>
-                    <!-- Outras opções -->
-                </select>
-                <select name="job-type" class="filter-dropdown">
-                    <option value="">Tipo de emprego</option>
-                    <option value="full-time">Tempo Integral</option>
-                    <option value="part-time">Meio Período</option>
-                    <option value="internship">Estágio</option>
-                    <!-- Outras opções -->
-                </select>
-                <button class="search-btn" type="submit">Procurar</button>
-            </form>
+<header>
+    <nav class="navbar">
+        <div class="logo-container">
+            <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
+            <div class="logo">ProLink</div>
         </div>
+        <ul class="menu">
+            <li><a href="../php/index.php">Home</a></li>
+            <li><a href="../php/pagina_webinar.php">Webinars</a></li>
+            <li><a href="#contato">Contato</a></li>
+            <?php if (!isset($_SESSION['usuario_logado'])): ?>
+            <li><a href="../pages/login.html">Login</a></li>
+            <?php endif; ?>
+        </ul>
+        <div class="profile">
+            <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
+        </div>
+    </nav>
+</header>
+
+<section id="job-opportunities" class="job-opportunities">
+    <h2>Oportunidades de Emprego</h2>
     
+    <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Pesquisar por título da vaga...">
+    <button class="search-btn1" onclick="buscarVagas()">Procurar</button>
+    <script>
+    function buscarVagas() {
+        // Captura o valor da pesquisa
+        const searchQuery = document.getElementById('searchInput').value;
+
+        // Verifica se há um valor de pesquisa
+        if (searchQuery.trim() !== "") {
+            // Redireciona para a página lista_vagas.php com a consulta na URL
+            window.location.href = `listaVagas.php?search=${encodeURIComponent(searchQuery)}`;
+        } else {
+            alert("Digite um termo de pesquisa.");
+        }
+    }
+</script>
+</div>
+
+
         <!-- Lista de oportunidades -->
         <div class="job-listings">
-            <div class="job-card">
-                <h3>Desenvolvedor Web - Empresa ABC</h3>
-                <p>Vaga para desenvolvedor(a) full stack com experiência em React e Node.js.</p>
-                <p>Localização: São Paulo</p>
-                <p><a href="#" class="job-link">Ver mais detalhes</a></p>
-            </div>
-            <div class="job-card">
-                <h3>Designer Gráfico - Empresa XYZ</h3>
-                <p>Vaga para designer gráfico com experiência em Adobe Suite e design UX/UI.</p>
-                <p>Localização: Remoto</p>
-                <p><a href="#" class="job-link">Ver mais detalhes</a></p>
-            </div>
+        <div class="job-card">
+            <h3>Desenvolvedor Web - Empresa ABC</h3>
+            <p>Vaga para desenvolvedor(a) full stack com experiência em React e Node.js.</p>
+            <p>Localização: São Paulo</p>
+            <p><a href="#" class="job-link">Ver mais detalhes</a></p>
         </div>
-    </section>
-    
+        <div class="job-card">
+            <h3>Designer Gráfico - Empresa XYZ</h3>
+            <p>Vaga para designer gráfico com experiência em Adobe Suite e design UX/UI.</p>
+            <p>Localização: Remoto</p>
+            <p><a href="#" class="job-link">Ver mais detalhes</a></p>
+        </div>
+    </div>
+</section>
             <!-- Mais ofertas de emprego -->
         </div>
     </section>
@@ -397,13 +395,13 @@ session_start();
     </section>
 
     <footer class="footer-section">
-        <div class="footer-content">
-            <img src="../assets/img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
-            <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
-        </div>
-    </footer>
+    <div class="footer-content">
+        <img src="../assets/img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
+        <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
+    </div>
+</footer>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="../assets/js/script.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="../assets/js/script.js"></script>
 </body>
 </html>

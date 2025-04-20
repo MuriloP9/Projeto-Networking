@@ -99,7 +99,7 @@ session_start();
         // Verifica se há um valor de pesquisa
         if (searchQuery.trim() !== "") {
             // Redireciona para a página lista_profissionais.html com a consulta na URL
-            window.location.href = `lista_profissionais.php?search=${encodeURIComponent(searchQuery)}`;
+            window.location.href = `listaProfissionais.php?search=${encodeURIComponent(searchQuery)}`;
         } else {
             alert("Digite um termo de pesquisa.");
         }
@@ -133,7 +133,7 @@ session_start();
                 <div class="job-description">
                     <h3>Encontre a Oportunidade dos Seus Sonhos!</h3>
                     <p>Confira as vagas abertas em diversas áreas profissionais e conecte-se com empregadores ao redor do mundo.</p>
-                    <a href="../php/pagina_emprego.php" class="job-link">Saiba mais</a>
+                    <a href="../php/paginaEmprego.php" class="job-link">Saiba mais</a>
                     <img src="../assets/img/undraw_Finance_re_gnv2.png" alt="Imagem Oportunidade de Trabalho">
                 </div>
                 <div class="job-image">
