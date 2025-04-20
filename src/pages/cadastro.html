@@ -49,7 +49,7 @@
                     </div>
                     <div class="form-group">
                         <label for="endereço">Endereço:</label>
-                        <input type="text" id="endereço" name="endereço" placeholder="Digite seu endereço">
+                        <input type="text" id="endereco" name="endereco" placeholder="Digite seu endereço">
                     </div>
                     <div class="form-group">
                         <label for="formacao">Formação:</label>
@@ -71,7 +71,7 @@
                         <label for="habilidades">Habilidades:</label>
                         <textarea id="habilidades" name="habilidades" placeholder="Descreva suas habilidades"></textarea>
                     </div>
-                    <button type="submit" class="submit-btn">Cadastrar</button>
+                    <button type="button" id="submitBtn" class="submit-btn">Cadastrar</button>
                 </form>
             </div>
         </section>
@@ -264,17 +264,25 @@ footer {
 }
 </style>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function() {
-    $('#submitBtn').on('click', function() {
+$(document).ready(function () {
+    $('#submitBtn').on('click', function () {
         const nome = $('#nome').val();
         const email = $('#email').val();
         const senha = $('#senha').val();
         const dataNascimento = $('#dataNascimento').val();
         const telefone = $('#telefone').val();
+        const idade = $('#idade').val();
+        const endereco = $('#endereco').val();
+        const formacao = $('#formacao').val();
+        const experiencia_profissional = $('#experiencia_profissional').val();
+        const interesses = $('#interesses').val();
+        const projetos_especializacoes = $('#projetos_especializacoes').val();
+        const habilidades = $('#habilidades').val();
 
-        if (nome.trim() === '' || email.trim() === '' || senha.trim() === '' || dataNascimento.trim() === '' || telefone.trim() === '') {
-            alert('Por favor, preencha todos os campos!');
+        if (!nome || !email || !senha || !dataNascimento || !telefone) {
+            alert('Por favor, preencha todos os campos obrigatórios!');
             return;
         }
 
@@ -282,17 +290,27 @@ footer {
             url: '../php/cadastro.php',
             type: 'POST',
             data: {
-                nome: nome,
-                email: email,
-                senha: senha,
-                dataNascimento: dataNascimento,
-                telefone: telefone
+                nome,
+                email,
+                senha,
+                dataNascimento,
+                telefone,
+                idade,
+                endereco,
+                formacao,
+                experiencia_profissional,
+                interesses,
+                projetos_especializacoes,
+                habilidades
             },
-            success: function(response) {
-                // Redireciona para a página de sucesso
-                window.location.href = '../assets/html/inclusaoCadastro.html';
+            success: function (response) {
+                if (response.trim() === "ok") {
+                    window.location.href = '../pages/inclusaoCadastro.html';
+                } else {
+                    alert(response);
+                }
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('Erro na requisição:', error);
                 alert('Erro na comunicação com o servidor. Tente novamente.');
             }

@@ -25,7 +25,6 @@ function limpar($valor) {
 
 // Verifica se o formulário foi enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitização e validação dos campos
     $nome = isset($_POST["nome"]) ? limpar($_POST["nome"]) : null;
     $email = isset($_POST["email"]) ? filter_var(trim($_POST["email"]), FILTER_VALIDATE_EMAIL) : null;
     $senha = isset($_POST["senha"]) ? trim($_POST["senha"]) : null;
@@ -39,17 +38,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $projetos_especializacoes = isset($_POST["projetos_especializacoes"]) ? limpar($_POST["projetos_especializacoes"]) : null;
     $habilidades = isset($_POST["habilidades"]) ? limpar($_POST["habilidades"]) : null;
 
-    // Valida campos obrigatórios
     if (!$nome || !$email || !$senha || !$dataNascimento || !$telefone) {
-        echo "Todos os campos são obrigatórios!";
+        echo "Todos os campos obrigatórios devem ser preenchidos!";
         exit;
     }
-    
 
-    // Conectar ao banco de dados
     $pdo = conectar();
 
-    // Verifica se o e-mail já está cadastrado no banco
     $query = $pdo->prepare("SELECT COUNT(*) FROM Usuario WHERE email = :email");
     $query->bindValue(":email", $email);
     $query->execute();
@@ -61,39 +56,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     
     // Inserir dados na tabela Usuario
-    try {
-        $sql = $pdo->prepare("INSERT INTO Usuario (nome, email, senha, dataNascimento, telefone) VALUES (:nome, :email, :senha, :dataNascimento, :telefone)");
-        $sql->bindValue(":nome", $nome);
-        $sql->bindValue(":email", $email);
-        $sql->bindValue(":senha", $senha);
-        $sql->bindValue(":dataNascimento", $dataNascimento);
-        $sql->bindValue(":telefone", $telefone);
-        $sql->execute();
+    // Inserir dados na tabela Usuario
+try {
+    $sql = $pdo->prepare("INSERT INTO Usuario (nome, email, senha, dataNascimento, telefone) 
+                          VALUES (:nome, :email, :senha, :dataNascimento, :telefone)");
+    $sql->bindValue(":nome", $nome);
+    $sql->bindValue(":email", $email);
+    $sql->bindValue(":senha", $senha);
+    $sql->bindValue(":dataNascimento", $dataNascimento);
+    $sql->bindValue(":telefone", $telefone);
+    $sql->execute();
 
-        // Recupera o ID do usuário recém-cadastrado
-        $id_usuario = $pdo->lastInsertId();
+    // Recupera o ID do usuário recém-cadastrado
+    $id_usuario = $pdo->lastInsertId();
 
-        // Inserir dados na tabela Perfil
-        $sql_perfil = $pdo->prepare("
-            INSERT INTO Perfil (id_usuario, idade, endereco, formacao, experiencia_profissional, interesses, projetos_especializacoes, habilidades)
-            VALUES (:id_usuario, :idade, :endereco, :formacao, :experiencia_profissional, :interesses, :projetos_especializacoes, :habilidades)
-        ");
-        $sql_perfil->bindValue(":id_usuario", $id_usuario);
-        $sql_perfil->bindValue(":idade", $idade);
-        $sql_perfil->bindValue(":endereco", $endereco);
-        $sql_perfil->bindValue(":formacao", $formacao);
-        $sql_perfil->bindValue(":experiencia_profissional", $experiencia_profissional);
-        $sql_perfil->bindValue(":interesses", $interesses);
-        $sql_perfil->bindValue(":projetos_especializacoes", $projetos_especializacoes);
-        $sql_perfil->bindValue(":habilidades", $habilidades);
-        $sql_perfil->execute();
+    // ✅ Define as variáveis de sessão: logado e cadastro realizado
+    $_SESSION['cadastro_realizado'] = true;
 
-        $_SESSION['cadastro_realizado'] = true;
-        header('Location: ../pages/inclusaoCadastro.html'); // Redireciona para a página de sucesso
-        exit;
-    } catch (Exception $erro) {
-        echo "Erro ao cadastrar: " . $erro->getMessage();
-        exit;
-    }
+    // Inserir dados na tabela Perfil
+    $sql_perfil = $pdo->prepare("
+        INSERT INTO Perfil (id_usuario, idade, endereco, formacao, experiencia_profissional, interesses, projetos_especializacoes, habilidades)
+        VALUES (:id_usuario, :idade, :endereco, :formacao, :experiencia_profissional, :interesses, :projetos_especializacoes, :habilidades)
+    ");
+    $sql_perfil->bindValue(":id_usuario", $id_usuario);
+    $sql_perfil->bindValue(":idade", $idade);
+    $sql_perfil->bindValue(":endereco", $endereco);
+    $sql_perfil->bindValue(":formacao", $formacao);
+    $sql_perfil->bindValue(":experiencia_profissional", $experiencia_profissional);
+    $sql_perfil->bindValue(":interesses", $interesses);
+    $sql_perfil->bindValue(":projetos_especializacoes", $projetos_especializacoes);
+    $sql_perfil->bindValue(":habilidades", $habilidades);
+    $sql_perfil->execute();
+
+    echo "ok";
+    exit;
+    
+} catch (Exception $erro) {
+    echo "Erro ao cadastrar: " . $erro->getMessage();
+    exit;
+}
 }
 ?>

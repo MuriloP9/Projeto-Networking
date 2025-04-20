@@ -8,6 +8,12 @@ $(document).ready(function () {
             return;
         }
 
+        // Validação de email no frontend
+        if (!validateEmail(email)) {
+            $('#mensagem').text('Por favor, insira um email válido!');
+            return;
+        }
+
         $('#btnLogin').prop('disabled', true).text('Carregando...'); // Desabilita botão e muda texto
 
         $.ajax({
@@ -31,6 +37,12 @@ $(document).ready(function () {
                 $('#btnLogin').prop('disabled', false).text('Login');
             }
         });
+    }
+
+    // Função para validar o formato do email
+    function validateEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
     }
 
     // Clique no botão

@@ -60,4 +60,7 @@ try {
 } catch (Exception $erro) {
     echo json_encode(['sucesso' => false, 'mensagem' => 'Erro ao validar login: ' . $erro->getMessage()]);
 }
+
 ?>
+
+

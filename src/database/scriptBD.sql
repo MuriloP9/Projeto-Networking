@@ -23,6 +23,7 @@ GO
 CREATE TABLE Perfil (
     id_perfil INT IDENTITY(1,1) PRIMARY KEY,
     id_usuario INT NOT NULL FOREIGN KEY REFERENCES Usuario(id_usuario),
+	email NVARCHAR(100) UNIQUE NOT NULL,
     idade INT,
     endereco NVARCHAR(100),
     formacao NVARCHAR(255),
@@ -182,3 +183,11 @@ select*from Usuario;
 select * from Mensagem;
 
 select*from Vagas;
+
+
+
+
+
+
+DROP TABLE perfil;
+drop table usuario;

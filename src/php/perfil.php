@@ -1,7 +1,8 @@
 <?php
 include("../php/cadastro.php"); 
 
-if (!isset($_SESSION['id_usuario'])) {
+// Verifica se o usuário está logado
+if (!isset($_SESSION['usuario_logado']) || $_SESSION['usuario_logado'] !== true) {
     header("Location: ../pages/login.html");
     exit();
 }
@@ -32,11 +33,6 @@ try {
     $sql->bindValue(":id_usuario", $id_usuario);
     $sql->execute();
     $usuario = $sql->fetch(PDO::FETCH_ASSOC);
-
-    if (!$usuario) {
-        echo "Erro ao carregar perfil.";
-        exit();
-    }
 
 } catch (Exception $erro) {
     echo "Erro ao carregar perfil: " . $erro->getMessage();
@@ -279,7 +275,7 @@ try {
     <h2>Detalhes</h2>
     <div><strong>Nome:</strong><p><?php echo htmlspecialchars($usuario['nome']); ?></p></div>
     <div><strong>Idade:</strong><p><?php echo $usuario['idade'] ?? 'Não informado'; ?></p></div>
-    <div><strong>Endereço:</strong><p><?php echo htmlspecialchars($usuario['endereço']); ?></p></div>
+    <div><strong>Endereço:</strong><p><?php echo htmlspecialchars($usuario['endereco']); ?></p></div>
     <div><strong>Formação:</strong><p><?php echo htmlspecialchars($usuario['formacao']); ?></p></div>
     <div><strong>Experiência Profissional:</strong><p><?php echo nl2br(htmlspecialchars($usuario['experiencia_profissional'])); ?></p></div>
     <div><strong>Interesses:</strong><p><?php echo nl2br(htmlspecialchars($usuario['interesses'])); ?></p></div>
