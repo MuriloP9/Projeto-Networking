@@ -15,7 +15,7 @@ CREATE TABLE Usuario (
     email NVARCHAR(100) UNIQUE NOT NULL,
     senha NVARCHAR(255) NOT NULL,
     dataNascimento DATE NOT NULL,
-    telefone NVARCHAR(15) NOT NULL
+it     telefone NVARCHAR(15) NOT NULL
 );
 GO
 
