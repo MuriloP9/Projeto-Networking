@@ -113,7 +113,7 @@
 <?php
 session_start(); // Inicia a sessão
 function conectar() {
-    //$local_server = "PC_NASA\SQLEXPRESS";
+    //$local_server = "PCNASA";
     $local_server = "Book3-Marina";
     $usuario_server = "sa";               
     $senha_server = "etesp";              
