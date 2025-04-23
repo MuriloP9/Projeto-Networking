@@ -111,22 +111,7 @@
 <body>
 
 <?php
-session_start(); // Inicia a sessão
-function conectar() {
-    //$local_server = "PCNASA";
-    $local_server = "Book3-Marina";
-    $usuario_server = "sa";               
-    $senha_server = "etesp";              
-    $banco_de_dados = "prolink";         
-
-    try {
-        $pdo = new PDO("sqlsrv:server=$local_server;database=$banco_de_dados", $usuario_server, $senha_server);
-        return $pdo;
-    } catch (Exception $erro) {
-        echo "ATENÇÃO - ERRO NA CONEXÃO: " . $erro->getMessage();
-        die;
-    }
-}
+include("../php/conexao.php"); 
 
 $pdo = conectar(); 
 
@@ -186,11 +171,11 @@ if ($searchQuery !== '') {
             </div>
             <ul class="menu">
                 <li><a href="../php/index.php">Home</a></li>
-                <li><a href="../php/pagina_emprego.php">Oportunidades de Trabalho</a></li>
+                <li><a href="../php/paginaEmprego.php">Oportunidades de Trabalho</a></li>
                 <li><a href="../php/pagina_webinar.php">Webinars</a></li>
             </ul>
             <div class="profile">
-                <a href="../php//perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
+                <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
             </div>
         </nav>
     </header>

@@ -1,5 +1,6 @@
 <?php
-include("../php/cadastro.php"); 
+session_start();
+include("../php/conexao.php"); 
 
 // Verifica se o usuário está logado
 if (!isset($_SESSION['usuario_logado']) || $_SESSION['usuario_logado'] !== true) {

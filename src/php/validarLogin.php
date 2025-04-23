@@ -1,21 +1,7 @@
 <?php
 session_start(); // Inicia a sessão
 
-function conectar() {
-    //$local_server = "PCNASA";
-    $local_server = "Book3-Marina";
-    $usuario_server = "sa";               
-    $senha_server = "etesp";              
-    $banco_de_dados = "prolink";         
-
-    try {
-        $pdo = new PDO("sqlsrv:server=$local_server;database=$banco_de_dados", $usuario_server, $senha_server);
-        return $pdo;
-    } catch (Exception $erro) {
-        echo "ATENÇÃO - ERRO NA CONEXÃO: " . $erro->getMessage();
-        die;
-    }
-}
+include("../php/conexao.php"); 
 
 $pdo = conectar(); 
 
