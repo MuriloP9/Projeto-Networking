@@ -23,6 +23,10 @@
                 <h1>Cadastro</h1>
                 <form id="cadastroForm" action="../php/cadastro.php" method="POST">
                     <div class="form-group">
+                        <label for="foto_perfil">Foto de Perfil:</label>
+                        <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*">
+                    </div>
+                    <div class="form-group">
                         <label for="nome">Nome Completo:</label>
                         <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
                     </div>
@@ -280,8 +284,10 @@ $(document).ready(function () {
         const interesses = $('#interesses').val();
         const projetos_especializacoes = $('#projetos_especializacoes').val();
         const habilidades = $('#habilidades').val();
+        const formData = new FormData($('#cadastroForm')[0]);
 
-        if (!nome || !email || !senha || !dataNascimento || !telefone) {
+        if (!formData.get('nome') || !formData.get('email') || !formData.get('senha') || 
+            !formData.get('dataNascimento') || !formData.get('telefone')) {
             alert('Por favor, preencha todos os campos obrigatórios!');
             return;
         }
@@ -289,20 +295,9 @@ $(document).ready(function () {
         $.ajax({
             url: '../php/cadastro.php',
             type: 'POST',
-            data: {
-                nome,
-                email,
-                senha,
-                dataNascimento,
-                telefone,
-                idade,
-                endereco,
-                formacao,
-                experiencia_profissional,
-                interesses,
-                projetos_especializacoes,
-                habilidades
-            },
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function (response) {
                 if (response.trim() === "ok") {
                     window.location.href = '../pages/inclusaoCadastro.html';

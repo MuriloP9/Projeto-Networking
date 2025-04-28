@@ -21,8 +21,11 @@ CREATE TABLE Usuario (
     dataNascimento DATE NULL,
     telefone NVARCHAR(15) NULL,
     qr_code NVARCHAR(255) NULL,
+    data_criacao DATETIME NOT NULL DEFAULT GETDATE(),
     data_geracao_qr DATETIME NULL,
-	foto_perfil VARBINARY(MAX) NULL
+    ultimo_acesso DATETIME NULL,
+    ativo BIT DEFAULT 1,
+    foto_perfil VARBINARY(MAX) NULL
 );
 GO
 

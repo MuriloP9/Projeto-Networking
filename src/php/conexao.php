@@ -4,7 +4,7 @@ function conectar() {
     //$local_server = "Book3-Marina";
     $usuario_server = "sa";
     $senha_server = "etesp";
-    $banco_de_dados = "prolink";
+    $banco_de_dados = "Prolink05";
 
     try {
         $pdo = new PDO("sqlsrv:server=$local_server;database=$banco_de_dados", $usuario_server, $senha_server);
