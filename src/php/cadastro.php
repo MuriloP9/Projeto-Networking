@@ -3,27 +3,31 @@ session_start();
 
 // Função para conectar ao banco de dados
 include("../php/conexao.php"); 
+
+// Função para limpar e normalizar strings
 function limpar($valor) {
+    // Remove caracteres especiais problemáticos
+    $valor = preg_replace('/[^\x20-\x7E]/u', '', $valor);
     return htmlspecialchars(trim($valor), ENT_QUOTES, 'UTF-8');
 }
 
 // Verifica se o formulário foi enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Dados básicos do usuário
-    $nome = isset($_POST["nome"]) ? limpar($_POST["nome"]) : null;
+    // Dados básicos do usuário (com tratamento especial de encoding)
+    $nome = isset($_POST["nome"]) ? mb_convert_encoding(limpar($_POST["nome"]), 'UTF-8', 'auto') : null;
     $email = isset($_POST["email"]) ? filter_var(trim($_POST["email"]), FILTER_VALIDATE_EMAIL) : null;
     $senha = isset($_POST["senha"]) ? trim($_POST["senha"]) : null;
     $dataNascimento = isset($_POST["dataNascimento"]) ? trim($_POST["dataNascimento"]) : null;
-    $telefone = isset($_POST["telefone"]) ? limpar($_POST["telefone"]) : null;
+    $telefone = isset($_POST["telefone"]) ? mb_convert_encoding(limpar($_POST["telefone"]), 'ASCII', 'auto') : null;
     
-    // Dados do perfil
+    // Dados do perfil (com tratamento de encoding)
     $idade = isset($_POST["idade"]) ? filter_var($_POST["idade"], FILTER_VALIDATE_INT) : null;
-    $endereco = isset($_POST["endereco"]) ? limpar($_POST["endereco"]) : null;
-    $formacao = isset($_POST["formacao"]) ? limpar($_POST["formacao"]) : null;
-    $experiencia_profissional = isset($_POST["experiencia_profissional"]) ? limpar($_POST["experiencia_profissional"]) : null;
-    $interesses = isset($_POST["interesses"]) ? limpar($_POST["interesses"]) : null;
-    $projetos_especializacoes = isset($_POST["projetos_especializacoes"]) ? limpar($_POST["projetos_especializacoes"]) : null;
-    $habilidades = isset($_POST["habilidades"]) ? limpar($_POST["habilidades"]) : null;
+    $endereco = isset($_POST["endereco"]) ? mb_convert_encoding(limpar($_POST["endereco"]), 'UTF-8', 'auto') : null;
+    $formacao = isset($_POST["formacao"]) ? mb_convert_encoding(limpar($_POST["formacao"]), 'UTF-8', 'auto') : null;
+    $experiencia_profissional = isset($_POST["experiencia_profissional"]) ? mb_convert_encoding(limpar($_POST["experiencia_profissional"]), 'UTF-8', 'auto') : null;
+    $interesses = isset($_POST["interesses"]) ? mb_convert_encoding(limpar($_POST["interesses"]), 'UTF-8', 'auto') : null;
+    $projetos_especializacoes = isset($_POST["projetos_especializacoes"]) ? mb_convert_encoding(limpar($_POST["projetos_especializacoes"]), 'UTF-8', 'auto') : null;
+    $habilidades = isset($_POST["habilidades"]) ? mb_convert_encoding(limpar($_POST["habilidades"]), 'UTF-8', 'auto') : null;
 
     // Validação dos campos obrigatórios
     if (!$nome || !$email || !$senha || !$dataNascimento || !$telefone) {
@@ -36,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Verifica se o email já existe
     $query = $pdo->prepare("SELECT COUNT(*) FROM Usuario WHERE email = :email");
-    $query->bindValue(":email", $email);
+    $query->bindValue(":email", $email, PDO::PARAM_STR);
     $query->execute();
     $count = $query->fetchColumn();
 
@@ -45,71 +49,70 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
     
-    // Processamento da foto de perfil (se enviada)
+    // Processamento da foto de perfil (binário)
     $foto_perfil = null;
     if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
+        // Validação da imagem
+        $mime = mime_content_type($_FILES['foto_perfil']['tmp_name']);
+        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/gif'])) {
+            echo "Formato de imagem inválido! Apenas JPEG, PNG ou GIF são permitidos.";
+            exit;
+        }
+        
+        // Verifica tamanho máximo (5MB)
+        if ($_FILES['foto_perfil']['size'] > 5 * 1024 * 1024) {
+            echo "A imagem deve ter no máximo 5MB!";
+            exit;
+        }
+        
         $foto_temp = $_FILES['foto_perfil']['tmp_name'];
         $foto_perfil = file_get_contents($foto_temp);
     }
 
-    // Hash da senha para segurança
-    //$senha_hash = password_hash($senha, PASSWORD_DEFAULT);
-    
-    // Geração do QR Code (vamos criar um link único para o perfil do usuário)
-    $token_qr = bin2hex(random_bytes(16)); // Token único para o QR Code
+    // Geração do QR Code
+    $token_qr = bin2hex(random_bytes(16));
     $link_qr = "https://seusite.com/perfil/" . $token_qr;
     
-    // Você pode usar uma biblioteca como phpqrcode para gerar o QR code de fato
-    // Inclua a biblioteca QRCode (baixe em: http://phpqrcode.sourceforge.net/)
     include('phpqrcode/qrlib.php');
     
-    // Diretório para salvar os QR codes
     $qr_dir = '../qrcodes/';
     if (!file_exists($qr_dir)) {
         mkdir($qr_dir, 0777, true);
     }
     
-    // Nome do arquivo QR code
     $qr_file = $qr_dir . 'qr_' . $token_qr . '.png';
-    
-    // Gerar QR code
     QRcode::png($link_qr, $qr_file, QR_ECLEVEL_L, 10);
-    
-    // Caminho relativo para salvar no banco
     $qr_code_path = 'qrcodes/qr_' . $token_qr . '.png';
     
     try {
-        // Inserir dados na tabela Usuario
+        $pdo->beginTransaction();
+        
+        // 1. Primeiro insere os dados básicos sem a foto
         $sql = $pdo->prepare("INSERT INTO Usuario 
-                            (nome, email, senha, dataNascimento, telefone, qr_code, data_geracao_qr, foto_perfil) 
-                            VALUES (:nome, :email, :senha, :dataNascimento, :telefone, :qr_code, GETDATE(), CONVERT(VARBINARY(MAX), :foto_perfil))");
+                            (nome, email, senha, dataNascimento, telefone, qr_code, data_geracao_qr) 
+                            VALUES (:nome, :email, :senha, :dataNascimento, :telefone, :qr_code, GETDATE())");
         
-        $sql->bindValue(":nome", $nome);
-        $sql->bindValue(":email", $email);
-        $sql->bindValue(":senha", $senha);
-        $sql->bindValue(":dataNascimento", $dataNascimento);
-        $sql->bindValue(":telefone", $telefone);
-        $sql->bindValue(":qr_code", $qr_code_path);
-        
-        // Tratamento especial para a foto
-        if ($foto_perfil) {
-            $sql->bindValue(":foto_perfil", $foto_perfil, PDO::PARAM_LOB);
-        } else {
-            $sql->bindValue(":foto_perfil", null, PDO::PARAM_NULL);
-        }
+        $sql->bindValue(":nome", $nome, PDO::PARAM_STR);
+        $sql->bindValue(":email", $email, PDO::PARAM_STR);
+        $sql->bindValue(":senha", $senha, PDO::PARAM_STR);
+        $sql->bindValue(":dataNascimento", $dataNascimento, PDO::PARAM_STR);
+        $sql->bindValue(":telefone", $telefone, PDO::PARAM_STR);
+        $sql->bindValue(":qr_code", $qr_code_path, PDO::PARAM_STR);
         
         $sql->execute();
-
-        // Recupera o ID do usuário recém-cadastrado
         $id_usuario = $pdo->lastInsertId();
 
-        // Define as variáveis de sessão
-        $_SESSION['cadastro_realizado'] = true;
-        $_SESSION['id_usuario'] = $id_usuario;
-        $_SESSION['qr_code'] = $qr_code_path;
-        $_SESSION['link_qr'] = $link_qr;
+        // 2. Se há imagem, atualiza separadamente com tratamento especial
+        if ($foto_perfil) {
+            $sql_foto = $pdo->prepare("UPDATE Usuario SET foto_perfil = CONVERT(VARBINARY(MAX), :foto) WHERE id_usuario = :id");
+            
+            // Método recomendado para SQL Server
+            $sql_foto->bindParam(":foto", $foto_perfil, PDO::PARAM_LOB, 0, PDO::SQLSRV_ENCODING_BINARY);
+            $sql_foto->bindValue(":id", $id_usuario, PDO::PARAM_INT);
+            $sql_foto->execute();
+        }
 
-        // Inserir dados na tabela Perfil
+        // 3. Inserir dados do perfil
         $sql_perfil = $pdo->prepare("
             INSERT INTO Perfil (id_usuario, idade, endereco, formacao, experiencia_profissional, 
                               interesses, projetos_especializacoes, habilidades)
@@ -117,27 +120,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     :interesses, :projetos_especializacoes, :habilidades)
         ");
         
-        $sql_perfil->bindValue(":id_usuario", $id_usuario);
-        $sql_perfil->bindValue(":idade", $idade);
-        $sql_perfil->bindValue(":endereco", $endereco);
-        $sql_perfil->bindValue(":formacao", $formacao);
-        $sql_perfil->bindValue(":experiencia_profissional", $experiencia_profissional);
-        $sql_perfil->bindValue(":interesses", $interesses);
-        $sql_perfil->bindValue(":projetos_especializacoes", $projetos_especializacoes);
-        $sql_perfil->bindValue(":habilidades", $habilidades);
+        $sql_perfil->bindValue(":id_usuario", $id_usuario, PDO::PARAM_INT);
+        $sql_perfil->bindValue(":idade", $idade, PDO::PARAM_INT);
+        $sql_perfil->bindValue(":endereco", $endereco, PDO::PARAM_STR);
+        $sql_perfil->bindValue(":formacao", $formacao, PDO::PARAM_STR);
+        $sql_perfil->bindValue(":experiencia_profissional", $experiencia_profissional, PDO::PARAM_STR);
+        $sql_perfil->bindValue(":interesses", $interesses, PDO::PARAM_STR);
+        $sql_perfil->bindValue(":projetos_especializacoes", $projetos_especializacoes, PDO::PARAM_STR);
+        $sql_perfil->bindValue(":habilidades", $habilidades, PDO::PARAM_STR);
         
         $sql_perfil->execute();
+
+        $pdo->commit();
+
+        // Configuração da sessão
+        $_SESSION['cadastro_realizado'] = true;
+        $_SESSION['id_usuario'] = $id_usuario;
+        $_SESSION['qr_code'] = $qr_code_path;
+        $_SESSION['link_qr'] = $link_qr;
 
         echo "ok";
         exit;
         
     } catch (Exception $erro) {
-        // Remove o arquivo QR code se houve erro
+        $pdo->rollBack();
+        
+        // Remove arquivos temporários em caso de erro
         if (file_exists($qr_file)) {
             unlink($qr_file);
         }
         
+        // Mostra o erro real para diagnóstico
         echo "Erro ao cadastrar: " . $erro->getMessage();
+        error_log("Erro no cadastro: " . $erro->getMessage() . "\n" . $erro->getTraceAsString());
         exit;
     }
 }
