@@ -22,7 +22,7 @@
             <div class="form-container">
                 <h1>Cadastro</h1>
                 <form id="cadastroForm" action="../php/cadastro.php" method="POST">
-                    <div class="form-group">
+                    <div class="form-group upload-container">
                         <label for="foto_perfil">Foto de Perfil:</label>
                         <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*">
                     </div>
@@ -84,6 +84,49 @@
         <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
     </footer>
     <script src="../assets/js/script.js"></script>
+    <script> document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('foto_perfil');
+        const avatarPreview = document.createElement('div');
+        avatarPreview.className = 'avatar-preview';
+        
+        // Cria elemento de imagem para pré-visualização
+        const previewImage = document.createElement('img');
+        previewImage.src = '../assets/img/userp.jpg'; // Imagem padrão
+        previewImage.alt = 'Pré-visualização do avatar';
+        avatarPreview.appendChild(previewImage);
+        
+        // Insere o container de pré-visualização antes do input
+        fileInput.parentNode.insertBefore(avatarPreview, fileInput.nextSibling);
+        
+        // Adiciona label personalizada
+        const uploadLabel = document.createElement('label');
+        uploadLabel.htmlFor = 'foto_perfil';
+        uploadLabel.className = 'upload-label';
+        uploadLabel.textContent = 'Escolher Foto';
+        avatarPreview.parentNode.insertBefore(uploadLabel, avatarPreview.nextSibling);
+        
+        // Adiciona instruções
+        const instructions = document.createElement('div');
+        instructions.className = 'upload-instructions';
+        instructions.textContent = 'Clique para selecionar uma imagem';
+        uploadLabel.parentNode.insertBefore(instructions, uploadLabel.nextSibling);
+        
+        // Atualiza a pré-visualização quando uma imagem é selecionada
+        fileInput.addEventListener('change', function(e) {
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    avatarPreview.classList.add('has-image');
+                }
+                
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        });
+    });</script>
+   
+
 </body>
 </html>
 
@@ -253,6 +296,96 @@ footer {
     width: 100%;
     max-width: 400px; /* Define o tamanho máximo da imagem */
     height: auto;
+}
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="date"],
+.form-group input[type="tel"],
+.form-group input[type="number"],
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #3b6ebb;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    margin-bottom: 10px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #0e1768;
+    box-shadow: 0 0 0 3px rgba(59, 110, 187, 0.2);
+    background-color: #fff;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Estilo especial para o campo de upload de imagem */
+.form-group input[type="file"] {
+    display: none; /* Esconde o input padrão */
+}
+
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.avatar-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #f0f2f5;
+    border: 3px solid #3b6ebb;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upload-label {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #3b6ebb;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    font-weight: 500;
+}
+
+.upload-label:hover {
+    background-color: #0e1768;
+    transform: translateY(-2px);
+}
+
+.upload-instructions {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+    text-align: center;
+}
+
+/* Estilo para quando uma imagem é selecionada */
+.avatar-preview.has-image {
+    border-color: #0e1768;
 }
 
 /* Estilos adicionais para responsividade */
