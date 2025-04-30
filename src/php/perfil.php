@@ -12,12 +12,22 @@ $id_usuario = $_SESSION['id_usuario'];
 
 try {
     $pdo = conectar();
-    $sql = $pdo->prepare("SELECT nome FROM Usuario WHERE id_usuario = :id_usuario");
+    
+    // Busca os dados básicos do usuário incluindo a foto
+    $sql = $pdo->prepare("SELECT nome, foto_perfil FROM Usuario WHERE id_usuario = :id_usuario");
     $sql->bindValue(":id_usuario", $id_usuario);
     $sql->execute();
-    $usuario = $sql->fetch(PDO::FETCH_ASSOC);
-    $nome = $usuario ? $usuario['nome'] : "Usuário";
+    $usuario_basico = $sql->fetch(PDO::FETCH_ASSOC);
+    $nome = $usuario_basico ? $usuario_basico['nome'] : "Usuário";
+    
+    // Verifica se há foto de perfil
+    $foto_perfil = null;
+    if (!empty($usuario_basico['foto_perfil'])) {
+        // Se a foto estiver em formato binário no banco
+        $foto_perfil = 'data:image/jpeg;base64,' . base64_encode($usuario_basico['foto_perfil']);
+    }
 
+    // Busca os dados completos do perfil
     $sql = $pdo->prepare("
         SELECT u.nome, u.email, u.dataNascimento, u.telefone, 
                COALESCE(p.idade, NULL) as idade, 
@@ -160,6 +170,27 @@ try {
         .caixa-central .projetos ul {
             padding-left: 1em;
         }
+
+        .box-imagem {
+        background-color: #3b6ebb;
+        border-radius: 50%;
+        padding: 10px;
+        margin-right: 1em;
+        width: 110px; /* Tamanho fixo para o círculo */
+        height: 110px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden; /* Garante que a imagem não ultrapasse o círculo */
+       }
+
+       .perfil-imagem {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Garante que a imagem cubra todo o espaço sem distorcer */
+        border-radius: 50%; /* Garante que a imagem fique redonda */
+        border: 2px solid white; /* Borda branca ao redor da foto */
+       }
         /* Responsividade */
         @media (max-width: 1200px) {
             .cabecalho {
@@ -264,11 +295,15 @@ try {
 
 <div class="cabecalho">
     <div class="box-imagem">
-        <img src="../assets/img/userp.jpg" alt="Avatar" class="perfil-imagem">
+        <?php if ($foto_perfil): ?>
+            <img src="<?php echo $foto_perfil; ?>" alt="Foto de perfil" class="perfil-imagem">
+        <?php else: ?>
+            <img src="../assets/img/userp.jpg" alt="Avatar padrão" class="perfil-imagem">
+        <?php endif; ?>
     </div>
     <div class="info-usuario">
-    <h1>Perfil</h1>
-    <p><?php echo htmlspecialchars($nome); ?></p>
+        <h1>Perfil</h1>
+        <p><?php echo htmlspecialchars($nome); ?></p>
     </div>
 </div>
 

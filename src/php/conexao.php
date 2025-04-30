@@ -3,7 +3,7 @@ function conectar() {
     $local_server = "PCNASA";
     $usuario_server = "sa";
     $senha_server = "etesp";
-    $banco_de_dados = "Prolink05";
+    $banco_de_dados = "prolink";
 
     try {
         $pdo = new PDO(
