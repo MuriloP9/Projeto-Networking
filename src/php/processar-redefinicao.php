@@ -1,60 +1,50 @@
 <?php
 session_start();
-include("../php/conexao.php");
+header('Content-Type: application/json');
+require_once 'conexao.php';
 
-$token = filter_input(INPUT_POST, 'token', FILTER_SANITIZE_STRING);
+$hash = filter_input(INPUT_POST, 'hash', FILTER_SANITIZE_STRING);
 $nova_senha = filter_input(INPUT_POST, 'nova_senha', FILTER_SANITIZE_STRING);
 $confirmar_senha = filter_input(INPUT_POST, 'confirmar_senha', FILTER_SANITIZE_STRING);
 
-if (!$token) {
-    echo json_encode(['sucesso' => false, 'mensagem' => 'Token inválido.']);
-    exit;
-}
-
-if (!$nova_senha || !$confirmar_senha) {
-    echo json_encode(['sucesso' => false, 'mensagem' => 'Por favor, preencha todos os campos.']);
+// Validações básicas
+if (!$hash || !$nova_senha || !$confirmar_senha) {
+    echo json_encode(['sucesso' => false, 'mensagem' => 'Dados incompletos']);
     exit;
 }
 
 if ($nova_senha !== $confirmar_senha) {
-    echo json_encode(['sucesso' => false, 'mensagem' => 'As senhas não coincidem.']);
+    echo json_encode(['sucesso' => false, 'mensagem' => 'As senhas não coincidem']);
     exit;
 }
 
 if (strlen($nova_senha) < 6) {
-    echo json_encode(['sucesso' => false, 'mensagem' => 'A senha deve ter pelo menos 6 caracteres.']);
+    echo json_encode(['sucesso' => false, 'mensagem' => 'A senha deve ter pelo menos 6 caracteres']);
     exit;
 }
 
 try {
     $pdo = conectar();
     
-    // Verifica se o token é válido e não expirou
-    $stmt = $pdo->prepare("
-        SELECT t.id_usuario, t.token 
-        FROM tokens_redefinicao t
-        JOIN Usuario u ON t.id_usuario = u.id_usuario
-        WHERE t.token = ? AND t.expiracao > NOW()
-    ");
-    $stmt->execute([$token]);
-    $token_valido = $stmt->fetch();
+    // Verifica o hash novamente (proteção contra mudanças durante o preenchimento do formulário)
+    $stmt = $pdo->prepare("SELECT id_usuario FROM Usuario WHERE reset_hash = ? AND hash_expiracao > NOW()");
+    $stmt->execute([$hash]);
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if (!$token_valido) {
-        echo json_encode(['sucesso' => false, 'mensagem' => 'Token inválido ou expirado. Solicite um novo link.']);
+    if (!$usuario) {
+        echo json_encode(['sucesso' => false, 'mensagem' => 'Link inválido ou expirado. Solicite um novo.']);
         exit;
     }
     
-    // Atualiza a senha do usuário
-    $stmt = $pdo->prepare("UPDATE Usuario SET senha = ? WHERE id_usuario = ?");
-    $stmt->execute([$nova_senha, $token_valido['id_usuario']]);
-    
-    // Remove o token usado
-    $stmt = $pdo->prepare("DELETE FROM tokens_redefinicao WHERE token = ?");
-    $stmt->execute([$token]);
+    // Atualiza a senha e limpa o hash
+    $senha_hash = password_hash($nova_senha, PASSWORD_DEFAULT);
+    $update = $pdo->prepare("UPDATE Usuario SET senha = ?, reset_hash = NULL, hash_expiracao = NULL WHERE id_usuario = ?");
+    $update->execute([$senha_hash, $usuario['id_usuario']]);
     
     echo json_encode(['sucesso' => true, 'mensagem' => 'Senha redefinida com sucesso!']);
     
-} catch (Exception $e) {
-    echo json_encode(['sucesso' => false, 'mensagem' => 'Erro ao redefinir senha: ' . $e->getMessage()]);
+} catch (PDOException $e) {
+    error_log("Erro PDO: " . $e->getMessage());
+    echo json_encode(['sucesso' => false, 'mensagem' => 'Erro ao redefinir senha. Tente novamente.']);
 }
 ?>
