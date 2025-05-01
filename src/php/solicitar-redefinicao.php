@@ -1,53 +1,55 @@
 <?php
-session_start();
-header('Content-Type: application/json');
-require_once '../php/conexao.php';
+require_once 'conexao.php';
 
-// Validação do email
-$email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(['sucesso' => false, 'mensagem' => 'Email inválido']);
-    exit;
+header('Content-Type: application/json');
+
+function gerarToken() {
+    return bin2hex(random_bytes(32));
 }
+
+$response = ['sucesso' => false, 'mensagem' => ''];
 
 try {
     $pdo = conectar();
+    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
     
-    // Verifica se o usuário existe
-    $stmt = $pdo->prepare("SELECT id_usuario FROM Usuario WHERE email = ?");
+    if (!$email) {
+        throw new Exception('Email inválido.');
+    }
+
+    // Verifica se o email existe
+    $stmt = $pdo->prepare("SELECT id_usuario, nome FROM Usuario WHERE email = ?");
     $stmt->execute([$email]);
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if ($stmt->rowCount() === 0) {
-        echo json_encode(['sucesso' => false, 'mensagem' => 'Email não encontrado']);
-        exit;
+    if (!$usuario) {
+        throw new Exception('Email não encontrado em nosso sistema.');
     }
+
+    // Gera token
+    $token = gerarToken();
+    $expiracao = date('Y-m-d H:i:s', strtotime('+1 hour'));
     
-    // Gera hash único e data de expiração (30 minutos)
-    $hash = bin2hex(random_bytes(32));
-    $expiracao = date('Y-m-d H:i:s', strtotime('+30 minutes'));
+    // Armazena no banco (corrigido o nome da tabela)
+    $stmt = $pdo->prepare("INSERT INTO tokens_redefinicao (id_usuario, token, expiracao) VALUES (?, ?, ?)");
+    $stmt->execute([$usuario['id_usuario'], $token, $expiracao]);
+
+    // Versão para desenvolvimento (simulada)
+    $resetLink = "http://localhost/prolink/redefinir-senha.php?token=$token";
+    $mensagemEmail = "Para: $email\nAssunto: Redefinição de Senha\n\nClique no link para redefinir sua senha: $resetLink\n\n";
+    file_put_contents('email_simulado.txt', $mensagemEmail, FILE_APPEND);
     
-    // Atualiza o usuário com o hash
-    $update = $pdo->prepare("UPDATE Usuario SET reset_hash = ?, hash_expiracao = ? WHERE email = ?");
-    $update->execute([$hash, $expiracao, $email]);
-    
-    // Envia email com link direto
-    $link = "https://seusite.com/redefinir-senha?hash=" . urlencode($hash);
-    
-    $assunto = "Redefinição de Senha - ProLink";
-    $mensagem = "Clique no link abaixo para redefinir sua senha (válido por 30 minutos):\n\n$link";
-    $headers = "From: noreply@seusite.com";
-    
-    if (mail($email, $assunto, $mensagem, $headers)) {
-        echo json_encode(['sucesso' => true, 'mensagem' => 'Link de redefinição enviado para seu email']);
-    } else {
-        throw new Exception('Falha ao enviar email');
-    }
-    
-} catch (PDOException $e) {
-    error_log("Erro PDO: " . $e->getMessage());
-    echo json_encode(['sucesso' => false, 'mensagem' => 'Erro no servidor. Tente novamente.']);
+    $response = [
+        'sucesso' => true,
+        'mensagem' => 'Um link de redefinição foi enviado para seu email (simulado). Verifique o arquivo email_simulado.txt no servidor.',
+        'dev_link' => $resetLink // Apenas para desenvolvimento
+    ];
+
 } catch (Exception $e) {
-    error_log("Erro: " . $e->getMessage());
-    echo json_encode(['sucesso' => false, 'mensagem' => $e->getMessage()]);
+    // Log do erro para debug
+    error_log('Erro em solicitar-redefinicao.php: ' . $e->getMessage());
+    $response['mensagem'] = 'Erro ao processar sua solicitação. Detalhes: ' . $e->getMessage();
 }
+
+echo json_encode($response);
 ?>
