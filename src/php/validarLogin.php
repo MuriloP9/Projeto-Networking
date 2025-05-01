@@ -24,7 +24,9 @@ $pdo = conectar();
 
 try {
     // Verifica se o usuário existe no banco de dados
-    $sql = $pdo->prepare("SELECT * FROM Usuario WHERE email = :email AND senha = :senha");
+    $sql = $pdo->prepare("SELECT u.*, p.id_perfil FROM Usuario u 
+    LEFT JOIN Perfil p ON u.id_usuario = p.id_usuario
+    WHERE u.email = :email AND u.senha = :senha");
     $sql->bindValue(":email", $email);
     $sql->bindValue(":senha", $senha);
     $sql->execute();
@@ -36,6 +38,8 @@ try {
         $_SESSION['usuario_logado'] = true;
         $_SESSION['nome_usuario'] = $usuario['nome'];
         $_SESSION['id_usuario'] = $usuario['id_usuario'];
+        $_SESSION['id_perfil'] = $usuario['id_perfil']; // Adiciona o id_perfil na sessão
+
 
         // Retorna uma resposta JSON de sucesso
         echo json_encode(['sucesso' => true, 'mensagem' => 'Login realizado com sucesso!']);
@@ -48,5 +52,3 @@ try {
 }
 
 ?>
-
-
