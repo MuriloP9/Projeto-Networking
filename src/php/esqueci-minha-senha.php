@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperação de Senha - ProLink</title>
+    <link rel="icon" type="image/x-icon" href="src/imgs/icons/logo-ico.ico">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;900&display=swap" rel="stylesheet">
     <style>
         body {
@@ -112,55 +113,65 @@
         <h1>Recuperação de Senha</h1>
         <div id="message" class="message"></div>
         
-        <div id="requestForm">
+        <form method="post" id="requestForm">
             <div class="textfield">
                 <label for="email">Email cadastrado</label>
                 <input type="email" id="email" name="email" placeholder="Digite seu email" required>
             </div>
-            <button type="button" class="btn-submit" id="btnRequest">Solicitar Redefinição</button>
+            <button type="submit" class="btn-submit" id="btnRequest">Solicitar Redefinição</button>
             <div class="login-link">
-                Lembrou sua senha? <a href="../pages/login.html">Faça login</a>
+                Lembrou sua senha? <a href="index.html">Faça login</a>
             </div>
-        </div>
+        </form>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#btnRequest').click(function() {
-                var email = $('#email').val();
-                
-                if (!email) {
-                    showMessage('Por favor, insira seu email', 'error');
-                    return;
-                }
-                
-                $.ajax({
-                    url: '../php/solicitar-redefinicao.php',
-                    type: 'POST',
-                    data: { email: email },
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.sucesso) {
-                            showMessage(response.mensagem, 'success');
-                        } else {
-                            showMessage(response.mensagem, 'error');
-                        }
-                    },
-                    error: function() {
-                        showMessage('Erro ao processar sua solicitação. Tente novamente.', 'error');
-                    }
-                });
-            });
-            
-            function showMessage(msg, type) {
-                var messageDiv = $('#message');
-                messageDiv.removeClass('success error').addClass(type).text(msg).fadeIn();
-                setTimeout(function() {
-                    messageDiv.fadeOut();
-                }, 5000);
+    <?php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            include("../php/conexao.php"); 
+            $pdo = conectar();
+
+            // Verificar se o email existe na tabela Usuario
+            $sql = "SELECT email FROM Usuario WHERE email = :email";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(":email", $email);
+            $stmt->execute();
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($resultado) {
+                $_POST['email'] = $email;
+                include("../php/recuperarSenha.php"); 
+                echo "<script>
+                    document.getElementById('message').className = 'message success';
+                    document.getElementById('message').style.display = 'block';
+                    document.getElementById('message').textContent = 'Mensagem enviada, por favor verifique sua caixa de entrada.';
+                    setTimeout(function() {
+                        document.getElementById('message').style.display = 'none';
+                    }, 5000);
+                </script>";
+            } else {
+                echo "<script>
+                    document.getElementById('message').className = 'message error';
+                    document.getElementById('message').style.display = 'block';
+                    document.getElementById('message').textContent = 'Este email não está cadastrado em nosso sistema.';
+                    setTimeout(function() {
+                        document.getElementById('message').style.display = 'none';
+                    }, 5000);
+                </script>";
             }
-        });
-    </script>
+        } else {
+            echo "<script>
+                document.getElementById('message').className = 'message error';
+                document.getElementById('message').style.display = 'block';
+                document.getElementById('message').textContent = 'Por favor, insira um email válido.';
+                setTimeout(function() {
+                    document.getElementById('message').style.display = 'none';
+                }, 5000);
+            </script>";
+        }
+    }
+    ?>
 </body>
 </html>
