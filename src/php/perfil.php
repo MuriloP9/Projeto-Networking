@@ -9,12 +9,124 @@ if (!isset($_SESSION['usuario_logado']) || $_SESSION['usuario_logado'] !== true)
 }
 
 $id_usuario = $_SESSION['id_usuario'];
+$mensagem = '';
 
+// Função para limpar e normalizar strings (igual ao cadastro.php)
+function limpar($valor) {
+    $valor = preg_replace('/[^\x20-\x7E]/u', '', $valor);
+    return htmlspecialchars(trim($valor), ENT_QUOTES, 'UTF-8');
+}
+
+// Processamento do formulário de edição
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $pdo = conectar();
+        
+        // Dados básicos (com tratamento de encoding igual ao cadastro.php)
+        $nome = isset($_POST["nome"]) ? mb_convert_encoding(limpar($_POST["nome"]), 'UTF-8', 'auto') : null;
+        $telefone = isset($_POST["telefone"]) ? mb_convert_encoding(limpar($_POST["telefone"]), 'ASCII', 'auto') : null;
+        $dataNascimento = isset($_POST["dataNascimento"]) ? trim($_POST["dataNascimento"]) : null;
+        
+        // Dados do perfil (com tratamento de encoding)
+        $idade = isset($_POST["idade"]) ? filter_var($_POST["idade"], FILTER_VALIDATE_INT) : null;
+        $endereco = isset($_POST["endereco"]) ? mb_convert_encoding(limpar($_POST["endereco"]), 'UTF-8', 'auto') : null;
+        $formacao = isset($_POST["formacao"]) ? mb_convert_encoding(limpar($_POST["formacao"]), 'UTF-8', 'auto') : null;
+        $experiencia_profissional = isset($_POST["experiencia_profissional"]) ? mb_convert_encoding(limpar($_POST["experiencia_profissional"]), 'UTF-8', 'auto') : null;
+        $interesses = isset($_POST["interesses"]) ? mb_convert_encoding(limpar($_POST["interesses"]), 'UTF-8', 'auto') : null;
+        $projetos_especializacoes = isset($_POST["projetos_especializacoes"]) ? mb_convert_encoding(limpar($_POST["projetos_especializacoes"]), 'UTF-8', 'auto') : null;
+        $habilidades = isset($_POST["habilidades"]) ? mb_convert_encoding(limpar($_POST["habilidades"]), 'UTF-8', 'auto') : null;
+
+        $pdo->beginTransaction();
+        
+        // Atualiza os dados básicos na tabela Usuario
+        $sql = $pdo->prepare("UPDATE Usuario SET nome = :nome, telefone = :telefone, dataNascimento = :dataNascimento WHERE id_usuario = :id_usuario");
+        $sql->bindValue(":nome", $nome, PDO::PARAM_STR);
+        $sql->bindValue(":telefone", $telefone, PDO::PARAM_STR);
+        $sql->bindValue(":dataNascimento", $dataNascimento, PDO::PARAM_STR);
+        $sql->bindValue(":id_usuario", $id_usuario, PDO::PARAM_INT);
+        $sql->execute();
+        
+        // Processamento da foto de perfil (igual ao cadastro.php)
+        if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
+            // Validação da imagem
+            $mime = mime_content_type($_FILES['foto_perfil']['tmp_name']);
+            if (!in_array($mime, ['image/jpeg', 'image/png', 'image/gif'])) {
+                throw new Exception("Formato de imagem inválido! Apenas JPEG, PNG ou GIF são permitidos.");
+            }
+            
+            // Verifica tamanho máximo (5MB)
+            if ($_FILES['foto_perfil']['size'] > 5 * 1024 * 1024) {
+                throw new Exception("A imagem deve ter no máximo 5MB!");
+            }
+            
+            $foto_temp = $_FILES['foto_perfil']['tmp_name'];
+            $foto_perfil = file_get_contents($foto_temp);
+            
+            // Atualização da foto (usando o mesmo método que funciona no cadastro)
+            $sql_foto = $pdo->prepare("UPDATE Usuario SET foto_perfil = CONVERT(VARBINARY(MAX), :foto) WHERE id_usuario = :id");
+            $sql_foto->bindParam(":foto", $foto_perfil, PDO::PARAM_LOB, 0, PDO::SQLSRV_ENCODING_BINARY);
+            $sql_foto->bindValue(":id", $id_usuario, PDO::PARAM_INT);
+            $sql_foto->execute();
+        }
+        
+        // Verifica se já existe um perfil para o usuário
+        $sql = $pdo->prepare("SELECT COUNT(*) FROM Perfil WHERE id_usuario = :id_usuario");
+        $sql->bindValue(":id_usuario", $id_usuario, PDO::PARAM_INT);
+        $sql->execute();
+        $existe_perfil = $sql->fetchColumn();
+        
+        if ($existe_perfil > 0) {
+            // Atualiza o perfil existente
+            $sql = $pdo->prepare("
+                UPDATE Perfil SET 
+                    idade = :idade,
+                    endereco = :endereco,
+                    formacao = :formacao,
+                    experiencia_profissional = :experiencia_profissional,
+                    interesses = :interesses,
+                    projetos_especializacoes = :projetos_especializacoes,
+                    habilidades = :habilidades
+                WHERE id_usuario = :id_usuario
+            ");
+        } else {
+            // Insere um novo perfil
+            $sql = $pdo->prepare("
+                INSERT INTO Perfil (
+                    id_usuario, idade, endereco, formacao, 
+                    experiencia_profissional, interesses, 
+                    projetos_especializacoes, habilidades
+                ) VALUES (
+                    :id_usuario, :idade, :endereco, :formacao, 
+                    :experiencia_profissional, :interesses, 
+                    :projetos_especializacoes, :habilidades
+                )
+            ");
+        }
+        
+        // Vincula os parâmetros do perfil
+        $sql->bindValue(":id_usuario", $id_usuario, PDO::PARAM_INT);
+        $sql->bindValue(":idade", $idade, PDO::PARAM_INT);
+        $sql->bindValue(":endereco", $endereco, PDO::PARAM_STR);
+        $sql->bindValue(":formacao", $formacao, PDO::PARAM_STR);
+        $sql->bindValue(":experiencia_profissional", $experiencia_profissional, PDO::PARAM_STR);
+        $sql->bindValue(":interesses", $interesses, PDO::PARAM_STR);
+        $sql->bindValue(":projetos_especializacoes", $projetos_especializacoes, PDO::PARAM_STR);
+        $sql->bindValue(":habilidades", $habilidades, PDO::PARAM_STR);
+        $sql->execute();
+        
+        $pdo->commit();
+        $mensagem = "Perfil atualizado com sucesso!";
+        
+    } catch (Exception $erro) {
+        $pdo->rollBack();
+        $mensagem = "Erro ao atualizar perfil: " . $erro->getMessage();
+    }
+}
 try {
     $pdo = conectar();
 
     // Busca os dados básicos do usuário incluindo a foto
-    $sql = $pdo->prepare("SELECT nome, foto_perfil FROM Usuario WHERE id_usuario = :id_usuario");
+    $sql = $pdo->prepare("SELECT nome, foto_perfil, email, telefone, dataNascimento FROM Usuario WHERE id_usuario = :id_usuario");
     $sql->bindValue(":id_usuario", $id_usuario);
     $sql->execute();
     $usuario_basico = $sql->fetch(PDO::FETCH_ASSOC);
@@ -206,27 +318,21 @@ try {
             padding: 10px;
             margin-right: 1em;
             width: 110px;
-            /* Tamanho fixo para o círculo */
             height: 110px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            /* Garante que a imagem não ultrapasse o círculo */
         }
 
         .perfil-imagem {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /* Garante que a imagem cubra todo o espaço sem distorcer */
             border-radius: 50%;
-            /* Garante que a imagem fique redonda */
             border: 2px solid white;
-            /* Borda branca ao redor da foto */
         }
 
-        /* Fixando o footer na parte inferior */
         .footer-section {
             background-color: #2e2e2e;
             color: white;
@@ -249,7 +355,114 @@ try {
             height: 40px;
         }
 
-        /* Responsividade */
+        /* Estilos para o modal de edição */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 700px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="date"],
+        .form-group input[type="number"],
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            background-color: #3b6ebb;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background-color: #2e5ca8;
+        }
+
+        .btn-editar {
+            background-color: #3b6ebb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-editar:hover {
+            background-color: #2e5ca8;
+        }
+
+        .mensagem {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .sucesso {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .erro {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
         @media (max-width: 1200px) {
             .cabecalho {
                 width: 95%;
@@ -317,6 +530,11 @@ try {
             .imagem-projeto-perfil {
                 display: none;
             }
+
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
         }
 
         @media (max-width: 480px) {
@@ -354,6 +572,12 @@ try {
         </nav>
     </header>
 
+    <?php if (!empty($mensagem)): ?>
+        <div class="mensagem <?php echo strpos($mensagem, 'sucesso') !== false ? 'sucesso' : 'erro'; ?>">
+            <?php echo $mensagem; ?>
+        </div>
+    <?php endif; ?>
+
     <div class="cabecalho">
         <div class="box-imagem">
             <?php if ($foto_perfil): ?>
@@ -365,6 +589,7 @@ try {
         <div class="info-usuario">
             <h1>Perfil</h1>
             <p><?php echo htmlspecialchars($nome); ?></p>
+            <button class="btn-editar" onclick="abrirModal()">Editar Perfil</button>
         </div>
     </div>
 
@@ -410,6 +635,74 @@ try {
     <div class="caixa-central">
         <h2>Contato</h2>
         <p><strong>E-mail:</strong> <?php echo htmlspecialchars($usuario['email']); ?></p>
+        <p><strong>Telefone:</strong> <?php echo htmlspecialchars($usuario['telefone'] ?? 'Não informado'); ?></p>
+        <p><strong>Data de Nascimento:</strong> <?php echo htmlspecialchars($usuario['dataNascimento'] ?? 'Não informada'); ?></p>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div id="modalEditar" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal()">&times;</span>
+            <h2>Editar Perfil</h2>
+            <form action="perfil.php" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="foto_perfil">Foto de Perfil:</label>
+                    <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*">
+                </div>
+                
+                <div class="form-group">
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" name="nome" value="<?php echo htmlspecialchars($usuario['nome']); ?>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="idade">Idade:</label>
+                    <input type="number" id="idade" name="idade" value="<?php echo htmlspecialchars($usuario['idade'] ?? ''); ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="dataNascimento">Data de Nascimento:</label>
+                    <input type="date" id="dataNascimento" name="dataNascimento" value="<?php echo htmlspecialchars($usuario['dataNascimento'] ?? ''); ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefone">Telefone:</label>
+                    <input type="text" id="telefone" name="telefone" value="<?php echo htmlspecialchars($usuario['telefone'] ?? ''); ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="endereco">Endereço:</label>
+                    <input type="text" id="endereco" name="endereco" value="<?php echo htmlspecialchars($usuario['endereco']); ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="formacao">Formação:</label>
+                    <input type="text" id="formacao" name="formacao" value="<?php echo htmlspecialchars($usuario['formacao']); ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="experiencia_profissional">Experiência Profissional:</label>
+                    <textarea id="experiencia_profissional" name="experiencia_profissional"><?php echo htmlspecialchars($usuario['experiencia_profissional']); ?></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="interesses">Interesses:</label>
+                    <textarea id="interesses" name="interesses"><?php echo htmlspecialchars($usuario['interesses']); ?></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="projetos_especializacoes">Projetos e Especializações:</label>
+                    <textarea id="projetos_especializacoes" name="projetos_especializacoes"><?php echo htmlspecialchars($usuario['projetos_especializacoes']); ?></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="habilidades">Habilidades:</label>
+                    <textarea id="habilidades" name="habilidades"><?php echo htmlspecialchars($usuario['habilidades']); ?></textarea>
+                </div>
+                
+                <button type="submit" class="btn">Salvar Alterações</button>
+            </form>
+        </div>
     </div>
 
     <footer class="footer-section">
@@ -419,6 +712,24 @@ try {
         </div>
     </footer>
 
+    <script>
+        // Funções para controlar o modal
+        function abrirModal() {
+            document.getElementById('modalEditar').style.display = 'block';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalEditar').style.display = 'none';
+        }
+
+        // Fechar o modal se clicar fora dele
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalEditar');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 
 </html>
