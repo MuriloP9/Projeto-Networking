@@ -463,6 +463,16 @@ try {
             color: #721c24;
         }
 
+        .projetos ul, .caixa-central ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        /* Remover margens/paddings extras das listas */
+        .projetos li, .caixa-central li {
+            margin-bottom: 8px;
+        }
+
         @media (max-width: 1200px) {
             .cabecalho {
                 width: 95%;
@@ -635,8 +645,6 @@ try {
     <div class="caixa-central">
         <h2>Contato</h2>
         <p><strong>E-mail:</strong> <?php echo htmlspecialchars($usuario['email']); ?></p>
-        <p><strong>Telefone:</strong> <?php echo htmlspecialchars($usuario['telefone'] ?? 'Não informado'); ?></p>
-        <p><strong>Data de Nascimento:</strong> <?php echo htmlspecialchars($usuario['dataNascimento'] ?? 'Não informada'); ?></p>
     </div>
 
     <!-- Modal de Edição -->
