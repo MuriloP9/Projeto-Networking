@@ -6,10 +6,12 @@ include("../php/conexao.php");
 
 // Função para limpar e normalizar strings
 function limpar($valor) {
-    // Remove caracteres especiais problemáticos
-    $valor = preg_replace('/[^\x20-\x7E]/u', '', $valor);
-    return htmlspecialchars(trim($valor), ENT_QUOTES, 'UTF-8');
-}
+    // Remove apenas caracteres de controle (0-31) e DEL (127)
+    $valor = preg_replace('/[\x00-\x1F\x7F]/u', '', $valor);
+    // Mantém acentos e caracteres especiais, apenas remove tags HTML e espaços extras
+    $valor = strip_tags(trim($valor));
+    return htmlspecialchars($valor, ENT_QUOTES, 'UTF-8');
+
 
 // Verifica se o formulário foi enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
