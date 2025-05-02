@@ -13,6 +13,7 @@ function conectar() {
             $senha_server,
             [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+               // PDO::SQLSRV_ATTR_FETCHES_DATETIME_TYPE => true
                // PDO::SQLSRV_ATTR_ENCODING => PDO::SQLSRV_ENCODING_BINARY
             ]
         );

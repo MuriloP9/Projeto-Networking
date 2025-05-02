@@ -4,36 +4,71 @@ date_default_timezone_set('America/Sao_Paulo');
 include("../php/ErroMensagem.php"); 
 $msgErro = new MensagemErro();
 
-if (!isset($_POST['token']) || empty($_POST['token'])) {
-    $mensagem = "Link inválido. Token não encontrado.";
+if (!isset($_GET['token'])) {
+    $mensagem = "Token não fornecido.";
     $msgErro->exibirMensagemErro($mensagem, "");
+    exit;
 }
 
-$token = $_POST['token'];
+$token = $_GET['token'];
 $token_hash = hash("sha256", $token);
 
 include("../php/conexao.php"); 
 $pdo = conectar();
 
-// Consulta otimizada para SQL Server
-$sql = "SELECT id_usuario, dt_expiracao_token 
-        FROM Usuario 
-        WHERE token_rec_senha = :token_hash
-        AND dt_expiracao_token > GETDATE()";  // Filtra apenas tokens não expirados
 
-$stmt = $pdo->prepare($sql);
-$stmt->bindValue(":token_hash", $token_hash);
+$sql = "SELECT TOP 1 dt_expiracao_token FROM Usuario WHERE token_rec_senha = :token_hash";
+$exec4 = $pdo->prepare($sql);
+$exec4->bindValue(":token_hash", $token_hash);
+$exec4->execute();
+$user = $exec4->fetch(PDO::FETCH_ASSOC);
 
-if (!$stmt->execute()) {
-    $mensagem = "Erro ao verificar token. Tente novamente.";
-    $msgErro->exibirMensagemErro($mensagem, "");
-}
 
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
+echo "Timestamp atual: " . time() . "<br>";
 
 if (empty($user)) {
-    $mensagem = "Token inválido ou expirado. Por favor, solicite um novo link.";
+    $mensagem = "Token inválido ou não encontrado.";
     $msgErro->exibirMensagemErro($mensagem, "");
+    exit;
+}
+
+try {
+    $agora = new DateTime('now', new DateTimeZone('America/Sao_Paulo'));
+    
+    // Converter a data do SQL Server para DateTime
+    $dataBanco = $user['dt_expiracao_token'];
+    
+    // Debug dos valores brutos
+    error_log("Tipo de dt_expiracao_token: " . gettype($dataBanco));
+    error_log("Valor bruto de dt_expiracao_token: " . print_r($dataBanco, true));
+    
+    if ($dataBanco instanceof DateTime) {
+        $validadeUsuario = $dataBanco;
+    } else {
+        // Remover milissegundos se existirem
+        $dataBanco = preg_replace('/\.\d+/', '', $dataBanco);
+        $validadeUsuario = new DateTime($dataBanco, new DateTimeZone('America/Sao_Paulo'));
+    }
+    
+    // Debug
+    error_log("Agora: " . $agora->format('Y-m-d H:i:s.u'));
+    error_log("Validade: " . $validadeUsuario->format('Y-m-d H:i:s.u'));
+    
+    if ($agora > $validadeUsuario) {
+        $mensagem = "Esse link expirou. Por favor, solicite um novo.";
+        $msgErro->exibirMensagemErro($mensagem, "");
+        exit;
+    }
+    
+    // Token válido
+    error_log("Token válido - continuando processo");
+    // Restante do código...
+    
+} catch (Exception $e) {
+    error_log("Erro ao validar token: " . $e->getMessage());
+    $mensagem = "Erro ao validar o token: " . $e->getMessage();
+    $msgErro->exibirMensagemErro($mensagem, "");
+    exit;
 }
 ?>
 

@@ -4,28 +4,31 @@ date_default_timezone_set('America/Sao_Paulo');
 include("../php/Email.php"); 
 $emailSender = new Email();
 
-// Receber o email do usuário da variável POST
 $userEmail = $_POST['email'];
 
 // Gerar token seguro
 $token = bin2hex(random_bytes(16));
 $token_hash = hash("sha256", $token);
 
-// Definir expiração para 30 minutos a partir de agora
-$expiracao = date('Y-m-d H:i:s', strtotime('+30 minutes'));
+// Formato CORRETO para SQL Server (Y-m-d H:i:s)
+$expiracao = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))
+    ->add(new DateInterval('PT30M'))
+    ->format('Y-m-d H:i:s.v'); // Adicionando milissegundos para SQL Server
 
-// Debug: Verificar datas
-error_log("Token gerado para: $email");
-error_log("Data de expiração: $expiracao");
+// Debug mais detalhado
+error_log("Token gerado para: $userEmail");
+error_log("Token hash: $token_hash");
+error_log("Data de expiração formatada: $expiracao");
 
-$update = $pdo->prepare("UPDATE Usuario 
-                         SET token_rec_senha = :token_hash, 
-                             dt_expiracao_token = :expiracao 
-                         WHERE email = :email");
-
-// Atualizar o usuário com o token de recuperação
-$exec2 = $pdo->prepare("UPDATE Usuario SET token_rec_senha = :token_hash, dt_expiracao_token = :expiracao WHERE email = :email");
-$exec2->bindValue(":expiracao", $expiracao);
+// Atualizar o usuário com o token
+$exec2 = $pdo->prepare("UPDATE Usuario 
+                       SET token_rec_senha = :token_hash, 
+                           dt_expiracao_token = :expiracao 
+                       WHERE email = :email");
+$exec2->bindValue(":token_hash", $token_hash);
+$exec2->bindParam(":expiracao", $expiracao, PDO::PARAM_STR);
+$exec2->bindValue(":email", $userEmail);
+$exec2->execute();
 
 // Obter nome do usuário para personalizar o email
 $exec3 = $pdo->prepare("SELECT nome FROM Usuario WHERE email = :userEmail");
