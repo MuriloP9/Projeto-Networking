@@ -375,7 +375,7 @@ session_start();
             </div>
             <ul class="menu">
                 <li><a href="../php/index.php">Home</a></li>
-                <li><a href="../php/pagina_emprego.php">Oportunidades de Trabalho</a></li>
+                <li><a href="../php/paginaEmprego.php">Oportunidades de Trabalho</a></li>
                 <?php if (!isset($_SESSION['usuario_logado'])): ?>
                 <li><a href="../pages/login.html">Login</a></li>
                 <?php endif; ?>

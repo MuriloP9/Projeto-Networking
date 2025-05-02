@@ -1,7 +1,7 @@
 <?php
 function conectar() {
-    $local_server = "PCNASA";
-    //$local_server = "BOOK3-MARINA";
+    //$local_server = "PCNASA";
+    $local_server = "BOOK3-MARINA";
     $usuario_server = "sa";
     $senha_server = "etesp";
     $banco_de_dados = "prolink";

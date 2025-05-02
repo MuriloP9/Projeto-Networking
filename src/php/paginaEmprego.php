@@ -5,42 +5,51 @@ include("../php/conexao.php");
 
 $pdo = conectar();
 
-// Processar candidatura se o formulário foi enviado
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_vaga'])) {
-    if (!isset($_SESSION['usuario_logado']) || !isset($_SESSION['id_usuario'])) {
-        echo "<script>alert('Você precisa estar logado para se candidatar a vagas.');</script>";
-    } else {
-        $id_vaga = $_POST['id_vaga'];
-        $id_usuario = $_SESSION['id_usuario'];
+// Processar candidatura via AJAX
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['ajax'] === 'candidatura') {
+    header('Content-Type: application/json');
+    
+    if (!isset($_POST['id_vaga'])) {
+        echo json_encode(['success' => false, 'message' => 'Vaga não especificada.']);
+        exit;
+    }
+    
+    $id_vaga = $_POST['id_vaga'];
+    $id_usuario = $_SESSION['id_usuario'];
+    
+    try {
+        // Verificar se o usuário tem perfil
+        $stmt = $pdo->prepare("SELECT id_perfil FROM Perfil WHERE id_usuario = ?");
+        $stmt->execute([$id_usuario]);
+        $perfil = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        try {
-            // Primeiro obtemos o id_perfil do usuário
-            $stmt = $pdo->prepare("SELECT id_perfil FROM Perfil WHERE id_usuario = ?");
-            $stmt->execute([$id_usuario]);
-            $perfil = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$perfil) {
-                echo "<script>alert('Você precisa completar seu perfil antes de se candidatar.');</script>";
-            } else {
-                $id_perfil = $perfil['id_perfil'];
-
-                // Verificar se já existe uma candidatura para esta vaga
-                $stmt = $pdo->prepare("SELECT * FROM Candidatura WHERE id_vaga = ? AND id_perfil = ?");
-                $stmt->execute([$id_vaga, $id_perfil]);
-
-                if ($stmt->rowCount() > 0) {
-                    echo "<script>alert('Você já se candidatou a esta vaga.');</script>";
-                } else {
-                    // Inserir nova candidatura
-                    $stmt = $pdo->prepare("INSERT INTO Candidatura (id_vaga, id_perfil, data_candidatura, status) 
-                                         VALUES (?, ?, GETDATE(), 'Pendente')");
-                    $stmt->execute([$id_vaga, $id_perfil]);
-                    echo "<script>alert('Candidatura realizada com sucesso!');</script>";
-                }
-            }
-        } catch (PDOException $e) {
-            echo "<script>alert('Erro ao processar candidatura: " . addslashes($e->getMessage()) . "');</script>";
+        if (!$perfil) {
+            echo json_encode(['success' => false, 'message' => 'Você precisa completar seu perfil antes de se candidatar.']);
+            exit;
         }
+
+        $id_perfil = $perfil['id_perfil'];
+
+        // Verificar se já existe candidatura
+        $stmt = $pdo->prepare("SELECT * FROM Candidatura WHERE id_vaga = ? AND id_perfil = ?");
+        $stmt->execute([$id_vaga, $id_perfil]);
+
+        if ($stmt->rowCount() > 0) {
+            echo json_encode(['success' => false, 'message' => 'Você já se candidatou a esta vaga.']);
+            exit;
+        }
+
+        // Inserir nova candidatura
+        $stmt = $pdo->prepare("INSERT INTO Candidatura (id_vaga, id_perfil, data_candidatura, status) 
+                              VALUES (?, ?, GETDATE(), 'Pendente')");
+        $stmt->execute([$id_vaga, $id_perfil]);
+        
+        echo json_encode(['success' => true, 'message' => 'Candidatura realizada com sucesso!']);
+        exit;
+        
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Erro ao processar candidatura: ' . $e->getMessage()]);
+        exit;
     }
 }
 
@@ -372,10 +381,12 @@ try {
                         <p>Tipo: <?= htmlspecialchars($vaga['tipo_emprego']) ?></p>
                         <p>Localização: <?= htmlspecialchars($vaga['localizacao'] ?? 'Não especificado') ?></p>
 
-                        <form method="POST" action="">
-                            <input type="hidden" name="id_vaga" value="<?= $vaga['id_vaga'] ?>">
-                            <button type="submit" class="apply-btn">Candidatar-se</button>
-                        </form>
+                        <form method="POST" class="candidatura-form" data-vaga-id="<?= $vaga['id_vaga'] ?>">
+    <input type="hidden" name="id_vaga" value="<?= $vaga['id_vaga'] ?>">
+    <button type="submit" class="apply-btn" id="btn-<?= $vaga['id_vaga'] ?>">
+        Candidatar-se
+    </button>
+</form>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -432,6 +443,66 @@ try {
             }
         });
     </script>
+    <script>
+$(document).ready(function() {
+    // Função para tratar o envio do formulário via AJAX
+    $('.candidatura-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const form = $(this);
+        const vagaId = form.data('vaga-id');
+        const btn = $(`#btn-${vagaId}`);
+        
+        // Desativar o botão temporariamente para evitar múltiplos cliques
+        btn.prop('disabled', true);
+        
+        $.ajax({
+            type: 'POST',
+            url: '', // A mesma página
+            data: {
+                ajax: 'candidatura',
+                id_vaga: vagaId
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Mudar o estilo do botão
+                    btn.css('background-color', '#4CAF50');
+                    btn.text('Candidatado');
+                    
+                    // Mostrar mensagem de sucesso de forma mais elegante
+                    const toast = $('<div class="toast-message">' + response.message + '</div>');
+                    $('body').append(toast);
+                    toast.fadeIn().delay(3000).fadeOut(function() {
+                        $(this).remove();
+                    });
+                } else {
+                    // Mostrar mensagem de erro
+                    alert(response.message);
+                    btn.prop('disabled', false);
+                }
+            },
+            error: function() {
+                alert('Erro ao processar sua solicitação. Tente novamente.');
+                btn.prop('disabled', false);
+            }
+        });
+    });
+    
+    // Função para buscar vagas via AJAX (opcional)
+    function buscarVagas() {
+        const termo = $('#searchInput').val();
+        window.location.href = '?search=' + encodeURIComponent(termo);
+    }
+
+    // Adicionar evento de tecla para buscar ao pressionar Enter
+    $('#searchInput').on('keypress', function(e) {
+        if (e.key === 'Enter') {
+            buscarVagas();
+        }
+    });
+});
+</script>
 </body>
 
 </html>

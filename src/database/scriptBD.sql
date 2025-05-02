@@ -77,6 +77,7 @@ CREATE TABLE Vagas (
     titulo_vaga NVARCHAR(255) NOT NULL,
     localizacao NVARCHAR(255),
     tipo_emprego NVARCHAR(20) NOT NULL,
+	descricao NVARCHAR(MAX) NULL,
     id_area INT,
     id_usuario INT,
     CONSTRAINT FK_Vagas_Funcionario FOREIGN KEY (id_funcionario) 
@@ -160,106 +161,91 @@ GO
 USE prolink;
 GO
 
--- Inserções na tabela Usuario
-INSERT INTO Usuario (nome, email, senha, dataNascimento, telefone, qr_code, data_geracao_qr)
+INSERT INTO Usuario (nome, email, senha, dataNascimento, telefone, ativo)
 VALUES 
-('João Silva', 'joao.silva@email.com', 'senha123', '1990-05-15', '(11)98765-4321', 'qr_joao.png', GETDATE()),
-('Maria Oliveira', 'maria.oliveira@email.com', 'senha456', '1985-08-22', '(21)99876-5432', 'qr_maria.png', GETDATE()),
-('Carlos Souza', 'carlos.souza@email.com', 'senha789', '1995-03-10', '(31)98765-1234', 'qr_carlos.png', GETDATE()),
-('Ana Costa', 'ana.costa@email.com', 'senha101', '1988-11-30', '(41)91234-5678', 'qr_ana.png', GETDATE()),
-('Pedro Santos', 'pedro.santos@email.com', 'senha202', '1992-07-25', '(51)92345-6789', 'qr_pedro.png', GETDATE());
+('João Silva', 'joao.silva@email.com', 'senha123', '1990-05-15', '11987654321', 1),
+('Maria Oliveira', 'maria.oliveira@email.com', 'senha456', '1985-08-20', '21987654321', 1),
+('Carlos Souza', 'carlos.souza@email.com', 'senha789', '1995-03-10', '31987654321', 1),
+('Ana Pereira', 'ana.pereira@email.com', 'senhaabc', '1992-11-25', '41987654321', 1),
+('Pedro Costa', 'pedro.costa@email.com', 'senhaxyz', '1988-07-30', '51987654321', 1);
 GO
 
--- Inserções na tabela Perfil
-INSERT INTO Perfil (id_usuario, idade, endereco, formacao, experiencia_profissional, interesses, projetos_especializacoes, habilidades, qr_code)
-VALUES 
-(1, 33, 'Rua A, 100 - São Paulo/SP', 'Engenharia de Software', '5 anos como desenvolvedor full-stack', 'Tecnologia, esportes', 'Sistema de gestão ERP', 'Java, Python, SQL', 'qr_joao_profile.png'),
-(2, 38, 'Av. B, 200 - Rio de Janeiro/RJ', 'Administração', '10 anos em RH', 'Leitura, viagens', 'Programa de treinamento', 'Recrutamento, Treinamento', 'qr_maria_profile.png'),
-(3, 28, 'Rua C, 300 - Belo Horizonte/MG', 'Ciência da Computação', '3 anos como analista de dados', 'Data Science, IA', 'Modelo preditivo de vendas', 'Python, R, SQL', 'qr_carlos_profile.png'),
-(4, 35, 'Av. D, 400 - Curitiba/PR', 'Design Gráfico', '7 anos em agências', 'Arte, fotografia', 'Identidade visual para startups', 'Photoshop, Illustrator', 'qr_ana_profile.png'),
-(5, 31, 'Rua E, 500 - Porto Alegre/RS', 'Marketing Digital', '6 anos em e-commerce', 'Redes sociais, SEO', 'Campanhas de performance', 'Google Ads, Facebook Ads', 'qr_pedro_profile.png');
+INSERT INTO Perfil (id_usuario, idade, endereco, formacao, experiencia_profissional, interesses, habilidades)
+VALUES
+(1, 33, 'Rua A, 123 - São Paulo/SP', 'Engenharia de Software', '5 anos como desenvolvedor Java', 'Tecnologia, Esportes', 'Java, Spring, SQL'),
+(2, 38, 'Av. B, 456 - Rio de Janeiro/RJ', 'Administração de Empresas', '10 anos em RH', 'Recursos Humanos, Psicologia', 'Recrutamento, Treinamento'),
+(3, 28, 'Rua C, 789 - Belo Horizonte/MG', 'Ciência da Computação', '3 anos como desenvolvedor Front-end', 'Programação, Games', 'JavaScript, React, HTML/CSS'),
+(4, 31, 'Av. D, 101 - Curitiba/PR', 'Design Gráfico', '6 anos como designer', 'Arte, Fotografia', 'Photoshop, Illustrator, UI/UX'),
+(5, 35, 'Rua E, 202 - Porto Alegre/RS', 'Engenharia Civil', '8 anos em construção civil', 'Arquitetura, Sustentabilidade', 'AutoCAD, Gestão de Projetos');
 GO
 
 -- Inserções na tabela Funcionario (incluindo um admin master)
-INSERT INTO Funcionario (nome_completo, email, senha, nivel_acesso, criado_por, data_cadastro, ultimo_acesso, ativo)
-VALUES 
-('Admin Master', 'admin@prolink.com', 'admin123', 0, NULL, GETDATE(), GETDATE(), 1),
-('Gerente RH', 'rh@prolink.com', 'rh456', 1, 1, GETDATE(), GETDATE(), 1),
-('Supervisor TI', 'ti@prolink.com', 'ti789', 2, 1, GETDATE(), GETDATE(), 1),
-('Analista Marketing', 'marketing@prolink.com', 'mkt101', 2, 2, GETDATE(), GETDATE(), 1),
-('Assistente Comercial', 'comercial@prolink.com', 'com202', 2, 2, GETDATE(), GETDATE(), 1);
+-- Admin master (sem criado_por)
+INSERT INTO Funcionario (nome_completo, email, senha, nivel_acesso, ativo)
+VALUES ('Admin Master', 'admin@empresa.com', 'admin123', 0, 1);
+
+-- Outros funcionários (criados pelo admin master)
+INSERT INTO Funcionario (nome_completo, email, senha, nivel_acesso, criado_por, ativo)
+VALUES
+('Gerente RH', 'gerente.rh@empresa.com', 'gerente123', 1, 1, 1),
+('Supervisor TI', 'supervisor.ti@empresa.com', 'super123', 2, 1, 1),
+('Analista Recrutamento', 'recrutamento@empresa.com', 'rec123', 2, 2, 1);
 GO
 
--- Inserções na tabela AreaAtuacao
 INSERT INTO AreaAtuacao (nome_area)
-VALUES 
-('Desenvolvimento de Software'),
+VALUES
+('Tecnologia da Informação'),
 ('Recursos Humanos'),
-('Ciência de Dados'),
-('Design Gráfico'),
-('Marketing Digital');
+('Engenharia'),
+('Design'),
+('Administração');
 GO
 
--- Inserções na tabela ProfissionalArea
+INSERT INTO Vagas (id_funcionario, titulo_vaga, localizacao, tipo_emprego, descricao, id_area)
+VALUES
+(2, 'Desenvolvedor Back-end Java', 'São Paulo/SP', 'full-time', 'Vaga para desenvolvedor Java com experiência em Spring Boot', 1),
+(3, 'Analista de RH', 'Rio de Janeiro/RJ', 'full-time', 'Vaga para analista de RH com experiência em recrutamento', 2),
+(2, 'Designer UI/UX', 'Remoto', 'part-time', 'Vaga para designer com experiência em interfaces', 4),
+(4, 'Engenheiro Civil', 'Belo Horizonte/MG', 'full-time', 'Vaga para engenheiro civil com experiência em obras', 3);
+GO
+
 INSERT INTO ProfissionalArea (id_usuario, id_area)
-VALUES 
-(1, 1), -- João - Desenvolvimento
-(2, 2), -- Maria - RH
-(3, 3), -- Carlos - Ciência de Dados
-(4, 4), -- Ana - Design
-(5, 5), -- Pedro - Marketing
-(1, 3), -- João também em Ciência de Dados
-(3, 1); -- Carlos também em Desenvolvimento
+VALUES
+(1, 1), -- João Silva em TI
+(2, 2), -- Maria Oliveira em RH
+(3, 1), -- Carlos Souza em TI
+(4, 4), -- Ana Pereira em Design
+(5, 3); -- Pedro Costa em Engenharia
 GO
 
--- Inserções na tabela Vagas
-INSERT INTO Vagas (id_funcionario, titulo_vaga, localizacao, tipo_emprego, id_area, id_usuario)
-VALUES 
-(3, 'Desenvolvedor Back-end Java', 'São Paulo - SP', 'full-time', 1, NULL),
-(2, 'Analista de RH Pleno', 'Rio de Janeiro - RJ', 'full-time', 2, 2),
-(3, 'Cientista de Dados Júnior', 'Remoto', 'part-time', 3, NULL),
-(4, 'Designer UX/UI', 'Curitiba - PR', 'full-time', 4, 4),
-(5, 'Especialista em SEO', 'Remoto', 'part-time', 5, NULL);
-GO
-
--- Inserções na tabela Candidatura
 INSERT INTO Candidatura (id_vaga, id_perfil, status)
-VALUES 
-(1, 1, 'Aprovado'),
-(1, 3, 'Em análise'),
-(2, 2, 'Aprovado'),
-(3, 3, 'Reprovado'),
-(4, 4, 'Aprovado');
+VALUES
+(1, 1, 'Pendente'), -- João se candidatou a vaga de Dev Java
+(1, 3, 'Aprovada'), -- Carlos se candidatou a vaga de Dev Java
+(2, 2, 'Recusada'), -- Maria se candidatou a vaga de RH
+(3, 4, 'Pendente'); -- Ana se candidatou a vaga de Designer
 GO
 
--- Inserções na tabela Mensagem
-INSERT INTO Mensagem (id_usuario_remetente, id_usuario_destinatario, texto, data_hora, lida)
-VALUES 
-(1, 2, 'Olá Maria, gostaria de saber mais sobre a vaga de RH.', GETDATE(), 0),
-(2, 1, 'Claro João, que informações você precisa?', GETDATE(), 0),
-(3, 5, 'Pedro, vi seu perfil e temos uma oportunidade em Marketing.', GETDATE(), 1),
-(4, 3, 'Carlos, como vai o projeto de dados?', GETDATE(), 0),
-(5, 4, 'Ana, precisamos atualizar nosso material gráfico.', GETDATE(), 1);
+INSERT INTO Mensagem (id_usuario_remetente, id_usuario_destinatario, texto)
+VALUES
+(1, 3, 'Olá Carlos, vi seu perfil e gostaria de conversar sobre oportunidades'),
+(3, 1, 'Oi João, claro! Podemos marcar uma conversa'),
+(2, 4, 'Ana, você tem interesse em participar de um projeto?'),
+(4, 2, 'Sim Maria, me conte mais sobre esse projeto');
 GO
 
--- Inserções na tabela inscricoes_webinar
 INSERT INTO inscricoes_webinar (nome_completo, email, telefone, recebe_notificacoes, consentimento_lgpd, id_usuario)
-VALUES 
-('João Silva', 'joao.silva@email.com', '(11)98765-4321', 1, 1, 1),
-('Maria Oliveira', 'maria.oliveira@email.com', '(21)99876-5432', 1, 1, 2),
-('Carlos Souza', 'carlos.souza@email.com', '(31)98765-1234', 0, 1, 3),
-('Ana Costa', 'ana.costa@email.com', '(41)91234-5678', 1, 1, 4),
-('Pedro Santos', 'pedro.santos@email.com', '(51)92345-6789', 0, 1, 5);
+VALUES
+('João Silva', 'joao.silva@email.com', '11987654321', 1, 1, 1),
+('Carlos Souza', 'carlos.souza@email.com', '31987654321', 0, 1, 3),
+('Ana Pereira', 'ana.pereira@email.com', '41987654321', 1, 1, 4);
 GO
 
--- Inserções na tabela Notificacao
-INSERT INTO Notificacao (id_usuario, mensagem, data_hora, lida)
-VALUES 
-(1, 'Sua candidatura foi aprovada!', GETDATE(), 0),
-(2, 'Nova mensagem recebida de João Silva', GETDATE(), 1),
-(3, 'Webinar sobre Data Science amanhã às 10h', GETDATE(), 0),
-(4, 'Seu design foi selecionado para a campanha', GETDATE(), 1),
-(5, 'Atualização nas políticas de Marketing Digital', GETDATE(), 0);
+INSERT INTO Notificacao (id_usuario, mensagem, lida)
+VALUES
+(1, 'Sua candidatura foi recebida e está em análise', 0),
+(3, 'Parabéns! Sua candidatura foi aprovada', 1),
+(4, 'Você tem uma nova mensagem de Maria Oliveira', 0);
 GO
 
 -- Verificando as inserções
@@ -283,4 +269,16 @@ SELECT 'inscricoes_webinar', COUNT(*) FROM inscricoes_webinar
 UNION ALL
 SELECT 'Notificacao', COUNT(*) FROM Notificacao;
 
-SELECT * FROM Usuario 
+SELECT * FROM Usuario
+go
+SELECT * FROM Candidatura
+go
+SELECT * FROM Perfil
+go
+SELECT * FROM ProfissionalArea
+go
+SELECT * FROM Vagas
+go
+SELECT * FROM inscricoes_webinar
+go
+SELECT * FROM Funcionario
