@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProLink - Profissionais</title>
-    <link rel="stylesheet" href="../assets/css/style.css"> <!-- Mantendo o estilo global -->
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
     <style>
-        /* Estilo da lista de profissionais */
         body {
             display: flex;
             flex-direction: column;
@@ -24,7 +23,7 @@
             flex-direction: column;
             align-items: center;
             padding: 20px;
-            flex: 1; /* Para ocupar o espaço disponível acima do footer */
+            flex: 1;
         }
 
         .professional-item {
@@ -63,7 +62,7 @@
         }
 
         .chat-btn {
-            background-color:rgb(21, 118, 228);
+            background-color: rgb(21, 118, 228);
             color: white;
             border: none;
             padding: 10px 15px;
@@ -73,7 +72,7 @@
         }
 
         .chat-btn:hover {
-            background-color:rgb(116, 154, 224);
+            background-color: rgb(116, 154, 224);
             transform: scale(1.05);
         }
 
@@ -83,8 +82,72 @@
             margin-left: 20px;
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
 
-        /* Fixando o footer na parte inferior */
+        .modal-content {
+            background-color: #2e2e2e;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            color: white;
+        }
+
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: white;
+        }
+
+        #qrCodeContainer {
+            margin: 20px auto;
+            padding: 10px;
+            background: white;
+            display: inline-block;
+        }
+
+        .link-container {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        #profileLink {
+            flex: 1;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        #copyLink {
+            background-color: rgb(21, 118, 228);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #copyLink:hover {
+            background-color: rgb(116, 154, 224);
+        }
+
         .footer-section {
             background-color: #2e2e2e;
             color: white;
@@ -113,55 +176,144 @@
 <?php
 include("../php/conexao.php"); 
 
-$pdo = conectar(); 
+// Função para buscar profissionais por nome
+function buscarPorNome($pdo, $searchQuery) {
+    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
+              FROM Perfil P
+              INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
+              WHERE U.nome LIKE :searchPattern";
+    
+    $sql = $pdo->prepare($query);
+    $searchPattern = '%' . $searchQuery . '%';
+    $sql->bindValue(":searchPattern", $searchPattern, PDO::PARAM_STR);
+    $sql->execute();
+    
+    return $sql->fetchAll(PDO::FETCH_ASSOC);
+}
 
-$searchQuery = isset($_GET['search']) ? trim($_GET['search']) : ''; //Captura do Termo de Pesquisa -> $_GET['search']: Obtém o termo de pesquisa enviado via URL 
-//Operador ternário (?:):
-//Se search for informado, usa o valor.
-//Se não for informado, define searchQuery como string vazia ('').
+// Função para buscar profissionais por formação
+function buscarPorFormacao($pdo, $searchQuery) {
+    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
+              FROM Perfil P
+              INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
+              WHERE P.formacao LIKE :searchPattern";
+    
+    $sql = $pdo->prepare($query);
+    $searchPattern = '%' . $searchQuery . '%';
+    $sql->bindValue(":searchPattern", $searchPattern, PDO::PARAM_STR);
+    $sql->execute();
+    
+    return $sql->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Função para buscar profissionais por habilidades
+function buscarPorHabilidades($pdo, $searchQuery) {
+    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
+              FROM Perfil P
+              INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
+              WHERE P.habilidades LIKE :searchPattern";
+    
+    $sql = $pdo->prepare($query);
+    $searchPattern = '%' . $searchQuery . '%';
+    $sql->bindValue(":searchPattern", $searchPattern, PDO::PARAM_STR);
+    $sql->execute();
+    
+    return $sql->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Processar a pesquisa
+$searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 if ($searchQuery !== '') {
     try {
-        // Consulta para buscar profissionais pela formação
-        $sql = $pdo->prepare("
-            SELECT U.nome, P.formacao, P.experiencia_profissional, U.email  
-            FROM Perfil P
-            INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
-            WHERE P.formacao LIKE :searchQuery
-        ");
-
-        $sql->bindValue(":searchQuery", "%" . $searchQuery . "%");
-        $sql->execute();
-
-        $profissionais = $sql->fetchAll(PDO::FETCH_ASSOC);
-
-        if ($profissionais) {
+        $pdo = conectar();
+        
+        // Executar as três consultas separadamente
+        $resultadosNome = buscarPorNome($pdo, $searchQuery);
+        $resultadosFormacao = buscarPorFormacao($pdo, $searchQuery);
+        $resultadosHabilidades = buscarPorHabilidades($pdo, $searchQuery);
+        
+        // Combinar resultados, removendo duplicatas
+        $profissionais = array_merge($resultadosNome, $resultadosFormacao, $resultadosHabilidades);
+        $profissionaisUnicos = array();
+        
+        foreach ($profissionais as $profissional) {
+            $email = $profissional['email'];
+            if (!isset($profissionaisUnicos[$email])) {
+                $profissionaisUnicos[$email] = $profissional;
+            }
+        }
+        
+        // Exibir resultados
+        if (empty($profissionaisUnicos)) {
+            echo "<div class='professional-list'><p>Nenhum profissional encontrado para '$searchQuery'.</p></div>";
+        } else {
             echo "<div class='professional-list'>";
-            foreach ($profissionais as $profissional) {
+            foreach ($profissionaisUnicos as $profissional) {
+                $fotoPerfil = !empty($profissional['foto_perfil']) 
+                    ? "data:image/jpeg;base64," . base64_encode($profissional['foto_perfil'])
+                    : "../assets/img/userp.jpg";
+                
                 echo "<div class='professional-item'>";
-                echo "<div class='profile-pic' style='background-image: url(../assets/img/userp.jpg);'></div>"; // Imagem de perfil padrão
+                echo "<div class='profile-pic' style='background-image: url($fotoPerfil);'></div>";
                 echo "<div class='professional-info'>";
                 echo "<div class='professional-name'>" . htmlspecialchars($profissional['nome']) . "</div>";
-                echo "<div class='professional-specialization'>" . htmlspecialchars($profissional['formacao']) . "</div>";
-                echo "<p><strong>Experiência:</strong> " . nl2br(htmlspecialchars($profissional['experiencia_profissional'])) . "</p>";
-                echo "<p><strong>Email:</strong> " . htmlspecialchars($profissional['email']) . "</p>";
+                
+                if (!empty($profissional['formacao'])) {
+                    echo "<div class='professional-specialization'>" . htmlspecialchars($profissional['formacao']) . "</div>";
+                }
+                
+                if (!empty($profissional['habilidades'])) {
+                    echo "<p><strong>Habilidades:</strong> " . htmlspecialchars($profissional['habilidades']) . "</p>";
+                }
+                
+                if (!empty($profissional['experiencia_profissional'])) {
+                    echo "<p><strong>Experiência:</strong> " . nl2br(htmlspecialchars($profissional['experiencia_profissional'])) . "</p>";
+                }
+                
+                if (!empty($profissional['email'])) {
+                    echo "<p><strong>Email:</strong> " . htmlspecialchars($profissional['email']) . "</p>";
+                }
+                
                 echo "</div>";
-                echo "<a href='#'><button class='chat-btn'>QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'></button></a>";
+                
+                if (!empty($profissional['qr_code'])) {
+                    echo "<button class='chat-btn show-qr' data-qrcode='" . htmlspecialchars($profissional['qr_code']) . "' data-email='" . htmlspecialchars($profissional['email']) . "'>";
+                    echo "QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'>";
+                    echo "</button>";
+                } else {
+                    echo "<button class='chat-btn' disabled title='QR Code não disponível'>";
+                    echo "QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'>";
+                    echo "</button>";
+                }
+                
                 echo "</div>";
             }
             echo "</div>";
-        } else {
-            echo "<div class='professional-list'><p>Nenhum profissional encontrado para a formação '$searchQuery'.</p></div>";
+            
+            // Modal para QR Code
+            echo '
+            <div id="qrModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h3>QR Code de Contato</h3>
+                    <div id="qrCodeContainer">
+                        <img id="qrCodeImage" src="" alt="QR Code">
+                    </div>
+                    <div class="link-container">
+                        <input type="text" id="profileLink" readonly>
+                        <button id="copyLink">Copiar Link</button>
+                    </div>
+                </div>
+            </div>';
         }
     } catch (Exception $erro) {
-        echo "<div class='professional-list'><p>Erro ao buscar profissionais: " . $erro->getMessage() . "</p></div>";
+        echo "<div class='professional-list'><p>Erro ao buscar profissionais: " . htmlspecialchars($erro->getMessage()) . "</p></div>";
     }
 } else {
     echo "<div class='professional-list'><p>Por favor, forneça um termo de pesquisa.</p></div>";
 }
 ?>
-
-
 
     <header>
         <nav class="navbar">
@@ -180,7 +332,6 @@ if ($searchQuery !== '') {
         </nav>
     </header>
 
-
     <footer class="footer-section">
         <div class="footer-content">
             <img src="../assets/img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
@@ -190,5 +341,47 @@ if ($searchQuery !== '') {
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../assets/js/script.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        // Mostrar modal com QR Code
+        $('.show-qr').click(function() {
+            const qrCode = $(this).data('qrcode');
+            const email = $(this).data('email');
+            const profileLink = window.location.origin + '/perfil.php?email=' + encodeURIComponent(email);
+            
+            if (qrCode) {
+                $('#qrCodeImage').attr('src', qrCode);
+            }
+            
+            $('#profileLink').val(profileLink);
+            $('#qrModal').show();
+        });
+        
+        // Fechar modal
+        $('.close-modal').click(function() {
+            $('#qrModal').hide();
+        });
+        
+        // Copiar link
+        $('#copyLink').click(function() {
+            const linkInput = document.getElementById('profileLink');
+            linkInput.select();
+            document.execCommand('copy');
+            
+            $(this).text('Copiado!');
+            setTimeout(() => {
+                $(this).text('Copiar Link');
+            }, 2000);
+        });
+        
+        // Fechar modal ao clicar fora
+        $(window).click(function(event) {
+            if (event.target.id === 'qrModal') {
+                $('#qrModal').hide();
+            }
+        });
+    });
+    </script>
 </body>
 </html>

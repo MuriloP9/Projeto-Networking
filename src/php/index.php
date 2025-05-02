@@ -92,18 +92,20 @@ session_start();
     </div>
 
     <script>
-    function buscarProfissionais() {
-        // Captura o valor da pesquisa
-        const searchQuery = document.getElementById('searchInput').value;
-
-        // Verifica se há um valor de pesquisa
-        if (searchQuery.trim() !== "") {
-            // Redireciona para a página lista_profissionais.html com a consulta na URL
-            window.location.href = `listaProfissionais.php?search=${encodeURIComponent(searchQuery)}`;
-        } else {
-            alert("Digite um termo de pesquisa.");
-        }
+   function buscarProfissionais() {
+    // Pega o valor do campo de busca e remove espaços extras
+    const termoBusca = document.getElementById('searchInput').value.trim();
+    
+    // Verifica se o usuário digitou algo
+    if (termoBusca !== "") {
+        // Redireciona para a página de resultados com o termo de busca
+        window.location.href = `listaProfissionais.php?search=${encodeURIComponent(termoBusca)}`;
+    } else {
+        // Se estiver vazio, mostra alerta e coloca o foco no campo
+        alert("Por favor, digite um termo para buscar.");
+        document.getElementById('searchInput').focus();
     }
+}
 </script>
         <!-- <div class="search-bar">
             <input type="text" placeholder="Pesquisar por profissionais, áreas...">
