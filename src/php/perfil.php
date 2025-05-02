@@ -472,6 +472,21 @@ try {
         .projetos li, .caixa-central li {
             margin-bottom: 8px;
         }
+        .btn-gerar-pdf {
+        background-color: #3b6ebb;
+        color: white;
+        border: none;
+        padding: 8px 15px; /* Reduzido de 10px 20px */
+        border-radius: 4px; /* Reduzido de 5px */
+        cursor: pointer;
+        font-size: 14px; /* Reduzido de 16px */
+        margin-left: 8px; /* Reduzido de 10px */
+        transition: background-color 0.2s; /* Tempo de transição reduzido */
+        }
+
+        .btn-gerar-pdf:hover {
+        background-color: #e74c3c;
+        }
 
         @media (max-width: 1200px) {
             .cabecalho {
@@ -578,6 +593,7 @@ try {
             </div>
             <ul class="menu">
                 <li><a href="../php/index.php">Home</a></li>
+                <li><a href="#" class="btn-logout" onclick="logout(); return false;">Sair</a></li>
             </ul>
         </nav>
     </header>
@@ -600,6 +616,7 @@ try {
             <h1>Perfil</h1>
             <p><?php echo htmlspecialchars($nome); ?></p>
             <button class="btn-editar" onclick="abrirModal()">Editar Perfil</button>
+            <button class="btn-gerar-pdf" onclick="gerarPDF()">Gerar PDF</button>
         </div>
     </div>
 
@@ -738,6 +755,24 @@ try {
             }
         }
     </script>
+
+<script>
+function gerarPDF() {
+    // Mostra um alerta enquanto processa
+    alert("Gerando PDF... Isso pode levar alguns instantes.");
+    
+    // Envia uma requisição para o servidor gerar o PDF
+    window.location.href = "../php/gerar_pdf.php";
+}
+</script>
+
+<script>
+function logout() {
+    if(confirm('Tem certeza que deseja sair?')) {
+        window.location.href = '../php/logout.php';
+    }
+}
+</script>
 </body>
 
 </html>
