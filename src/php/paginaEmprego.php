@@ -8,15 +8,15 @@ $pdo = conectar();
 // Processar candidatura via AJAX
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['ajax'] === 'candidatura') {
     header('Content-Type: application/json');
-    
+
     if (!isset($_POST['id_vaga'])) {
         echo json_encode(['success' => false, 'message' => 'Vaga não especificada.']);
         exit;
     }
-    
+
     $id_vaga = $_POST['id_vaga'];
     $id_usuario = $_SESSION['id_usuario'];
-    
+
     try {
         // Verificar se o usuário tem perfil
         $stmt = $pdo->prepare("SELECT id_perfil FROM Perfil WHERE id_usuario = ?");
@@ -43,10 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['aj
         $stmt = $pdo->prepare("INSERT INTO Candidatura (id_vaga, id_perfil, data_candidatura, status) 
                               VALUES (?, ?, GETDATE(), 'Pendente')");
         $stmt->execute([$id_vaga, $id_perfil]);
-        
+
         echo json_encode(['success' => true, 'message' => 'Candidatura realizada com sucesso!']);
         exit;
-        
     } catch (PDOException $e) {
         echo json_encode(['success' => false, 'message' => 'Erro ao processar candidatura: ' . $e->getMessage()]);
         exit;
@@ -380,31 +379,20 @@ try {
                         <p><?= htmlspecialchars($vaga['nome_area'] ?? 'Área não especificada') ?></p>
                         <p>Tipo: <?= htmlspecialchars($vaga['tipo_emprego']) ?></p>
                         <p>Localização: <?= htmlspecialchars($vaga['localizacao'] ?? 'Não especificado') ?></p>
-
+                        <?php if (!empty($vaga['descricao'])): ?>
+                                <p>Descrição:</p>
+                                <p><?= nl2br(htmlspecialchars($vaga['descricao'])) ?></p>
+                        <?php endif; ?>
                         <form method="POST" class="candidatura-form" data-vaga-id="<?= $vaga['id_vaga'] ?>">
-    <input type="hidden" name="id_vaga" value="<?= $vaga['id_vaga'] ?>">
-    <button type="submit" class="apply-btn" id="btn-<?= $vaga['id_vaga'] ?>">
-        Candidatar-se
-    </button>
-</form>
+                            <input type="hidden" name="id_vaga" value="<?= $vaga['id_vaga'] ?>">
+                            <button type="submit" class="apply-btn" id="btn-<?= $vaga['id_vaga'] ?>">
+                                Candidatar-se
+                            </button>
+                        </form>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
-    </section>
-
-
-    <!-- Sistema de Salvamento de Vagas -->
-    <section id="saved-jobs-section" class="saved-jobs-section">
-        <h2>Vagas Salvas</h2>
-        <form action="/save-jobs" method="post" class="saved-jobs-form">
-            <div class="saved-jobs-container">
-                <div class="saved-jobs-listings">
-                    <!-- Vagas salvas aparecerão aqui -->
-                    <p>Você ainda não salvou nenhuma vaga.</p>
-                </div>
-            </div>
-        </form>
     </section>
 
     <section id="contato" class="contact-section">
@@ -444,65 +432,65 @@ try {
         });
     </script>
     <script>
-$(document).ready(function() {
-    // Função para tratar o envio do formulário via AJAX
-    $('.candidatura-form').on('submit', function(e) {
-        e.preventDefault();
-        
-        const form = $(this);
-        const vagaId = form.data('vaga-id');
-        const btn = $(`#btn-${vagaId}`);
-        
-        // Desativar o botão temporariamente para evitar múltiplos cliques
-        btn.prop('disabled', true);
-        
-        $.ajax({
-            type: 'POST',
-            url: '', // A mesma página
-            data: {
-                ajax: 'candidatura',
-                id_vaga: vagaId
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    // Mudar o estilo do botão
-                    btn.css('background-color', '#4CAF50');
-                    btn.text('Candidatado');
-                    
-                    // Mostrar mensagem de sucesso de forma mais elegante
-                    const toast = $('<div class="toast-message">' + response.message + '</div>');
-                    $('body').append(toast);
-                    toast.fadeIn().delay(3000).fadeOut(function() {
-                        $(this).remove();
-                    });
-                } else {
-                    // Mostrar mensagem de erro
-                    alert(response.message);
-                    btn.prop('disabled', false);
-                }
-            },
-            error: function() {
-                alert('Erro ao processar sua solicitação. Tente novamente.');
-                btn.prop('disabled', false);
-            }
-        });
-    });
-    
-    // Função para buscar vagas via AJAX (opcional)
-    function buscarVagas() {
-        const termo = $('#searchInput').val();
-        window.location.href = '?search=' + encodeURIComponent(termo);
-    }
+        $(document).ready(function() {
+            // Função para tratar o envio do formulário via AJAX
+            $('.candidatura-form').on('submit', function(e) {
+                e.preventDefault();
 
-    // Adicionar evento de tecla para buscar ao pressionar Enter
-    $('#searchInput').on('keypress', function(e) {
-        if (e.key === 'Enter') {
-            buscarVagas();
-        }
-    });
-});
-</script>
+                const form = $(this);
+                const vagaId = form.data('vaga-id');
+                const btn = $(`#btn-${vagaId}`);
+
+                // Desativar o botão temporariamente para evitar múltiplos cliques
+                btn.prop('disabled', true);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '', // A mesma página
+                    data: {
+                        ajax: 'candidatura',
+                        id_vaga: vagaId
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Mudar o estilo do botão
+                            btn.css('background-color', '#4CAF50');
+                            btn.text('Candidatado');
+
+                            // Mostrar mensagem de sucesso de forma mais elegante
+                            const toast = $('<div class="toast-message">' + response.message + '</div>');
+                            $('body').append(toast);
+                            toast.fadeIn().delay(3000).fadeOut(function() {
+                                $(this).remove();
+                            });
+                        } else {
+                            // Mostrar mensagem de erro
+                            alert(response.message);
+                            btn.prop('disabled', false);
+                        }
+                    },
+                    error: function() {
+                        alert('Erro ao processar sua solicitação. Tente novamente.');
+                        btn.prop('disabled', false);
+                    }
+                });
+            });
+
+            // Função para buscar vagas via AJAX (opcional)
+            function buscarVagas() {
+                const termo = $('#searchInput').val();
+                window.location.href = '?search=' + encodeURIComponent(termo);
+            }
+
+            // Adicionar evento de tecla para buscar ao pressionar Enter
+            $('#searchInput').on('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    buscarVagas();
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
