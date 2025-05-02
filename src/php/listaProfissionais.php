@@ -148,6 +148,46 @@
             background-color: rgb(116, 154, 224);
         }
 
+         /* Adicione isso ao seu CSS existente */
+    .modal-content {
+        max-width: 90vw; /* Largura máxima responsiva */
+        width: auto;
+        padding: 25px;
+    }
+
+    #qrCodeContainer {
+        max-width: 100%;
+        overflow: hidden;
+        margin: 15px auto;
+        text-align: center;
+    }
+
+    #qrCodeImage {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+        border: 1px solid #ddd;
+        padding: 5px;
+        background: white;
+    }
+
+    .link-container {
+        margin-top: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+
+    #profileLink {
+        flex: 1;
+        min-width: 200px;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
         .footer-section {
             background-color: #2e2e2e;
             color: white;
@@ -254,6 +294,10 @@ if ($searchQuery !== '') {
                     ? "data:image/jpeg;base64," . base64_encode($profissional['foto_perfil'])
                     : "../assets/img/userp.jpg";
                 
+                // Tratar o caminho do QR Code usando o script intermediário
+                $qrCodePath = !empty($profissional['qr_code']) ? 
+                    'get_qrcode.php?file=' . basename(htmlspecialchars($profissional['qr_code'])) : '';
+                
                 echo "<div class='professional-item'>";
                 echo "<div class='profile-pic' style='background-image: url($fotoPerfil);'></div>";
                 echo "<div class='professional-info'>";
@@ -277,8 +321,8 @@ if ($searchQuery !== '') {
                 
                 echo "</div>";
                 
-                if (!empty($profissional['qr_code'])) {
-                    echo "<button class='chat-btn show-qr' data-qrcode='" . htmlspecialchars($profissional['qr_code']) . "' data-email='" . htmlspecialchars($profissional['email']) . "'>";
+                if (!empty($qrCodePath)) {
+                    echo "<button class='chat-btn show-qr' data-qrcode-path='$qrCodePath' data-email='" . htmlspecialchars($profissional['email']) . "'>";
                     echo "QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'>";
                     echo "</button>";
                 } else {
@@ -294,18 +338,18 @@ if ($searchQuery !== '') {
             // Modal para QR Code
             echo '
             <div id="qrModal" class="modal">
-                <div class="modal-content">
-                    <span class="close-modal">&times;</span>
-                    <h3>QR Code de Contato</h3>
-                    <div id="qrCodeContainer">
-                        <img id="qrCodeImage" src="" alt="QR Code">
-                    </div>
-                    <div class="link-container">
-                        <input type="text" id="profileLink" readonly>
-                        <button id="copyLink">Copiar Link</button>
-                    </div>
-                </div>
-            </div>';
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3>QR Code de Contato</h3>
+        <div id="qrCodeContainer">
+            <img id="qrCodeImage" src="" alt="QR Code" style="max-width:250px">
+        </div>
+        <div class="link-container">
+            <input type="text" id="profileLink" readonly>
+            <button id="copyLink">Copiar Link</button>
+        </div>
+    </div>
+</div>';
         }
     } catch (Exception $erro) {
         echo "<div class='professional-list'><p>Erro ao buscar profissionais: " . htmlspecialchars($erro->getMessage()) . "</p></div>";
@@ -346,14 +390,13 @@ if ($searchQuery !== '') {
     $(document).ready(function() {
         // Mostrar modal com QR Code
         $('.show-qr').click(function() {
-            const qrCode = $(this).data('qrcode');
+            const qrCodePath = $(this).data('qrcode-path');
             const email = $(this).data('email');
             const profileLink = window.location.origin + '/perfil.php?email=' + encodeURIComponent(email);
             
-            if (qrCode) {
-                $('#qrCodeImage').attr('src', qrCode);
-            }
-            
+            // Adiciona timestamp para evitar cache
+            const timestamp = new Date().getTime();
+            $('#qrCodeImage').attr('src', qrCodePath + '&t=' + timestamp);
             $('#profileLink').val(profileLink);
             $('#qrModal').show();
         });
