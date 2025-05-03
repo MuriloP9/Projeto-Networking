@@ -25,7 +25,10 @@ CREATE TABLE Usuario (
     data_geracao_qr DATETIME NULL,
     ultimo_acesso DATETIME NULL,
     ativo BIT DEFAULT 1,
-    foto_perfil VARBINARY(MAX) NULL
+    foto_perfil VARBINARY(MAX) NULL,
+    token_rec_senha NVARCHAR(64) NULL,
+    dt_expiracao_token DATETIME NULL,
+    token_ativacao NVARCHAR(64) NULL
 );
 GO
 
