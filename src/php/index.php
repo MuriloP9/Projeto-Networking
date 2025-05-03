@@ -117,7 +117,7 @@ session_start();
         <h2>Próximos Webinars</h2>
         <div class="webinar-container">
             <div class="webinar-description">
-                <h3>Descubra Novas Oportunidades no Próximo Webinar!</h3>
+                <h3>Descubra Novos Conhecimentos no Próximo Webinar!</h3>
                 <p>Participe do nosso próximo webinar sobre networking global e descubra como expandir suas conexões profissionais.</p>
                 <a href="../php/pagina_webinar.php" class="webinar-link">Saiba mais</a>
                 <img src="../assets/img/undraw_Graduation_re_gthn.png" alt="Imagem do Webinar">

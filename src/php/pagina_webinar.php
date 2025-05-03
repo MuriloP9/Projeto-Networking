@@ -1,371 +1,209 @@
 <?php
 session_start();
+
+include("../php/conexao.php");
+
+$pdo = conectar();
+
+// Buscar webinars com base no termo de pesquisa
+$termoBusca = isset($_GET['search']) ? trim($_GET['search']) : '';
+$webinars = [];
+
+try {
+    if (!empty($termoBusca)) {
+        $stmt = $pdo->prepare("SELECT * FROM Webinar 
+                              WHERE tema LIKE ? OR palestrante LIKE ? OR descricao LIKE ?
+                              ORDER BY data_hora DESC");
+        $termoLike = "%$termoBusca%";
+        $stmt->execute([$termoLike, $termoLike, $termoLike]);
+    } else {
+        $stmt = $pdo->query("SELECT * FROM Webinar ORDER BY data_hora DESC");
+    }
+
+    $webinars = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    echo "<script>alert('Erro ao buscar webinars: " . addslashes($e->getMessage()) . "');</script>";
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProLink - Webinar</title>
+    <title>ProLink - Webinars</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        body {
-            font-family: "Montserrat", sans-serif;
-            background-color: #f5f5f5;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .container {
-            display: flex;
-            max-width: 1200px;
-            background: linear-gradient(135deg, #4a90e2, #357ABD);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            margin: 20px auto;
-        }
-
-        .webinar-info {
-            background: linear-gradient(#3c4b9e,#697df0) ;
-            padding: 30px;
-            flex: 1;
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(to bottom, #050a37, #0e1768);
             color: #fff;
         }
 
-        .webinar-details h1 {
-            font-size: 2.5em;
-            margin: 20px 0;
-            line-height: 1.2;
-        }
-
-        .webinar-details p {
-            margin: 10px 0;
-        }
-
-        .webinar-meta {
-            margin: 20px 0;
-        }
-        .webinar-description{
-           background:linear-gradient(#3c4b9e,#9ca6df);
-            color: #ffffff;
-        }
-
-        .tutor-info {
-            display: flex;
-            align-items: center;
-            margin-top: 30px;
-        }
-
-        .tutor-photo {
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            margin-right: 15px;
-        }
-
-        .registration-form {
-            background:linear-gradient(rgb(97, 94, 94), rgb(156, 150, 150)) ;
-            color: #fff;
-            padding: 30px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .registration-form h2 {
-            color: #6f84f7;
-            margin-bottom: 15px;
-        }
-
-        .registration-form form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .registration-form input,
-        .registration-form button {
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: none;
-            outline: none;
-            font-size: 1em;
-        }
-
-        .registration-form input {
-            background-color: #fff;
-            color: #333;
-        }
-
-        .registration-form button {
-            background-color: #3c4b9e;
-            color: #fff;
-            cursor: pointer;
-            transition: background 0.5s;
-        }
-
-        .registration-form button:hover {
-            background-color: #7186ff;
-        }
-
-        .registration-form label {
-            font-size: 0.9em;
-            margin: 10px 0;
-        }
-
-        .importance-section, .live-webinar-section, .calendar-section {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-
-        .importance-section h2, .live-webinar-section h2, .calendar-section h2 {
-            font-size: 2em;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .importance-section p {
-            font-size: 1.1em;
-            color: #555;
-            line-height: 1.6;
-        }
-
-        .live-webinar-section iframe {
-            width: 100%;
-            height: 400px;
-            border: none;
-            border-radius: 10px;
-        }
-
-        .calendar-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .calendar-table th, .calendar-table td {
-            padding: 15px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
-        .calendar-table th {
-            background-color: #357ABD;
-            color: #fff;
-        }
-
-        .calendar-table td {
+        /* Section - Webinars */
+        .webinars-section {
+            padding: 40px;
             background-color: #f9f9f9;
-            color: #666; 
+            min-height: 70vh;
         }
 
-        .calendar-table tr:nth-child(even) td {
-            background-color: #e3f2fd;
-        }
-
-        .calendar-table a {
-            text-decoration: none;
-            color: #fff;
-        }
-
-        .webinar-date {
-            font-weight: bold;
-            color: #357ABD;
-        }
-
-        .inscreva-se-btn {
-            background-color: #4a90e2;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-            display: inline-block;
-            font-weight: bold;
-        }
-
-        .inscreva-se-btn:hover {
-            background-color: #357ABD;
-        }
-
-        /* Novas Seções Adicionadas */
-        .testimonials-section {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-
-        .testimonials-section h2 {
+        .webinars-section h2 {
             font-size: 2em;
+            margin-bottom: 20px;
             color: #333;
-            margin-bottom: 15px;
         }
 
-        .testimonial {
+        .search-container {
             display: flex;
             align-items: center;
             margin-bottom: 20px;
+            gap: 10px;
         }
 
-        .testimonial img {
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            margin-right: 15px;
+        .search-bar {
+            flex-grow: 2;
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            height: 40px;
+            box-sizing: border-box;
         }
 
-        .testimonial p {
-            font-size: 1.1em;
-            color: #555;
-            line-height: 1.6;
+        .search-btn {
+            padding: 0 20px;
+            font-size: 1em;
+            background-color: #0e1768;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            height: 40px;
+            white-space: nowrap;
+            transition: background-color 0.3s;
         }
 
-        .faq-section {
-            max-width: 1200px;
-            margin: 20px auto;
+        .search-btn:hover {
+            background-color: #3b6ebb;
+        }
+
+        /* Webinar Listings */
+        .webinar-listings {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .webinar-card {
+            background-color: white;
             padding: 20px;
-            background-color: #fff;
             border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-
-        .faq-section h2 {
-            font-size: 2em;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             color: #333;
-            margin-bottom: 15px;
         }
 
-        .faq-item {
-            margin-bottom: 15px;
+        .webinar-card h3 {
+            margin: 0 0 10px 0;
+            color: #0e1768;
+            font-size: 1.3em;
         }
 
-        .faq-item h3 {
-            font-size: 1.2em;
-            color: #357ABD;
+        .webinar-card .webinar-date {
+            color: #666;
+            font-weight: bold;
             margin-bottom: 10px;
         }
 
-        .faq-item p {
-            font-size: 1em;
-            color: #555;
-            line-height: 1.6;
+        .webinar-card .webinar-speaker {
+            font-style: italic;
+            margin-bottom: 10px;
         }
 
-        /* Responsividade */
+        .webinar-card .webinar-description {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .watch-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #0e1768;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .watch-btn:hover {
+            background-color: #3b6ebb;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 40px;
+            background-color: #ffffff;
+            text-align: center;
+        }
+
+        .contact-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .contact-info p {
+            margin: 0;
+            color: #333;
+        }
+
+        .small-hr {
+            width: 80px;
+            border: none;
+            border-top: 2px solid #ccc;
+            margin: 10px auto;
+        }
+
+        .map-container {
+            border-radius: 15px;
+        }
+
+        /* Media Queries */
         @media (max-width: 768px) {
-            .container {
+            .webinar-listings {
+                grid-template-columns: 1fr;
+            }
+
+            .search-container {
                 flex-direction: column;
+                align-items: stretch;
             }
 
-            .webinar-info, .registration-form {
-                padding: 20px;
-            }
-
-            .webinar-details h1 {
-                font-size: 2em;
-            }
-
-            .registration-form h2 {
-                font-size: 1.5em;
-            }
-
-            .live-webinar-section iframe {
-                height: 300px;
-            }
-
-            .testimonial {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .testimonial img {
+            .search-bar,
+            .search-btn {
+                width: 100%;
                 margin-bottom: 10px;
             }
-        }
 
-        @media (max-width: 480px) {
-            .webinar-details h1 {
-                font-size: 1.5em;
-            }
-
-            .registration-form h2 {
-                font-size: 1.2em;
-            }
-
-            .live-webinar-section iframe {
-                height: 200px;
-            }
-
-            .calendar-table th, .calendar-table td {
-                padding: 10px;
-            }
-
-            .inscreva-se-btn {
-                padding: 8px 16px;
-                font-size: 0.9em;
+            .contact-container {
+                flex-direction: column;
             }
         }
-
-    /* Estilização da seção FAQ */
-.faq-section {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
-    background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-.faq-section h2 {
-    font-size: 28px;
-    color: #007bff;
-    margin-bottom: 20px;
-}
-
-.faq-item {
-    background: #f9f9f9;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease-in-out;
-}
-
-.faq-item:hover {
-    background: #eef7ff;
-}
-
-.faq-question {
-    font-size: 18px;
-    color: #007bff;
-    cursor: pointer;
-    margin: 0;
-}
-
-.faq-answer {
-    font-size: 16px;
-    color: #333;
-    display: none;
-    padding-top: 10px;
-}
-
-/* Efeito de expansão */
-.faq-item.active .faq-answer {
-    display: block;
-}
-
     </style>
 </head>
+
 <body>
     <header>
         <nav class="navbar">
@@ -375,9 +213,10 @@ session_start();
             </div>
             <ul class="menu">
                 <li><a href="../php/index.php">Home</a></li>
-                <li><a href="../php/paginaEmprego.php">Oportunidades de Trabalho</a></li>
+                <li><a href="../php/paginaEmprego.php">Oportunidades</a></li>
+                <li><a href="#contato">Contato</a></li>
                 <?php if (!isset($_SESSION['usuario_logado'])): ?>
-                <li><a href="../pages/login.html">Login</a></li>
+                    <li><a href="../pages/login.html">Login</a></li>
                 <?php endif; ?>
             </ul>
             <div class="profile">
@@ -386,126 +225,54 @@ session_start();
         </nav>
     </header>
 
-    <div class="container">
-        <div class="webinar-info">
-            <div class="webinar-details">
-                <h1>O Melhor Webinar Anual <br> de UX Design</h1>
-                <p class="webinar-description">
-                    Conferência de três dias focada em UX Design e Inovação. Este evento é simples, mas incrivelmente inspirador.
-                </p>
-                <div class="webinar-meta">
-                    <p><strong>Duração:</strong> 2 Horas e 30 Minutos</p>
-                    <p><strong>Data da Conferência:</strong> 14.10.24, 21:00</p>
-                </div>
-                <div class="tutor-info">
-                    <img src="../assets/img/jonh.jpg" alt="Instrutor Principal" class="tutor-photo">
-                    <div class="tutor-details">
-                        <p class="tutor-name">John Jonson</p>
-                        <p class="tutor-title">Editor Chefe Web MGN</p>
+    <section class="webinars-section">
+        <h2>Webinars Disponíveis</h2>
+
+        <form method="GET" action="">
+            <div class="search-container">
+                <input type="text" name="search" id="searchInput" class="search-bar"
+                    placeholder="Pesquisar por tema, palestrante ou descrição..."
+                    value="<?= htmlspecialchars($termoBusca) ?>">
+                <button type="submit" class="search-btn">Procurar</button>
+            </div>
+        </form>
+
+        <!-- Lista de webinars -->
+        <div class="webinar-listings">
+            <?php if (empty($webinars)): ?>
+                <p>Nenhum webinar encontrado.</p>
+            <?php else: ?>
+                <?php foreach ($webinars as $webinar): ?>
+                    <div class="webinar-card">
+                        <h3><?= htmlspecialchars($webinar['tema']) ?></h3>
+                        <p class="webinar-date">
+                            <?= date('d/m/Y H:i', strtotime($webinar['data_hora'])) ?>
+                        </p>
+                        <p class="webinar-speaker">Palestrante: <?= htmlspecialchars($webinar['palestrante']) ?></p>
+                        <?php if (!empty($webinar['descricao'])): ?>
+                            <p class="webinar-description"><?= nl2br(htmlspecialchars($webinar['descricao'])) ?></p>
+                        <?php endif; ?>
+                        <a href="<?= htmlspecialchars($webinar['link']) ?>" target="_blank" class="watch-btn">
+                            Assistir Webinar
+                        </a>
                     </div>
-                </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <section id="contato" class="contact-section">
+        <div class="contact-container">
+            <div class="map-container">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3656.3465896377126!2d-46.64165882513707!3d-23.53003478469527!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce5857a5c48815%3A0x70b13f63e8491df3!2sETESP!5e0!3m2!1spt-BR!2sbr!4v1696952749192!5m2!1spt-BR!2sbr" width="400" height="300" style="border:0; border-radius: 15px;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+            <div class="contact-info">
+                <p>Bom Retiro, São Paulo - SP, 01124-010<br>ETESP</p>
+                <hr class="small-hr">
+                <p>Email: contato@empresa.com<br>Telefone: (11) 1234-5678</p>
             </div>
         </div>
-        <div class="registration-form">
-            <h2>Não Perca Tempo! <br> Participe do Melhor Webinar</h2>
-            <form action="../php/processa_inscricao.php" method="POST">
-                <input type="text" placeholder="Nome Completo" name="name" required>
-                <input type="email" placeholder="Webinar@exemplo.com" name="email" required>
-                <input type="tel" placeholder="+55(11) 5555-5555" name="phone">
-                <label>
-                    <input type="checkbox" name="subscribe">
-                    Eu concordo em receber notificações sobre a Conferência e eventos
-                    <br>
-                    <input type="checkbox" id="lgpd-consent" name="lgpd-consent" required>
-                    Eu concordo que os meus dados pessoais fornecidos sejam armazenados e tratados pela ProLink, conforme descrito na 
-                    <a href="politica-de-privacidade.html" target="_blank">Política de Privacidade</a>, e estou ciente de que posso solicitar a exclusão dos meus dados a qualquer momento.
-                </label>
-                <button type="submit">Inscreva-se Agora</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Seção explicando a importância de um webinar -->
-    <section class="importance-section">
-        <h2>Importância dos Webinars</h2>
-        <p>
-            Webinars são uma excelente forma de compartilhar conhecimento e se conectar com pessoas ao redor do mundo. 
-            Eles permitem que especialistas e empresas apresentem conteúdos relevantes, ensinem novas habilidades e interajam 
-            diretamente com o público, criando oportunidades para aprendizado, networking e engajamento em tempo real.
-        </p>
     </section>
-
-    <!-- Seção de live de webinar com iframe -->
-    <section class="live-webinar-section">
-        <h2>Assista a Um Webinar ao Vivo</h2>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/iijBEfyhtCo?si=zV4vT_kvRnA_GkJB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-    </section>
-
-    <!-- Calendário de próximos webinars -->
-    <section class="calendar-section">
-        <h2>Próximos Webinars</h2>
-        <table class="calendar-table">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Título</th>
-                    <th>Horário</th>
-                    <th>Ação</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>14 de Outubro, 2024</td>
-                    <td>UX Design</td>
-                    <td>14:00 - 15:30</td>
-                    <td><a href="#" class="inscreva-se-btn">Inscreva-se</a></td>
-                </tr>
-                <tr>
-                    <td>22 de Outubro, 2024</td>
-                    <td>Desenvolvimento de Aplicações Web</td>
-                    <td>16:00 - 17:30</td>
-                    <td><a href="#" class="inscreva-se-btn">Inscreva-se</a></td>
-                </tr>
-                <tr>
-                    <td>30 de Outubro, 2024</td>
-                    <td>Como Criar Conteúdo Engajador</td>
-                    <td>18:00 - 19:30</td>
-                    <td><a href="#" class="inscreva-se-btn">Inscreva-se</a></td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
-
-    <!-- Nova Seção: Depoimentos -->
-    <section class="testimonials-section">
-        <h2>Depoimentos</h2>
-        <div class="testimonial">
-            <img src="..assets/img/user1.jpg" alt="Usuário 1">
-            <p>"O webinar foi incrível! Aprendi muito sobre UX Design e pôr em prática imediatamente."</p>
-        </div>
-        <div class="testimonial">
-            <img src="../assets/img/user2.jpg" alt="Usuário 2">
-            <p>"A ProLink sempre traz conteúdos de alta qualidade. Recomendo a todos!"</p>
-        </div>
-    </section>
-
-    <!-- Nova Seção: Perguntas Frequentes -->
-<section class="faq-section">
-    <h2>Perguntas Frequentes</h2>
-    <div class="faq-item">
-        <h3 class="faq-question">Como posso participar do webinar?</h3>
-        <p class="faq-answer">Basta se inscrever no formulário acima e aguardar o link de acesso por e-mail.</p>
-    </div>
-    <div class="faq-item">
-        <h3 class="faq-question">O webinar é gratuito?</h3>
-        <p class="faq-answer">Sim, todos os webinars da ProLink são gratuitos.</p>
-    </div>
-    <div class="faq-item">
-        <h3 class="faq-question">Posso assistir ao webinar depois?</h3>
-        <p class="faq-answer">Sim, disponibilizamos a gravação do webinar para todos os inscritos.</p>
-    </div>
-</section>
-
 
     <footer class="footer-section">
         <div class="footer-content">
@@ -517,13 +284,18 @@ session_start();
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../assets/js/script.js"></script>
     <script>
-        // Script para expandir respostas ao clicar na pergunta
-document.querySelectorAll(".faq-question").forEach(item => {
-    item.addEventListener("click", () => {
-        item.parentElement.classList.toggle("active");
-    });
-});
+        // Função para buscar webinars via AJAX (opcional)
+        function buscarWebinars() {
+            const termo = document.getElementById('searchInput').value;
+            window.location.href = '?search=' + encodeURIComponent(termo);
+        }
 
+        // Adicionar evento de tecla para buscar ao pressionar Enter
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                buscarWebinars();
+            }
+        });
     </script>
 </body>
 </html>

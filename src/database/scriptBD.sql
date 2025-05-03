@@ -134,18 +134,14 @@ CREATE TABLE Mensagem (
 );
 GO
 
--- Tabela de Inscrições em Webinars
-CREATE TABLE inscricoes_webinar(
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    nome_completo VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    telefone VARCHAR(20),
-    recebe_notificacoes BIT DEFAULT 0,
-    consentimento_lgpd BIT NOT NULL,
-    id_usuario INT,
-    data_inscricao DATETIME DEFAULT GETDATE(),
-    CONSTRAINT FK_Inscricoes_Usuario FOREIGN KEY (id_usuario) 
-        REFERENCES Usuario(id_usuario)
+CREATE TABLE Webinar (
+    id_webinar INT IDENTITY(1,1) PRIMARY KEY,
+    tema NVARCHAR(255) NULL,
+    data_hora DATETIME NULL,
+    palestrante NVARCHAR(255) NULL,
+    link NVARCHAR(500) NULL,
+    descricao NVARCHAR(MAX) NULL,
+    data_cadastro DATETIME DEFAULT GETDATE()
 );
 GO
 
