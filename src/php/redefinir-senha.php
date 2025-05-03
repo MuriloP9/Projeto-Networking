@@ -16,59 +16,68 @@ $token_hash = hash("sha256", $token);
 include("../php/conexao.php"); 
 $pdo = conectar();
 
+// Três abordagens de verificação para garantir consistência
+$sql = "SELECT 
+          token_rec_senha, 
+          dt_expiracao_token, 
+          timestamp_expiracao, 
+          CASE
+            WHEN dt_expiracao_token > GETDATE() THEN 'VALID_BY_DATETIME'
+            ELSE 'EXPIRED_BY_DATETIME'
+          END as datetime_status,
+          CASE
+            WHEN timestamp_expiracao > :current_timestamp THEN 'VALID_BY_TIMESTAMP'
+            ELSE 'EXPIRED_BY_TIMESTAMP'
+          END as timestamp_status
+        FROM Usuario 
+        WHERE token_rec_senha = :token_hash";
 
-$sql = "SELECT TOP 1 dt_expiracao_token FROM Usuario WHERE token_rec_senha = :token_hash";
 $exec4 = $pdo->prepare($sql);
+$current_timestamp = time();
 $exec4->bindValue(":token_hash", $token_hash);
+$exec4->bindValue(":current_timestamp", $current_timestamp, PDO::PARAM_INT);
 $exec4->execute();
 $user = $exec4->fetch(PDO::FETCH_ASSOC);
 
+// Log detalhado para diagnóstico
+error_log("Token hash recebido: " . $token_hash);
+error_log("Timestamp atual: " . $current_timestamp);
+error_log("Resultado da consulta: " . print_r($user, true));
 
-echo "Timestamp atual: " . time() . "<br>";
-
+// Se não encontrou o token
 if (empty($user)) {
     $mensagem = "Token inválido ou não encontrado.";
     $msgErro->exibirMensagemErro($mensagem, "");
     exit;
 }
 
-try {
-    $agora = new DateTime('now', new DateTimeZone('America/Sao_Paulo'));
-    
-    // Converter a data do SQL Server para DateTime
-    $dataBanco = $user['dt_expiracao_token'];
-    
-    // Debug dos valores brutos
-    error_log("Tipo de dt_expiracao_token: " . gettype($dataBanco));
-    error_log("Valor bruto de dt_expiracao_token: " . print_r($dataBanco, true));
-    
-    if ($dataBanco instanceof DateTime) {
-        $validadeUsuario = $dataBanco;
-    } else {
-        // Remover milissegundos se existirem
-        $dataBanco = preg_replace('/\.\d+/', '', $dataBanco);
-        $validadeUsuario = new DateTime($dataBanco, new DateTimeZone('America/Sao_Paulo'));
-    }
-    
-    // Debug
-    error_log("Agora: " . $agora->format('Y-m-d H:i:s.u'));
-    error_log("Validade: " . $validadeUsuario->format('Y-m-d H:i:s.u'));
-    
-    if ($agora > $validadeUsuario) {
-        $mensagem = "Esse link expirou. Por favor, solicite um novo.";
-        $msgErro->exibirMensagemErro($mensagem, "");
-        exit;
-    }
-    
-    // Token válido
-    error_log("Token válido - continuando processo");
-    // Restante do código...
-    
-} catch (Exception $e) {
-    error_log("Erro ao validar token: " . $e->getMessage());
-    $mensagem = "Erro ao validar o token: " . $e->getMessage();
+// Verificar a validade através de múltiplos métodos
+$valid_by_datetime = ($user['datetime_status'] === 'VALID_BY_DATETIME');
+$valid_by_timestamp = ($user['timestamp_status'] === 'VALID_BY_TIMESTAMP');
+
+error_log("Válido por datetime: " . ($valid_by_datetime ? "SIM" : "NÃO"));
+error_log("Válido por timestamp: " . ($valid_by_timestamp ? "SIM" : "NÃO"));
+
+// Se pelo menos um método confirma que o token é válido
+if ($valid_by_timestamp || $valid_by_datetime) {
+    error_log("Token considerado VÁLIDO através de pelo menos um método");
+} else {
+    error_log("Token EXPIRADO por ambos os métodos");
+    $mensagem = "Esse link expirou. Por favor, solicite um novo link de redefinição de senha.";
     $msgErro->exibirMensagemErro($mensagem, "");
     exit;
+}
+
+// Debug extra para analisar formato de data no SQL Server
+try {
+    $debug = $pdo->query("SELECT GETDATE() AS current_server_time")->fetch(PDO::FETCH_ASSOC);
+    error_log("Data atual no servidor SQL: " . $debug['current_server_time']);
+    
+    if (isset($user['dt_expiracao_token'])) {
+        error_log("Formato da data de expiração: " . gettype($user['dt_expiracao_token']) . " - Valor: " . $user['dt_expiracao_token']);
+    }
+} catch (Exception $e) {
+    error_log("Erro ao obter debug SQL: " . $e->getMessage());
 }
 ?>
 
@@ -187,18 +196,26 @@ try {
             margin-top: 20px;
             padding: 10px;
             border-radius: 5px;
-            display: none;
+        }
+        
+        .success {
+            background-color: #4CAF50;
+            color: white;
+            display: block;
         }
         
         .error {
             background-color: #f44336;
             color: white;
+            display: block;
         }
     </style>
 </head>
 <body>
     <div class="password-reset-container">
         <h1>Redefinir Senha</h1>
+        
+        <div id="message" class="message" style="display: none;"></div>
         
         <form method="post" id="formRecupSenha">
             <div class="textfield">
@@ -212,6 +229,7 @@ try {
                 <input type="password" id="confirmaSenha" name="confirmaSenha" maxlength="15" placeholder="Confirme sua senha" required>
             </div>
             
+            <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
             <button type="submit" class="btn-submit">REDEFINIR SENHA</button>
             <a href="../php/index.php" class="btn-return">VOLTAR</a>
         </form>
@@ -224,25 +242,63 @@ try {
 
         if (!empty($senha) && !empty($confirmaSenha)) {
             if ($senha == $confirmaSenha) {
-                // Atualizar a tabela Usuario
-                $exec5 = $pdo->prepare("UPDATE Usuario SET senha = :senha, token_rec_senha = null, dt_expiracao_token = null WHERE token_rec_senha = :token_hash");
-                $exec5->bindValue(":token_hash", $token_hash);
-                $exec5->bindValue(":senha", password_hash($senha, PASSWORD_DEFAULT));
-                $exec5->execute();
-
-                echo "<script>
-                    alert('Senha redefinida com sucesso!');
-                    window.location.href = 'index.php';
-                </script>";
-                exit();
+                try {
+                    // Atualizar a tabela Usuario - limpar todos os campos relacionados ao token
+                    $exec5 = $pdo->prepare("UPDATE Usuario 
+                                           SET senha = :senha, 
+                                               token_rec_senha = NULL, 
+                                               dt_expiracao_token = NULL,
+                                               timestamp_expiracao = NULL
+                                           WHERE token_rec_senha = :token_hash");
+                    $exec5->bindValue(":token_hash", $token_hash);
+                    $exec5->bindValue(":senha", $senha);
+                    
+                    if ($exec5->execute()) {
+                        // Verificar se a atualização afetou alguma linha
+                        if ($exec5->rowCount() > 0) {
+                            echo "<script>
+                                document.getElementById('message').innerHTML = 'Senha redefinida com sucesso! Redirecionando...';
+                                document.getElementById('message').className = 'message success';
+                                document.getElementById('message').style.display = 'block';
+                                setTimeout(function() {
+                                    window.location.href = '../php/index.php';
+                                }, 3000);
+                            </script>";
+                        } else {
+                            echo "<script>
+                                document.getElementById('message').innerHTML = 'Não foi possível atualizar a senha. Por favor, tente novamente.';
+                                document.getElementById('message').className = 'message error';
+                                document.getElementById('message').style.display = 'block';
+                            </script>";
+                        }
+                    } else {
+                        error_log("Erro ao executar atualização: " . print_r($exec5->errorInfo(), true));
+                        echo "<script>
+                            document.getElementById('message').innerHTML = 'Erro ao atualizar senha. Por favor, tente novamente.';
+                            document.getElementById('message').className = 'message error';
+                            document.getElementById('message').style.display = 'block';
+                        </script>";
+                    }
+                } catch (Exception $e) {
+                    error_log("Exceção ao atualizar senha: " . $e->getMessage());
+                    echo "<script>
+                        document.getElementById('message').innerHTML = 'Erro: " . addslashes($e->getMessage()) . "';
+                        document.getElementById('message').className = 'message error';
+                        document.getElementById('message').style.display = 'block';
+                    </script>";
+                }
             } else {
                 echo "<script>
-                    alert('As senhas não coincidem!');
+                    document.getElementById('message').innerHTML = 'As senhas não coincidem!';
+                    document.getElementById('message').className = 'message error';
+                    document.getElementById('message').style.display = 'block';
                 </script>";
             }
         } else {
             echo "<script>
-                alert('Por favor, preencha todos os campos!');
+                document.getElementById('message').innerHTML = 'Por favor, preencha todos os campos!';
+                document.getElementById('message').className = 'message error';
+                document.getElementById('message').style.display = 'block';
             </script>";
         }
     }

@@ -1,49 +1,80 @@
-<?php
+<?php 
 date_default_timezone_set('America/Sao_Paulo');
 
-include("../php/Email.php"); 
-$emailSender = new Email();
+include("../php/Email.php");
 
+$emailSender = new Email();
 $userEmail = $_POST['email'];
 
 // Gerar token seguro
 $token = bin2hex(random_bytes(16));
 $token_hash = hash("sha256", $token);
 
-// Formato CORRETO para SQL Server (Y-m-d H:i:s)
-$expiracao = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))
-    ->add(new DateInterval('PT30M'))
-    ->format('Y-m-d H:i:s.v'); // Adicionando milissegundos para SQL Server
+// Armazenar timestamp UNIX em vez de datetime para evitar problemas de formato
+$timestamp_expiracao = time() + (30 * 60); // Agora + 30 minutos em timestamp unix
 
-// Debug mais detalhado
+// Log para depuração
 error_log("Token gerado para: $userEmail");
 error_log("Token hash: $token_hash");
-error_log("Data de expiração formatada: $expiracao");
+error_log("Timestamp de expiração: $timestamp_expiracao");
 
-// Atualizar o usuário com o token
-$exec2 = $pdo->prepare("UPDATE Usuario 
-                       SET token_rec_senha = :token_hash, 
-                           dt_expiracao_token = :expiracao 
-                       WHERE email = :email");
-$exec2->bindValue(":token_hash", $token_hash);
-$exec2->bindParam(":expiracao", $expiracao, PDO::PARAM_STR);
-$exec2->bindValue(":email", $userEmail);
-$exec2->execute();
+try {
+    // Verificar se a coluna timestamp_expiracao existe, se não existir, adicione-a
+    try {
+        $checkColumn = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+                                    WHERE TABLE_NAME = 'Usuario' AND COLUMN_NAME = 'timestamp_expiracao'");
+        
+        if ($checkColumn->rowCount() == 0) {
+            // A coluna não existe, crie-a
+            $pdo->exec("ALTER TABLE Usuario ADD timestamp_expiracao INT");
+            error_log("Coluna timestamp_expiracao adicionada à tabela Usuario");
+        }
+    } catch (PDOException $e) {
+        error_log("Erro ao verificar/criar coluna: " . $e->getMessage());
+      
+    }
 
-// Obter nome do usuário para personalizar o email
-$exec3 = $pdo->prepare("SELECT nome FROM Usuario WHERE email = :userEmail");
-$exec3->bindValue(":userEmail", $userEmail);
-$exec3->execute();
-$nomeUser = $exec3->fetchColumn();
+    // Atualizar o usuário com o token e timestamp unix
+    $exec2 = $pdo->prepare("UPDATE Usuario 
+                          SET token_rec_senha = :token_hash, 
+                              dt_expiracao_token = GETDATE() + 0.0208333, -- Adiciona 30 minutos diretamente no SQL Server
+                              timestamp_expiracao = :timestamp_expiracao 
+                          WHERE email = :email");
+    
+    $exec2->bindValue(":token_hash", $token_hash);
+    $exec2->bindValue(":timestamp_expiracao", $timestamp_expiracao, PDO::PARAM_INT);
+    $exec2->bindValue(":email", $userEmail);
+    
+    if (!$exec2->execute()) {
+        error_log("Erro ao atualizar token: " . print_r($exec2->errorInfo(), true));
+    } else {
+        error_log("Token atualizado com sucesso no banco");
+    }
 
-$assuntoEmail = "Redefinir senha - ProLink";
+    // Verificar se o token foi realmente salvo
+    $checkToken = $pdo->prepare("SELECT token_rec_senha, dt_expiracao_token, timestamp_expiracao FROM Usuario WHERE email = :email");
+    $checkToken->bindValue(":email", $userEmail);
+    $checkToken->execute();
+    $userData = $checkToken->fetch(PDO::FETCH_ASSOC);
+    
+    error_log("Token verificado após inserção: " . $userData['token_rec_senha']);
+    error_log("Data expiração verificada após inserção: " . $userData['dt_expiracao_token']);
+    error_log("Timestamp expiração verificado após inserção: " . $userData['timestamp_expiracao']);
 
-$corpoEmail = <<<END
+    // Obter nome do usuário para personalizar o email
+    $exec3 = $pdo->prepare("SELECT nome FROM Usuario WHERE email = :userEmail");
+    $exec3->bindValue(":userEmail", $userEmail);
+    $exec3->execute();
+    $nomeUser = $exec3->fetchColumn();
+
+    $assuntoEmail = "Redefinir senha - ProLink";
+
+    $corpoEmail = <<<END
 <div style='display: flex; flex-direction: column; text-align: justify; width: fit-content; margin: auto;'>
     <div style='text-align: center;'>
         <h1>Olá, $nomeUser!</h1>
     </div>
-
+    
     <p>Está com problemas para acessar sua conta do ProLink? A gente ajuda. Selecione o botão abaixo para redefinir sua senha.
     Este link é válido por 30 minutos.
     <br/><br/>
@@ -64,7 +95,11 @@ $corpoEmail = <<<END
 </div>
 END;
 
-$corpoAltEmail = "Acesse http://localhost/Projeto-Networking/src/php/redefinir-senha.php?token=$token para redefinir sua senha.";
+    $corpoAltEmail = "Acesse http://localhost/Projeto-Networking/src/php/redefinir-senha.php?token=$token para redefinir sua senha.";
 
-$emailSender->enviarEmail($userEmail, $assuntoEmail, $corpoEmail, $corpoAltEmail);
+    $emailSender->enviarEmail($userEmail, $assuntoEmail, $corpoEmail, $corpoAltEmail);
+    
+} catch (Exception $e) {
+    error_log("Erro ao processar a recuperação de senha: " . $e->getMessage());
+}
 ?>

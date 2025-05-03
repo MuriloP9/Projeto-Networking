@@ -28,7 +28,7 @@ CREATE TABLE Usuario (
     foto_perfil VARBINARY(MAX) NULL,
     token_rec_senha NVARCHAR(64) NULL,
     dt_expiracao_token DATETIME NULL,
-    token_ativacao NVARCHAR(64) NULL
+	timestamp_expiracao BIGINT NULL
 );
 GO
 
