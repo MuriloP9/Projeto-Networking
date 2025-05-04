@@ -82,7 +82,7 @@ class MensagemErro {
             <div class="error-container">
                 <h1 class="error-title">ERRO</h1>
                 <div class="error-icon">
-                    <img src="{$basePath}src/img/icons/error.png" alt="Ícone de erro" class="error-image">
+                    <img src="../assets/img/cancelar.png" alt="Ícone de erro" class="error-image">
                 </div>
                 <p class="error-message">$mensagem</p>
                 <a href="{$basePath}../php/index.php" class="btn-return">Voltar ao Início</a>
