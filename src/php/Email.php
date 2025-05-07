@@ -1,5 +1,8 @@
 <?php
-
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['email'])) {
+    header("Location: ../php/index.php");
+    exit();
+}
 
 //Import PHPMailer classes into the global namespace
 //These must be at the top of your script, not inside a function

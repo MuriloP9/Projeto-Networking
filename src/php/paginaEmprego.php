@@ -471,7 +471,7 @@ try {
                         }
                     },
                     error: function() {
-                        alert('Erro ao processar sua solicitação. Tente novamente.');
+                        alert('Faça o login!');
                         btn.prop('disabled', false);
                     }
                 });

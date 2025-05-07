@@ -1,4 +1,8 @@
 <?php
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['email'])) {
+    header("Location: ../php/index.php");
+    exit();
+}
 session_start();
 
 $response = [
