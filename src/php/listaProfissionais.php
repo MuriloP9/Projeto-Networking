@@ -1,3 +1,168 @@
+<?php
+// PRIMEIRA LINHA DO ARQUIVO - antes de qualquer saída
+session_start();
+include("../php/conexao.php"); 
+
+// Funções de busca (mantidas iguais)
+function buscarPorNome($pdo, $searchQuery) {
+    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
+              FROM Perfil P
+              INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
+              WHERE U.nome LIKE :searchPattern";
+    
+    $sql = $pdo->prepare($query);
+    $searchPattern = '%' . $searchQuery . '%';
+    $sql->bindValue(":searchPattern", $searchPattern, PDO::PARAM_STR);
+    $sql->execute();
+    
+    return $sql->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function buscarPorFormacao($pdo, $searchQuery) {
+    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
+              FROM Perfil P
+              INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
+              WHERE P.formacao LIKE :searchPattern";
+    
+    $sql = $pdo->prepare($query);
+    $searchPattern = '%' . $searchQuery . '%';
+    $sql->bindValue(":searchPattern", $searchPattern, PDO::PARAM_STR);
+    $sql->execute();
+    
+    return $sql->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function buscarPorHabilidades($pdo, $searchQuery) {
+    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
+              FROM Perfil P
+              INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
+              WHERE P.habilidades LIKE :searchPattern";
+    
+    $sql = $pdo->prepare($query);
+    $searchPattern = '%' . $searchQuery . '%';
+    $sql->bindValue(":searchPattern", $searchPattern, PDO::PARAM_STR);
+    $sql->execute();
+    
+    return $sql->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Processar a pesquisa
+$searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+// Inicializar variáveis para armazenar os resultados
+$resultadosHTML = '';
+$modalHTML = '';
+
+if ($searchQuery !== '') {
+    try {
+        $pdo = conectar();
+        
+        // Modificar as consultas para incluir qr_code da tabela Usuario
+        $resultadosNome = buscarPorNome($pdo, $searchQuery);
+        $resultadosFormacao = buscarPorFormacao($pdo, $searchQuery);
+        $resultadosHabilidades = buscarPorHabilidades($pdo, $searchQuery);
+        
+        // Combinar resultados, removendo duplicatas
+        $profissionais = array_merge($resultadosNome, $resultadosFormacao, $resultadosHabilidades);
+        $profissionaisUnicos = array();
+        
+        foreach ($profissionais as $profissional) {
+            $email = $profissional['email'];
+            if (!isset($profissionaisUnicos[$email])) {
+                $profissionaisUnicos[$email] = $profissional;
+            }
+        }
+        
+        // Verificar se o usuário está logado
+        $usuarioLogado = isset($_SESSION['id_usuario']);
+        
+        // Construir HTML dos resultados
+        if (empty($profissionaisUnicos)) {
+            $resultadosHTML = "<div class='professional-list'><p>Nenhum profissional encontrado para '$searchQuery'.</p></div>";
+        } else {
+            $resultadosHTML = "<div class='professional-list'>";
+            foreach ($profissionaisUnicos as $profissional) {
+                $fotoPerfil = !empty($profissional['foto_perfil']) 
+                    ? "data:image/jpeg;base64," . base64_encode($profissional['foto_perfil'])
+                    : "../assets/img/userp.jpg";
+                
+                $qrCodePath = !empty($profissional['qr_code']) ? 
+                    'get_qrcode.php?file=' . basename(htmlspecialchars($profissional['qr_code'])) : '';
+                
+                // Obter o valor do qr_code da tabela Usuario para este email
+                $stmt = $pdo->prepare("SELECT qr_code FROM Usuario WHERE email = :email");
+                $stmt->bindParam(':email', $profissional['email']);
+                $stmt->execute();
+                $qrCodeValue = $stmt->fetchColumn();
+                
+                $resultadosHTML .= "<div class='professional-item'>";
+                $resultadosHTML .= "<div class='profile-pic' style='background-image: url($fotoPerfil);'></div>";
+                $resultadosHTML .= "<div class='professional-info'>";
+                $resultadosHTML .= "<div class='professional-name'>" . htmlspecialchars($profissional['nome']) . "</div>";
+                
+                if (!empty($profissional['formacao'])) {
+                    $resultadosHTML .= "<div class='professional-specialization'>" . htmlspecialchars($profissional['formacao']) . "</div>";
+                }
+                
+                if (!empty($profissional['habilidades'])) {
+                    $resultadosHTML .= "<p><strong>Habilidades:</strong> " . htmlspecialchars($profissional['habilidades']) . "</p>";
+                }
+                
+                if (!empty($profissional['experiencia_profissional'])) {
+                    $resultadosHTML .= "<p><strong>Experiência:</strong> " . nl2br(htmlspecialchars($profissional['experiencia_profissional'])) . "</p>";
+                }
+                
+                if (!empty($profissional['email'])) {
+                    $resultadosHTML .= "<p><strong>Email:</strong> " . htmlspecialchars($profissional['email']) . "</p>";
+                }
+                
+                $resultadosHTML .= "</div>";
+                
+                if (!empty($qrCodePath)) {
+                    if ($usuarioLogado) {
+                        $resultadosHTML .= "<button class='chat-btn show-qr' data-qrcode-path='$qrCodePath' data-email='" . htmlspecialchars($profissional['email']) . "' data-qrcode='" . htmlspecialchars($qrCodeValue) . "'>";
+                        $resultadosHTML .= "QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'>";
+                        $resultadosHTML .= "</button>";
+                    } else {
+                        // Modificação aqui: botão para redirecionar para login.html
+                        $resultadosHTML .= "<button class='chat-btn login-redirect' onclick=\"window.location.href='../pages/login.html';\">";
+                        $resultadosHTML .= "QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'>";
+                        $resultadosHTML .= "</button>";
+                    }
+                } else {
+                    $resultadosHTML .= "<button class='chat-btn' disabled title='QR Code não disponível'>";
+                    $resultadosHTML .= "QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'>";
+                    $resultadosHTML .= "</button>";
+                }
+                
+                $resultadosHTML .= "</div>";
+            }
+            $resultadosHTML .= "</div>";
+            
+            if ($usuarioLogado) {
+                $modalHTML = '
+                <div id="qrModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-modal">&times;</span>
+                        <h3>QR Code de Contato</h3>
+                        <div id="qrCodeContainer">
+                            <img id="qrCodeImage" src="" alt="QR Code" style="max-width:250px">
+                        </div>
+                        <div class="link-container">
+                            <input type="text" id="profileLink" readonly>
+                            <button id="copyLink">Copiar Link</button>
+                        </div>
+                    </div>
+                </div>';
+            }
+        }
+    } catch (Exception $erro) {
+        $resultadosHTML = "<div class='professional-list'><p>Erro ao buscar profissionais: " . htmlspecialchars($erro->getMessage()) . "</p></div>";
+    }
+} else {
+    $resultadosHTML = "<div class='professional-list'><p>Por favor, forneça um termo de pesquisa.</p></div>";
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -9,8 +174,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
+    <!-- Restante do seu CSS aqui -->
     <style>
-        body {
+         body {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -213,152 +379,6 @@
 </head>
 <body>
 
-<?php
-include("../php/conexao.php"); 
-
-// Função para buscar profissionais por nome
-function buscarPorNome($pdo, $searchQuery) {
-    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
-              FROM Perfil P
-              INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
-              WHERE U.nome LIKE :searchPattern";
-    
-    $sql = $pdo->prepare($query);
-    $searchPattern = '%' . $searchQuery . '%';
-    $sql->bindValue(":searchPattern", $searchPattern, PDO::PARAM_STR);
-    $sql->execute();
-    
-    return $sql->fetchAll(PDO::FETCH_ASSOC);
-}
-
-// Função para buscar profissionais por formação
-function buscarPorFormacao($pdo, $searchQuery) {
-    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
-              FROM Perfil P
-              INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
-              WHERE P.formacao LIKE :searchPattern";
-    
-    $sql = $pdo->prepare($query);
-    $searchPattern = '%' . $searchQuery . '%';
-    $sql->bindValue(":searchPattern", $searchPattern, PDO::PARAM_STR);
-    $sql->execute();
-    
-    return $sql->fetchAll(PDO::FETCH_ASSOC);
-}
-
-// Função para buscar profissionais por habilidades
-function buscarPorHabilidades($pdo, $searchQuery) {
-    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
-              FROM Perfil P
-              INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
-              WHERE P.habilidades LIKE :searchPattern";
-    
-    $sql = $pdo->prepare($query);
-    $searchPattern = '%' . $searchQuery . '%';
-    $sql->bindValue(":searchPattern", $searchPattern, PDO::PARAM_STR);
-    $sql->execute();
-    
-    return $sql->fetchAll(PDO::FETCH_ASSOC);
-}
-
-// Processar a pesquisa
-$searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
-
-if ($searchQuery !== '') {
-    try {
-        $pdo = conectar();
-        
-        // Executar as três consultas separadamente
-        $resultadosNome = buscarPorNome($pdo, $searchQuery);
-        $resultadosFormacao = buscarPorFormacao($pdo, $searchQuery);
-        $resultadosHabilidades = buscarPorHabilidades($pdo, $searchQuery);
-        
-        // Combinar resultados, removendo duplicatas
-        $profissionais = array_merge($resultadosNome, $resultadosFormacao, $resultadosHabilidades);
-        $profissionaisUnicos = array();
-        
-        foreach ($profissionais as $profissional) {
-            $email = $profissional['email'];
-            if (!isset($profissionaisUnicos[$email])) {
-                $profissionaisUnicos[$email] = $profissional;
-            }
-        }
-        
-        // Exibir resultados
-        if (empty($profissionaisUnicos)) {
-            echo "<div class='professional-list'><p>Nenhum profissional encontrado para '$searchQuery'.</p></div>";
-        } else {
-            echo "<div class='professional-list'>";
-            foreach ($profissionaisUnicos as $profissional) {
-                $fotoPerfil = !empty($profissional['foto_perfil']) 
-                    ? "data:image/jpeg;base64," . base64_encode($profissional['foto_perfil'])
-                    : "../assets/img/userp.jpg";
-                
-                // Tratar o caminho do QR Code usando o script intermediário
-                $qrCodePath = !empty($profissional['qr_code']) ? 
-                    'get_qrcode.php?file=' . basename(htmlspecialchars($profissional['qr_code'])) : '';
-                
-                echo "<div class='professional-item'>";
-                echo "<div class='profile-pic' style='background-image: url($fotoPerfil);'></div>";
-                echo "<div class='professional-info'>";
-                echo "<div class='professional-name'>" . htmlspecialchars($profissional['nome']) . "</div>";
-                
-                if (!empty($profissional['formacao'])) {
-                    echo "<div class='professional-specialization'>" . htmlspecialchars($profissional['formacao']) . "</div>";
-                }
-                
-                if (!empty($profissional['habilidades'])) {
-                    echo "<p><strong>Habilidades:</strong> " . htmlspecialchars($profissional['habilidades']) . "</p>";
-                }
-                
-                if (!empty($profissional['experiencia_profissional'])) {
-                    echo "<p><strong>Experiência:</strong> " . nl2br(htmlspecialchars($profissional['experiencia_profissional'])) . "</p>";
-                }
-                
-                if (!empty($profissional['email'])) {
-                    echo "<p><strong>Email:</strong> " . htmlspecialchars($profissional['email']) . "</p>";
-                }
-                
-                echo "</div>";
-                
-                if (!empty($qrCodePath)) {
-                    echo "<button class='chat-btn show-qr' data-qrcode-path='$qrCodePath' data-email='" . htmlspecialchars($profissional['email']) . "'>";
-                    echo "QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'>";
-                    echo "</button>";
-                } else {
-                    echo "<button class='chat-btn' disabled title='QR Code não disponível'>";
-                    echo "QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'>";
-                    echo "</button>";
-                }
-                
-                echo "</div>";
-            }
-            echo "</div>";
-            
-            // Modal para QR Code
-            echo '
-            <div id="qrModal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h3>QR Code de Contato</h3>
-        <div id="qrCodeContainer">
-            <img id="qrCodeImage" src="" alt="QR Code" style="max-width:250px">
-        </div>
-        <div class="link-container">
-            <input type="text" id="profileLink" readonly>
-            <button id="copyLink">Copiar Link</button>
-        </div>
-    </div>
-</div>';
-        }
-    } catch (Exception $erro) {
-        echo "<div class='professional-list'><p>Erro ao buscar profissionais: " . htmlspecialchars($erro->getMessage()) . "</p></div>";
-    }
-} else {
-    echo "<div class='professional-list'><p>Por favor, forneça um termo de pesquisa.</p></div>";
-}
-?>
-
     <header>
         <nav class="navbar">
             <div class="logo-container">
@@ -376,12 +396,16 @@ if ($searchQuery !== '') {
         </nav>
     </header>
 
+    <?php echo $resultadosHTML; ?>
+
     <footer class="footer-section">
         <div class="footer-content">
             <img src="../assets/img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
             <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
         </div>
     </footer> 
+
+    <?php echo $modalHTML; ?>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../assets/js/script.js"></script>
@@ -392,12 +416,20 @@ if ($searchQuery !== '') {
         $('.show-qr').click(function() {
             const qrCodePath = $(this).data('qrcode-path');
             const email = $(this).data('email');
-            const profileLink = window.location.origin + '/perfil.php?email=' + encodeURIComponent(email);
+            const qrcode = $(this).data('qrcode');
             
             // Adiciona timestamp para evitar cache
             const timestamp = new Date().getTime();
             $('#qrCodeImage').attr('src', qrCodePath + '&t=' + timestamp);
-            $('#profileLink').val(profileLink);
+            
+            // Usar o valor da coluna qr_code da tabela Usuario se disponível, senão usar o email
+            if (qrcode) {
+                $('#profileLink').val(qrcode);
+            } else {
+                const profileLink = window.location.origin + '/perfil.php?email=' + encodeURIComponent(email);
+                $('#profileLink').val(profileLink);
+            }
+            
             $('#qrModal').show();
         });
         
@@ -425,6 +457,6 @@ if ($searchQuery !== '') {
             }
         });
     });
-    </script>
+</script>
 </body>
 </html>
