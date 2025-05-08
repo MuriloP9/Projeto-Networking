@@ -121,17 +121,17 @@ if ($searchQuery !== '') {
                 if (!empty($qrCodePath)) {
                     if ($usuarioLogado) {
                         $resultadosHTML .= "<button class='chat-btn show-qr' data-qrcode-path='$qrCodePath' data-email='" . htmlspecialchars($profissional['email']) . "' data-qrcode='" . htmlspecialchars($qrCodeValue) . "'>";
-                        $resultadosHTML .= "QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'>";
+                        $resultadosHTML .= "Contato App<img src='../assets/img/adicionar-usuarios.png' alt='qrcode' class='chat-icon'>";
                         $resultadosHTML .= "</button>";
                     } else {
                         // Modificação aqui: botão para redirecionar para login.html
                         $resultadosHTML .= "<button class='chat-btn login-redirect' onclick=\"window.location.href='../pages/login.html';\">";
-                        $resultadosHTML .= "QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'>";
+                        $resultadosHTML .= "Contato App<img src='../assets/img/adicionar-usuarios.png' alt='qrcode' class='chat-icon'>";
                         $resultadosHTML .= "</button>";
                     }
                 } else {
                     $resultadosHTML .= "<button class='chat-btn' disabled title='QR Code não disponível'>";
-                    $resultadosHTML .= "QR Code<img src='../assets/img/icons8-qrcodeb.png' alt='qrcode' class='chat-icon'>";
+                    $resultadosHTML .= "Contato App<img src='../assets/img/adicionar-usuarios.png' alt='qrcode' class='chat-icon'>";
                     $resultadosHTML .= "</button>";
                 }
                 
