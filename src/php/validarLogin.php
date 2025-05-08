@@ -44,7 +44,7 @@ try {
         $_SESSION['usuario_logado'] = true;
         $_SESSION['nome_usuario'] = $usuario['nome'];
         $_SESSION['id_usuario'] = $usuario['id_usuario'];
-        $_SESSION['id_perfil'] = $usuario['id_perfil']; // Adiciona o id_perfil na sessão
+        $_SESSION['id_perfil'] = $usuario['id_perfil']; 
 
 
         // Retorna uma resposta JSON de sucesso

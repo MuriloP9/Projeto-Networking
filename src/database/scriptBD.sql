@@ -1,15 +1,7 @@
-USE master;
+CREATE DATABASE prolink01;
 GO
 
--- Drop e recriação do banco de dados
-IF EXISTS (SELECT name FROM sys.databases WHERE name = 'prolink')
-    DROP DATABASE prolink;
-GO
-
-CREATE DATABASE prolink;
-GO
-
-USE prolink;
+USE prolink01;
 GO
 
 -- Tabela de Usuários
@@ -134,6 +126,21 @@ CREATE TABLE Mensagem (
 );
 GO
 
+-- Tabela de Inscrições em Webinars (Não utilizamos mais)
+CREATE TABLE inscricoes_webinar(
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    nome_completo VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    telefone VARCHAR(20),
+    recebe_notificacoes BIT DEFAULT 0,
+    consentimento_lgpd BIT NOT NULL,
+    id_usuario INT,
+    data_inscricao DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_Inscricoes_Usuario FOREIGN KEY (id_usuario) 
+        REFERENCES Usuario(id_usuario)
+);
+GO
+
 CREATE TABLE Webinar (
     id_webinar INT IDENTITY(1,1) PRIMARY KEY,
     tema NVARCHAR(255) NULL,
@@ -143,22 +150,23 @@ CREATE TABLE Webinar (
     descricao NVARCHAR(MAX) NULL,
     data_cadastro DATETIME DEFAULT GETDATE()
 );
-GO
 
--- Tabela de Notificações
-CREATE TABLE Notificacao (
-    id_notificacao INT IDENTITY(1,1) PRIMARY KEY,
-    id_usuario INT NOT NULL,
-    mensagem NVARCHAR(MAX) NOT NULL,
-    data_hora DATETIME DEFAULT GETDATE(),
-    lida BIT DEFAULT 0,
-    CONSTRAINT FK_Notificacao_Usuario FOREIGN KEY (id_usuario) 
-        REFERENCES Usuario(id_usuario)
-);
-GO
+drop table Webinar
 
-USE prolink;
-GO
+INSERT INTO Webinar (tema, data_hora, palestrante, link, descricao)
+VALUES
+('Introdução à Inteligência Artificial', '20240615 14:00:00', 'Dr. Carlos Silva', 'https://www.youtube.com/watch?v=8tPnX7OPo0Q', 'Webinar introdutório sobre os conceitos básicos de IA e machine learning para iniciantes.'),
+('Desenvolvimento Web Moderno com React', '20240620 19:30:00', 'Ana Beatriz Souza', 'https://www.youtube.com/watch?v=Ke90Tje7VS0', 'Aprenda os fundamentos do React e como criar aplicações web modernas.'),
+('Gestão Ágil de Projetos com Scrum', '20240625 10:00:00', 'Roberto Almeida', 'https://www.youtube.com/watch?v=9TycLR0TqFA', 'Domine as práticas essenciais do framework Scrum para gerenciamento de projetos.'),
+('Segurança da Informação para Empresas', '20240705 16:00:00', 'Dra. Fernanda Costa', 'https://www.youtube.com/watch?v=inWWhr5tnEA', 'Proteja seus dados corporativos contra ameaças cibernéticas.'),
+('Data Science na Prática', '20240712 15:00:00', 'Prof. Marcelo Santos', 'https://www.youtube.com/watch?v=ua-CiDNNj30', 'Aplicações reais de Data Science e análise de dados em diferentes setores.'),
+('Blockchain e Criptomoedas', '20240718 20:00:00', 'Lucas Oliveira', 'https://www.youtube.com/watch?v=1PU5AfTfN3Q', 'Entenda a tecnologia por trás do Bitcoin e outras criptomoedas.'),
+('UX/UI Design para Iniciantes', '20240725 11:00:00', 'Camila Rodrigues', 'https://www.youtube.com/watch?v=c9Wg6Cb_YlU', 'Princípios fundamentais de design de interface e experiência do usuário.'),
+('Cloud Computing com AWS', '20240803 14:30:00', 'Eng. Thiago Lima', 'https://www.youtube.com/watch?v=IT1X42D1KeA', 'Introdução aos serviços de nuvem da Amazon Web Services.'),
+('Marketing Digital para Pequenos Negócios', '20240810 09:00:00', 'Patrícia Mendes', 'https://www.youtube.com/watch?v=4qNBNg4gX3Y', 'Estratégias eficazes de marketing digital com orçamento limitado.'),
+('Programação em Python para Finanças', '20240817 18:00:00', 'Dr. Ricardo Fernandes', 'https://www.youtube.com/watch?v=GhrvZ6nUoG8', 'Aplicações de Python em análise financeira e algoritmos de trading.');
+
+
 
 INSERT INTO Usuario (nome, email, senha, dataNascimento, telefone, ativo)
 VALUES 
@@ -240,44 +248,18 @@ VALUES
 ('Ana Pereira', 'ana.pereira@email.com', '41987654321', 1, 1, 4);
 GO
 
-INSERT INTO Notificacao (id_usuario, mensagem, lida)
-VALUES
-(1, 'Sua candidatura foi recebida e está em análise', 0),
-(3, 'Parabéns! Sua candidatura foi aprovada', 1),
-(4, 'Você tem uma nova mensagem de Maria Oliveira', 0);
-GO
 
--- Verificando as inserções
-SELECT 'Usuario' AS Tabela, COUNT(*) AS Registros FROM Usuario
-UNION ALL
-SELECT 'Perfil', COUNT(*) FROM Perfil
-UNION ALL
-SELECT 'Funcionario', COUNT(*) FROM Funcionario
-UNION ALL
-SELECT 'AreaAtuacao', COUNT(*) FROM AreaAtuacao
-UNION ALL
-SELECT 'ProfissionalArea', COUNT(*) FROM ProfissionalArea
-UNION ALL
-SELECT 'Vagas', COUNT(*) FROM Vagas
-UNION ALL
-SELECT 'Candidatura', COUNT(*) FROM Candidatura
-UNION ALL
-SELECT 'Mensagem', COUNT(*) FROM Mensagem
-UNION ALL
-SELECT 'inscricoes_webinar', COUNT(*) FROM inscricoes_webinar
-UNION ALL
-SELECT 'Notificacao', COUNT(*) FROM Notificacao;
+select * from Usuario
 
-SELECT * FROM Usuario
-go
-SELECT * FROM Candidatura
-go
-SELECT * FROM Perfil
-go
-SELECT * FROM ProfissionalArea
-go
-SELECT * FROM Vagas
-go
-SELECT * FROM inscricoes_webinar
-go
-SELECT * FROM Funcionario
+select * from Perfil
+
+
+ ALTER TABLE Usuario
+    ADD timestamp_expiracao BIGINT NULL;
+
+	ALTER TABLE Usuario
+	Drop column token_ativacao
+
+
+
+

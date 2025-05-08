@@ -39,13 +39,11 @@ class Email {
             //Recipients
             $mail->setFrom('prolink.web.contact@gmail.com', 'Prolink');
             $mail->addAddress($userEmail);     //Add a recipient
-            $mail->addReplyTo('no-reply@anyges.com', 'Anyges');
+            $mail->addReplyTo('prolink.web.contact@gmail.com', 'Prolink');
             //$mail->addCC('cc@example.com');
             //$mail->addBCC('bcc@example.com');
         
-            //Attachments
-            //$mail->addAttachment('../imgs/logo-default.png', 'Anyges-Logo.png');
-        
+            
         
             //Content
             $mail->isHTML(true);                                  //Set email format to HTML
