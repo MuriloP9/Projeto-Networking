@@ -151,6 +151,19 @@ CREATE TABLE Webinar (
     data_cadastro DATETIME DEFAULT GETDATE()
 );
 
+
+CREATE TABLE Contatos (
+    id_contatos INT IDENTITY(1,1) PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    id_contato INT NOT NULL,
+    data_adicao DATETIME NOT NULL DEFAULT GETDATE(),
+    bloqueado BIT DEFAULT 0,
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
+    FOREIGN KEY (id_contato) REFERENCES Usuario(id_usuario),
+    -- Garante que um usuário não adicione o mesmo contato duas vezes
+    CONSTRAINT UC_Contato UNIQUE (id_usuario, id_contato)
+);
+
 drop table Webinar
 
 INSERT INTO Webinar (tema, data_hora, palestrante, link, descricao)
