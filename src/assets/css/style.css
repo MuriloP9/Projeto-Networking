@@ -1,4 +1,3 @@
-
 * {
     margin: 0;
     padding: 0;
@@ -11,6 +10,7 @@ body {
     background: linear-gradient(to bottom,  #050a37,  #0e1768);
     color: #fff;
     padding-top: 80px;
+    overflow-x: hidden; /* Previne scroll horizontal */
 }
 
 .navbar {
@@ -22,7 +22,8 @@ body {
     left: 0;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 50px;  /* Aumenta o tamanho da navbar */
+    padding: 20px 50px;
+    background: linear-gradient(to right, #050a37, #0e1768); /* Adicionado fundo para melhor visibilidade */
 }
 
 .logo-container {
@@ -31,13 +32,13 @@ body {
 }
 
 .logo-icon {
-    width: 50px;  /* Tamanho da imagem do logo */
-    height: 50px;
-    margin-right: 15px;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
 }
 
 .logo {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: bold;
 }
 
@@ -45,22 +46,25 @@ body {
     list-style: none;
     display: flex;
     justify-content: center;
-    gap: 30px; /* Aumenta a distância entre os itens do menu */
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s ease;
 }
 
 .menu li a {
     color: #0a0a0a;
     text-decoration: none;
-    padding: 8px 20px;
+    padding: 8px 16px;
     background-color: white;
     border-radius: 5px;
     transition: background-color 0.3s ease, transform 0.3s ease;
+    display: block;
+    text-align: center;
 }
 
 .menu li {
-    margin: 0 5px; /* Reduzindo a margem entre os botões */
+    margin: 0 2px;
 }
-
 
 /* Aplica o efeito de hover apenas nos botões comuns, excluindo perfil e chat */
 .menu li a:not(.profile-item a):not(.chat-item a):hover {
@@ -85,52 +89,48 @@ body {
     transition: none; 
 }
 
-
-.menu li a:hover {
-    background-color: #3b6ebb;
-    color: #fff;
-    transform: scale(1.1);  /* Pequeno efeito de zoom ao passar o mouse */
-}
-
 .profile {
     display: flex;
     align-items: center;
 }
+
 .profile-icon {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: box-shadow 0.3s ease;
-  }
+}
   
-  .profile-icon:hover {
+.profile-icon:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-  }
+}
 
-  .chat-icon {
+.chat-icon {
     width: 40px;
     height: 40px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: box-shadow 0.3s ease;
-  }
+}
   
-  .chat-icon:hover {
+.chat-icon:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-  }
-
+}
 
 .search-bar {
     display: flex;
     justify-content: center;
-    margin: 50px 0;
+    margin: 50px auto;
+    max-width: 90%;
+    width: 600px;
 }
 
 .search-bar input {
     padding: 12px;
-    width: 300px;
+    width: 70%;
     border: none;
     border-radius: 25px 0 0 25px;
+    font-size: 16px;
 }
 
 .search-btn {
@@ -140,7 +140,7 @@ body {
     background: linear-gradient(to bottom, #0e1768, #3b6ebb);
     border-radius: 0 25px 25px 0;
     cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease; /* Animação ao passar o mouse */
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .search-btn:hover {
@@ -156,13 +156,14 @@ body {
     align-items: center;
     position: relative;
     margin: 20px 0;
+    padding: 0 20px;
 }
 
 .carousel-container {
     position: relative;
     width: 100%;
     max-width: 1000px;
-    height: 400px;
+    height: 300px; /* Reduzido para melhor visualização em dispositivos menores */
     overflow: hidden;
 }
 
@@ -187,95 +188,67 @@ body {
     left: 20px;
     color: white;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    max-width: 80%;
 }
 
 .carousel-text h2 {
-    font-size: 36px;
+    font-size: clamp(20px, 4vw, 36px); /* Tamanho responsivo */
     margin-bottom: 10px;
 }
 
 .carousel-text p {
-    font-size: 18px;
+    font-size: clamp(14px, 2vw, 18px); /* Tamanho responsivo */
 }
 
 .hero {
     text-align: center;
-    padding: 100px 0;
+    padding: 60px 20px;
     background: linear-gradient(to bottom,  #050a37,  #0e1768);
 }
 
 .hero h1 {
-    font-size: 48px;
+    font-size: clamp(28px, 5vw, 48px);
     margin-bottom: 20px;
 }
 
 .hero p {
-    font-size: 18px;
+    font-size: clamp(16px, 2.5vw, 18px);
     margin-bottom: 40px;
 }
 
 /* Webinars and Job Opportunities Sections */
 .webinars, .job-opportunities {
-    padding: 50px;
+    padding: 50px 20px;
     text-align: center;
 }
 
 footer {
     text-align: center;
     padding: 20px;
-    background-color: #0e1768
+    background-color: #0e1768;
 }
 
 /* Estilização da barra de pesquisa */
-.search-bar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 50px 0;
-    width: 100%;
-}
-
-.search-bar input {
-    padding: 15px 20px;
-    width: 500px; /* Aumenta a largura da barra de pesquisa */
-    border: none;
-    border-radius: 50px 0 0 50px; /* Arredonda o lado esquerdo */
-    font-size: 16px;
-    outline: none;
-    background-color: white;
-    color: #0e1768;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra leve */
-}
-
 .search-bar .search-btn1 {
     padding: 15px 30px;
     border: none;
     background-color:#0e1768;
     color: white;
     font-size: 16px;
-    border-radius: 0 50px 50px 0; /* Arredonda o lado direito */
+    border-radius: 0 50px 50px 0;
     cursor: pointer;
+    white-space: nowrap;
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .search-bar .search-btn1:hover {
     background-color: #3b6ebb;
-    transform: scale(1.1); /* Efeito de zoom */
+    transform: scale(1.05);
 }
 
-/* Responsividade para telas menores */
-@media (max-width: 768px) {
-    .search-bar input {
-        width: 80%; /* Ajuste da barra para dispositivos móveis */
-    }
-
-    .search-btn1 {
-        padding: 15px 20px;
-    }
-}
 /* Estilos da seção de Webinars */
 .webinars {
-    padding: 50px;
+    padding: 50px 20px;
     text-align: center;
     background-color: #f4f4f4;
     color: #333;
@@ -283,13 +256,16 @@ footer {
 
 .webinar-container {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     margin-top: 20px;
+    gap: 20px;
 }
 
 .webinar-description {
-    width: 45%;
+    flex: 1;
+    min-width: 300px;
     text-align: left;
     padding: 20px;
     background-color: white;
@@ -299,13 +275,13 @@ footer {
 }
 
 .webinar-description h3 {
-    font-size: 24px;
+    font-size: clamp(18px, 3vw, 24px);
     margin-bottom: 15px;
     color: #3b6ebb;
 }
 
 .webinar-description p {
-    font-size: 16px;
+    font-size: clamp(14px, 2vw, 16px);
     margin-bottom: 20px;
 }
 
@@ -327,36 +303,32 @@ footer {
 .webinar-description img {
     margin-top: 15px;
     width: 100%;
+    max-width: 400px;
     border-radius: 10px;
 }
 
 .webinar-image {
-    width: 45%;
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    justify-content: center;
 }
 
 .webinar-image img {
     width: 100%;
+    max-width: 500px;
+    height: auto;
     border-radius: 10px;
     transition: transform 0.3s ease;
 }
 
 .webinar-container:hover .webinar-image img {
-    transform: scale(1.05); /* Zoom na imagem ao passar o mouse */
+    transform: scale(1.05);
 }
 
-/* Estilos responsivos para Webinars */
-@media (max-width: 768px) {
-    .webinar-container {
-        flex-direction: column;
-    }
-
-    .webinar-description, .webinar-image {
-        width: 100%;
-    }
-}
 /* Estilos da seção de Oportunidades de Trabalho */
 .job-opportunities {
-    padding: 50px;
+    padding: 50px 20px;
     text-align: center;
     background-color: #f4f4f4;
     color: #333;
@@ -364,13 +336,16 @@ footer {
 
 .job-container {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     margin-top: 20px;
+    gap: 20px;
 }
 
 .job-description {
-    width: 45%;
+    flex: 1;
+    min-width: 300px;
     text-align: left;
     padding: 20px;
     background-color: white;
@@ -380,13 +355,13 @@ footer {
 }
 
 .job-description h3 {
-    font-size: 24px;
+    font-size: clamp(18px, 3vw, 24px);
     margin-bottom: 15px;
     color: #3b6ebb;
 }
 
 .job-description p {
-    font-size: 16px;
+    font-size: clamp(14px, 2vw, 16px);
     margin-bottom: 20px;
 }
 
@@ -403,47 +378,49 @@ footer {
 .job-description img {
     margin-top: 15px;
     width: 100%;
+    max-width: 400px;
     border-radius: 10px;
 }
 
 .job-image {
-    width: 45%;
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    justify-content: center;
 }
 
 .job-image img {
     width: 100%;
+    max-width: 500px;
+    height: auto;
     border-radius: 10px;
     transition: transform 0.3s ease;
 }
 
 .job-container:hover .job-image img {
-    transform: scale(1.05); /* Zoom na imagem ao passar o mouse */
+    transform: scale(1.05);
 }
 
-/* Estilos responsivos para Oportunidades de Trabalho */
-@media (max-width: 768px) {
-    .job-container {
-        flex-direction: column;
-    }
-
-    .job-description, .job-image {
-        width: 100%;
-    }
-}
 /* Estilo da linha do tempo */
 .timeline {
     background-image: url('../img/colegas-sorridentes-de-tiro-medio-no-trabalho.jpg');
     background-size: cover;
     background-position: center;
-    padding: 80px 0;
+    padding: 80px 20px;
     color: #fff;
     position: relative;
+}
+
+.timeline-bg {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 10px;
 }
 
 .timeline h2 {
     text-align: center;
     margin-bottom: 60px;
-    font-size: 2.5em;
+    font-size: clamp(24px, 4vw, 2.5em);
     color: #ffffff;
 }
 
@@ -461,6 +438,7 @@ footer {
     align-items: center;
     position: relative;
     padding: 20px 0;
+    width: 100%;
 }
 
 .timeline-icon {
@@ -472,10 +450,11 @@ footer {
     align-items: center;
     height: 60px;
     width: 60px;
+    min-width: 60px; /* Garante tamanho mínimo */
     margin-right: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    z-index: 2; /* Ícones ficam à frente da linha */
-    position: relative; /* Garante que o ícone tenha um z-index aplicado */
+    z-index: 2;
+    position: relative;
 }
 
 .timeline-icon img {
@@ -487,24 +466,24 @@ footer {
     background-color: rgba(0, 0, 0, 0.5);
     padding: 20px;
     border-radius: 10px;
-    max-width: 700px;
-    z-index: 2; /* Conteúdo fica à frente da linha */
+    width: 100%;
+    z-index: 2;
     position: relative;
 }
 
 .timeline-content h3 {
-    font-size: 1.5em;
+    font-size: clamp(18px, 3vw, 1.5em);
     margin-bottom: 10px;
 }
 
 .timeline-content p {
-    font-size: 1.2em;
+    font-size: clamp(14px, 2vw, 1.2em);
     line-height: 1.6;
 }
 
 /* Estilo da seção de perguntas frequentes */
 .faq-section {
-    padding: 50px 0;
+    padding: 50px 20px;
     display: flex;
     justify-content: center;
     background-color: #f9f9f9;
@@ -512,23 +491,34 @@ footer {
 
 .faq-container {
     display: flex;
+    flex-wrap: wrap;
     max-width: 1200px;
     align-items: center;
     justify-content: space-between;
+    gap: 30px;
+}
+
+.faq-image {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    justify-content: center;
 }
 
 .faq-image img {
-    width: 500px;
+    width: 100%;
+    max-width: 500px;
     height: auto;
 }
 
 .faq-content {
-    max-width: 600px;
+    flex: 1;
+    min-width: 300px;
     padding: 20px;
 }
 
 .faq-content h2 {
-    font-size: 2.5em;
+    font-size: clamp(24px, 4vw, 2.5em);
     margin-bottom: 20px;
     color: #333;
 }
@@ -540,55 +530,74 @@ footer {
 /* Estilo dos botões das perguntas */
 .faq-question {
     background-color: #ffffff;
-    border: 2px solid#2f3fca; /* Borda mais suave, ciano */
-    border-radius: 30px; /* Deixa os botões arredondados */
-    padding: 15px 20px; /* Ajusta o preenchimento para melhor espaçamento */
+    border: 2px solid#2f3fca;
+    border-radius: 30px;
+    padding: 15px 20px;
     width: 100%;
     text-align: left;
-    font-size: 1.2em;
+    font-size: clamp(14px, 2vw, 1.2em);
     cursor: pointer;
-    transition: background-color 0.4s ease, transform 0.3s ease; /* Transição mais suave */
-    color: #0e1768; /* Cor do texto ciano */
+    transition: background-color 0.4s ease, transform 0.3s ease;
+    color: #0e1768;
 }
 
 .faq-question:hover {
-    background-color:#0e1768; /* Muda o fundo para ciano ao passar o mouse */
-    color: #ffffff; /* Texto fica branco ao passar o mouse */
-    transform: translateY(-2px); /* Leve efeito de elevação */
+    background-color:#0e1768;
+    color: #ffffff;
+    transform: translateY(-2px);
 }
 
 .faq-answer {
     display: none;
     padding: 10px 0;
-    font-size: 1.1em;
+    font-size: clamp(14px, 2vw, 1.1em);
     color: #555;
 }
 
 .faq-item.active .faq-answer {
     display: block;
 }
+
 /* Seção de Contato */
 .contact-section {
     background-color: rgb(228, 244, 247); 
-    padding: 80px;
+    padding: 80px 20px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
 .contact-container {
     display: flex;
-    gap: 100px;
+    flex-wrap: wrap;
+    gap: 50px;
+    justify-content: center;
     align-items: center;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.map-container {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    justify-content: center;
 }
 
 .map-container iframe {
-    border-radius: 15px; /* Bordas arredondadas no mapa */
+    width: 100%;
+    max-width: 400px;
+    height: 300px;
+    border-radius: 15px;
 }
 
 .contact-info {
-    font-size: 1.2em;
-    color: #555555; 
+    flex: 1;
+    min-width: 300px;
+    font-size: clamp(16px, 2vw, 1.2em);
+    color: #555555;
+    text-align: center;
 }
 
 .contact-info p {
@@ -601,22 +610,15 @@ footer {
     text-align: center;
     font-weight: bold;
     color: #555252; 
-    font-size: 2em;
-    margin-bottom: 20px; /* Espacamento entre o título e o conteúdo da seção */
+    font-size: clamp(24px, 4vw, 2em);
+    margin-bottom: 20px;
 }
-
-.contact-section {
-    display: flex;
-    flex-direction: column; /* Alinha os itens em coluna */
-    align-items: center; /* Centraliza os itens horizontalmente */
-}
-
 
 .small-hr {
     width: 50%;
     border: none;
     border-top: 2px solid #00a8cc;
-    margin: 10px 0;
+    margin: 10px auto;
 }
 
 /* Seção de Footer */
@@ -637,160 +639,16 @@ footer {
     width: 50px;
     margin-bottom: 10px;
 }
-/* ícone do chat */
-.profile {
-    display: flex;
-    align-items: center;
-}
-
-.profile a {
-    margin-left: 10px;
-}
-
-.profile{
-    width: 40px;
-    height: 40px;
-    transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out; /* Transições suaves para transformação e filtro */
-}
-
-.profile:hover {
-    transform: scale(1.1); 
-    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2)); /* Adiciona uma leve sombra ao passar o mouse */
-}
-/* Responsividade para telas pequenas */
-@media (max-width: 576px) {
-    .navbar {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 15px;
-    }
-
-    .menu {
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
-    }
-
-    .search-bar input {
-        width: 80%;
-        font-size: 14px;
-    }
-
-    .hero h1 {
-        font-size: 32px;
-    }
-
-    .hero p {
-        font-size: 16px;
-    }
-
-    .webinars, .job-opportunities {
-        padding: 20px;
-    }
-
-    .webinar-container, .job-container {
-        flex-direction: column;
-    }
-
-    .webinar-description, .webinar-image,
-    .job-description, .job-image {
-        width: 100%;
-    }
-
-    .contact-container {
-        flex-direction: column;
-        gap: 20px;
-    }
-}
-
-/* Responsividade para telas médias */
-@media (min-width: 577px) and (max-width: 768px) {
-    .navbar {
-        padding: 20px 40px;
-    }
-
-    .menu {
-        gap: 20px;
-    }
-
-    .hero h1 {
-        font-size: 36px;
-    }
-
-    .hero p {
-        font-size: 18px;
-    }
-
-    .webinars, .job-opportunities {
-        padding: 30px;
-    }
-
-    .webinar-description, .job-description {
-        padding: 15px;
-        font-size: 14px;
-    }
-
-    .search-bar input {
-        width: 400px;
-    }
-
-    .contact-container {
-        flex-direction: column;
-        gap: 40px;
-    }
-}
-
-/* Responsividade para telas grandes */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .navbar {
-        padding: 25px 50px;
-    }
-
-    .menu {
-        gap: 25px;
-    }
-
-    .hero h1 {
-        font-size: 40px;
-    }
-
-    .hero p {
-        font-size: 20px;
-    }
-
-    .webinar-description, .job-description {
-        padding: 20px;
-        font-size: 16px;
-    }
-
-    .search-bar input {
-        width: 500px;
-    }
-
-    .search-bar .search-btn {
-        font-size: 14px;
-    }
-
-    .contact-container {
-        flex-direction: row;
-        gap: 50px;
-    }
-}
-
-/* Estilo dos itens do menu (incluindo o botão de logout) */
-.menu li {
-    display: flex;
-    align-items: center; 
-}
 
 /* Estilo do botão de logout */
 .logout-btn {
     background-color: green; 
     color: white; 
-    padding: 12px 20px; 
+    padding: 8px 16px; 
     border: none; 
     border-radius: 5px; 
-    cursor: pointer; /* Tamanho da fonte */
+    cursor: pointer;
+    font-size: 14px;
     transition: background-color 0.3s ease, transform 0.3s ease; 
     text-decoration: none; 
     display: inline-block; 
@@ -802,12 +660,14 @@ footer {
     transform: scale(1.1); 
 }
 
-
-/* Estilos gerais */
+/* Estilos para o menu mobile */
 .menu-toggle {
     display: none;
     cursor: pointer;
     padding: 10px;
+    background: transparent;
+    border: none;
+    z-index: 1100;
 }
 
 .menu-icon {
@@ -816,154 +676,158 @@ footer {
     transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-.menu {
-    display: flex;
-    list-style: none;
-    gap: 20px;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-}
-
-.menu li {
-    margin: 0;
-}
-
-.profile-item, .chat-item, .menu-close-item {
+.menu-close-item {
     display: none;
+    align-self: flex-end;
+    position: absolute;
+    top: 20px;
+    right: 20px;
 }
-
-/* Estilos para telas pequenas (celulares) */
-@media (max-width: 767px) {
-    .menu-toggle {
-        display: block;
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 1100; /* Mantém o botão acima do menu */
-    }
-
-    .menu {
-        display: none;
-        flex-direction: column;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw; /* Garante que o menu ocupe toda a largura */
-        height: 100vh;
-        background-color: #0e1768;
-        padding: 20px;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
-
-    .menu.active {
-        display: flex;
-    }
-
-    .menu li {
-        text-align: center;
-        width: 100%;
-        margin: 15px 0;
-    }
-
-    .profile-item, .chat-item, .menu-close-item {
-        display: block;
-    }
-
-    .menu-close-item {
-        align-self: flex-end;
-        margin-right: 20px;
-    }
-
-    .profile {
-        display: none;
-    }
-}
-
-/* Estilos para telas médias (tablets e notebooks) */
-@media (min-width: 768px) and (max-width: 1023px) {
-    .menu-toggle {
-        display: block;
-        position: absolute;
-        right: 20px;
-    }
-
-    .menu {
-        display: none;
-        flex-direction: column;
-        position: absolute;
-        top: 80px;
-        left: 0;
-        width: 100%;
-        background-color: #0e1768;
-        padding: 10px 0;
-        align-items: flex-start;
-        padding-left: 20px;
-    }
-
-    .menu.active {
-        display: flex;
-    }
-
-    .menu li {
-        text-align: left;
-        margin: 10px 0;
-    }
-
-    .profile-item, .chat-item, .menu-close-item {
-        display: block;
-    }
-
-    .menu-close-item {
-        align-self: flex-end;
-        margin-right: 20px;
-    }
-
-    .profile {
-        display: none;
-    }
-}
-
-/* Estilos para telas grandes (desktop) */
-@media (min-width: 1024px) {
-    .menu-toggle {
-        display: none;
-    }
-
-    .menu {
-        display: flex;
-        justify-content: center; /* Centraliza os itens do menu */
-        align-items: center; /* Alinha verticalmente */
-        flex: 1; /* Ocupa o espaço restante */
-        margin: 0 auto; /* Centraliza o menu */
-    }
-
-    .profile-item, .chat-item, .menu-close-item {
-        display: none;
-    }
-
-    .profile {
-        display: flex;
-        align-items: center; /* Alinha verticalmente */
-    }
-}
-
 
 /* Efeito de rotação no ícone do menu */
 .menu-toggle.active .menu-icon {
     transform: rotate(90deg);
 }
 
-/* Efeito de hover nos botões do menu */
-.menu li a, .profile-item a, .chat-item a {
-    transition: transform 0.3s ease, opacity 0.3s ease;
+/* Menu mobile e tablets */
+@media screen and (max-width: 991px) {
+    .navbar {
+        padding: 15px 20px;
+    }
+    
+    .logo {
+        font-size: 20px;
+    }
+    
+    .logo-icon {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+    
+    .menu {
+        display: none;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: #0e1768;
+        padding: 60px 20px 20px;
+        z-index: 1000;
+        justify-content: flex-start;
+        overflow-y: auto;
+    }
+    
+    .menu.active {
+        display: flex;
+    }
+    
+    .menu li {
+        width: 100%;
+        margin: 10px 0;
+    }
+    
+    .menu li a {
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+    }
+    
+    .menu-close-item {
+        display: block;
+    }
+    
+    .profile-item, .chat-item {
+        display: block;
+    }
+    
+    .signup-btn {
+        margin-top: 10px;
+    }
+    
+    .webinar-container, .job-container, .faq-container {
+        flex-direction: column;
+    }
+    
+    .webinar-image, .job-image {
+        order: -1; /* Coloca as imagens no topo em mobile */
+    }
 }
 
-.menu li a:hover, .profile-item a:hover, .chat-item a:hover {
-    transform: scale(1.1);
-    opacity: 0.8;
+/* Ajustes para tablets */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+    .carousel-container {
+        height: 350px;
+    }
+    
+    .map-container iframe {
+        height: 250px;
+    }
+}
+
+/* Ajustes para celulares */
+@media screen and (max-width: 767px) {
+    .navbar {
+        padding: 10px 15px;
+    }
+    
+    .logo {
+        font-size: 18px;
+    }
+    
+    .logo-icon {
+        width: 25px;
+        height: 25px;
+        margin-right: 5px;
+    }
+    
+    .carousel-container {
+        height: 220px;
+    }
+    
+    .carousel-text {
+        bottom: 10px;
+        left: 10px;
+    }
+    
+    .hero {
+        padding: 40px 15px;
+    }
+    
+    .search-bar {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .search-bar input {
+        width: 100%;
+        border-radius: 25px;
+    }
+    
+    .search-bar .search-btn1 {
+        width: 150px;
+        border-radius: 25px;
+    }
+    
+    .timeline-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .timeline-icon {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    
+    .map-container iframe {
+        height: 200px;
+    }
 }
 
 /* Efeito de fade-in nos botões do menu */
@@ -990,3 +854,7 @@ footer {
 .menu.active li:nth-child(6) { animation-delay: 0.6s; }
 .menu.active li:nth-child(7) { animation-delay: 0.7s; }
 
+/* Ajuste para o carousel em JavaScript */
+.carousel-item:first-child {
+    opacity: 1;
+}
