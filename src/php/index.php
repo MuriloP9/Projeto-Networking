@@ -73,7 +73,7 @@ session_start();
         </div>
     </section>
 
-    <section id="webinars" class="hero">
+    <section id="search" class="hero">
         <h1>Descubra. Aprenda. Aproveite</h1>
         <p>Plataforma para profissionais de todo o mundo</p>
 
@@ -100,7 +100,7 @@ session_start();
 </script>
     </section>
 
-    <section id="webinars1" class="webinars">
+    <section id="webinars" class="webinars">
         <h2>Próximos Webinars</h2>
         <div class="webinar-container">
             <div class="webinar-description">

@@ -13,6 +13,10 @@ body {
     overflow-x: hidden; /* Previne scroll horizontal */
 }
 
+html {
+  scroll-padding-top: 80px; /* Altura do seu menu fixo */
+}
+
 .navbar {
     position: fixed;
     z-index: 1000;

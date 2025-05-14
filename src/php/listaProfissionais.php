@@ -174,16 +174,100 @@ if ($searchQuery !== '') {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-    <!-- Restante do seu CSS aqui -->
+    <!-- Estilo responsivo adaptado -->
     <style>
-         body {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             margin: 0;
             font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(to bottom, #050a37, #0e1768);
+            color: #fff;
         }
 
+        /* Estilos para o menu responsivo */
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            z-index: 1100;
+        }
+
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .menu-close-item {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: rgba(14, 23, 104, 0.8);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1200;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-close-item .menu-icon {
+            width: 24px;
+            height: 24px;
+            transform: rotate(45deg);
+        }
+
+        /* Área de busca */
+        .search-container {
+            display: flex;
+            align-items: center;
+            margin: 20px;
+            gap: 10px;
+        }
+
+        .search-bar {
+            flex-grow: 2;
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            height: 40px;
+            box-sizing: border-box;
+        }
+
+        .search-btn {
+            padding: 0 20px;
+            font-size: 1em;
+            background-color: rgb(21, 118, 228);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            height: 40px;
+            white-space: nowrap;
+            transition: background-color 0.3s;
+        }
+
+        .search-btn:hover {
+            background-color: rgb(116, 154, 224);
+        }
+
+        /* Lista de Profissionais */
         .professional-list {
             display: flex;
             flex-direction: column;
@@ -204,8 +288,9 @@ if ($searchQuery !== '') {
         }
 
         .profile-pic {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
+            min-width: 60px; /* Impede que a imagem encolha */
             border-radius: 50%;
             margin-right: 20px;
             background-size: cover;
@@ -215,6 +300,7 @@ if ($searchQuery !== '') {
         .professional-info {
             flex: 1;
             color: #fff;
+            overflow: hidden; /* Previne que o texto ultrapasse os limites */
         }
 
         .professional-name {
@@ -225,6 +311,12 @@ if ($searchQuery !== '') {
         .professional-specialization {
             font-size: 14px;
             color: #cccccc;
+            margin-bottom: 5px;
+        }
+
+        .professional-info p {
+            margin-bottom: 5px;
+            word-wrap: break-word; /* Quebra palavras longas */
         }
 
         .chat-btn {
@@ -235,6 +327,9 @@ if ($searchQuery !== '') {
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.3s;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
         }
 
         .chat-btn:hover {
@@ -245,9 +340,10 @@ if ($searchQuery !== '') {
         .chat-icon {
             width: 30px;
             height: 30px;
-            margin-left: 20px;
+            margin-left: 10px;
         }
 
+        /* Modal QR Code */
         .modal {
             display: none;
             position: fixed;
@@ -262,9 +358,10 @@ if ($searchQuery !== '') {
         .modal-content {
             background-color: #2e2e2e;
             margin: 10% auto;
-            padding: 20px;
+            padding: 25px;
             border-radius: 10px;
-            width: 300px;
+            max-width: 90vw;
+            width: auto;
             text-align: center;
             color: white;
         }
@@ -282,23 +379,36 @@ if ($searchQuery !== '') {
         }
 
         #qrCodeContainer {
-            margin: 20px auto;
-            padding: 10px;
+            max-width: 100%;
+            overflow: hidden;
+            margin: 15px auto;
+            text-align: center;
+        }
+
+        #qrCodeImage {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            padding: 5px;
             background: white;
-            display: inline-block;
         }
 
         .link-container {
-            margin-top: 20px;
+            margin-top: 15px;
             display: flex;
+            flex-wrap: wrap;
             gap: 10px;
+            align-items: center;
         }
 
         #profileLink {
             flex: 1;
+            min-width: 200px;
             padding: 8px;
             border-radius: 5px;
-            border: none;
+            border: 1px solid #ccc;
         }
 
         #copyLink {
@@ -314,46 +424,7 @@ if ($searchQuery !== '') {
             background-color: rgb(116, 154, 224);
         }
 
-         /* Adicione isso ao seu CSS existente */
-    .modal-content {
-        max-width: 90vw; /* Largura máxima responsiva */
-        width: auto;
-        padding: 25px;
-    }
-
-    #qrCodeContainer {
-        max-width: 100%;
-        overflow: hidden;
-        margin: 15px auto;
-        text-align: center;
-    }
-
-    #qrCodeImage {
-        max-width: 100%;
-        height: auto;
-        display: block;
-        margin: 0 auto;
-        border: 1px solid #ddd;
-        padding: 5px;
-        background: white;
-    }
-
-    .link-container {
-        margin-top: 15px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: center;
-    }
-
-    #profileLink {
-        flex: 1;
-        min-width: 200px;
-        padding: 8px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-    }
-
+        /* Footer */
         .footer-section {
             background-color: #2e2e2e;
             color: white;
@@ -375,6 +446,176 @@ if ($searchQuery !== '') {
             width: 40px;
             height: 40px;
         }
+
+        /* Efeito de fade-in nos botões do menu */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu.active li {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .menu.active li:nth-child(1) { animation-delay: 0.1s; }
+        .menu.active li:nth-child(2) { animation-delay: 0.2s; }
+        .menu.active li:nth-child(3) { animation-delay: 0.3s; }
+        .menu.active li:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Media Queries */
+        @media (max-width: 991px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .logo {
+                font-size: 20px;
+            }
+            
+            .logo-icon {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .menu {
+                display: none;
+                flex-direction: column;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                background-color: #0e1768;
+                padding: 60px 20px 20px;
+                z-index: 1000;
+                justify-content: flex-start;
+                overflow-y: auto;
+            }
+            
+            .menu.active {
+                display: flex;
+            }
+            
+            .menu li {
+                width: 100%;
+                margin: 10px 0;
+            }
+            
+            .menu li a {
+                width: 100%;
+                text-align: center;
+                padding: 12px;
+            }
+            
+            .professional-item {
+                width: 95%;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .profile-pic {
+                margin-right: 0;
+                margin-bottom: 15px;
+                width: 80px;
+                height: 80px;
+            }
+            
+            .professional-info {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            
+            .chat-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+             .profile-icon{
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .professional-item {
+                padding: 10px;
+            }
+            
+            .navbar {
+                padding: 10px 15px;
+            }
+            
+            .logo {
+                font-size: 18px;
+            }
+            
+            .logo-icon {
+                width: 25px;
+                height: 25px;
+                margin-right: 5px;
+            }
+            
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-bar, 
+            .search-btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .modal-content {
+                padding: 15px;
+            }
+            
+            .profile-icon {
+                display: none;
+            }
+
+             .profile-icon{
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-pic {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .professional-name {
+                font-size: 16px;
+            }
+            
+            .professional-info p {
+                font-size: 14px;
+            }
+            
+            .link-container {
+                flex-direction: column;
+            }
+
+             .profile-icon{
+                display: none;
+            }
+            
+            #profileLink, 
+            #copyLink {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -385,16 +626,35 @@ if ($searchQuery !== '') {
                 <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
                 <div class="logo">ProLink</div>
             </div>
-            <ul class="menu">
+            <ul class="menu" id="menu">
                 <li><a href="../php/index.php">Home</a></li>
                 <li><a href="../php/paginaEmprego.php">Oportunidades de Trabalho</a></li>
                 <li><a href="../php/pagina_webinar.php">Webinars</a></li>
+                <?php if (!isset($_SESSION['usuario_logado'])): ?>
+                    <li><a href="../pages/login.html">Login</a></li>
+                <?php endif; ?>
             </ul>
             <div class="profile">
                 <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
             </div>
+            <!-- Botão do menu mobile será inserido via JavaScript -->
         </nav>
     </header>
+
+    <!-- Botão de fechamento separado do menu (fora da lista) -->
+    <div id="close-menu" class="menu-close-item" style="display: none;">
+        <img src="../assets/img/icons8-menu-48.png" alt="Fechar" class="menu-icon">
+    </div>
+
+    <!-- Área de busca -->
+    <form method="GET" action="">
+        <div class="search-container">
+            <input type="text" name="search" id="searchInput" class="search-bar"
+                placeholder="Pesquisar por nome, formação ou habilidades..."
+                value="<?= htmlspecialchars($searchQuery) ?>">
+            <button type="submit" class="search-btn">Procurar</button>
+        </div>
+    </form>
 
     <?php echo $resultadosHTML; ?>
 
@@ -456,7 +716,79 @@ if ($searchQuery !== '') {
                 $('#qrModal').hide();
             }
         });
+
+        // Adicionar evento de tecla para buscar ao pressionar Enter
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.querySelector('form').submit();
+            }
+        });
+        
+        // Script para menu responsivo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adicionar botão do menu mobile se não existir
+            const navbar = document.querySelector('.navbar');
+            const closeMenuBtn = document.getElementById('close-menu');
+            
+            if (!document.getElementById('mobile-menu')) {
+                const menuToggle = document.createElement('button');
+                menuToggle.id = 'mobile-menu';
+                menuToggle.className = 'menu-toggle';
+                menuToggle.innerHTML = '<img src="../assets/img/icons8-menu-48.png" alt="Menu" class="menu-icon">';
+                navbar.appendChild(menuToggle);
+            }
+            
+            // Controle do menu mobile
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menu = document.getElementById('menu');
+            
+            if (mobileMenu) {
+                mobileMenu.addEventListener('click', function() {
+                    menu.classList.add('active');
+                    this.style.display = 'none';
+                    closeMenuBtn.style.display = 'flex'; // Mostrar botão de fechar
+                });
+            }
+            
+            if (closeMenuBtn) {
+                closeMenuBtn.addEventListener('click', function() {
+                    menu.classList.remove('active');
+                    if (mobileMenu) mobileMenu.style.display = 'block';
+                    this.style.display = 'none'; // Esconder botão de fechar
+                });
+            }
+            
+            // Fechar o menu ao clicar em um link
+            const menuLinks = menu.querySelectorAll('a');
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 992) {
+                        menu.classList.remove('active');
+                        if (mobileMenu) mobileMenu.style.display = 'block';
+                        closeMenuBtn.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Ajustar visualização em redimensionamento
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    menu.classList.remove('active');
+                    if (mobileMenu) mobileMenu.style.display = 'none';
+                    closeMenuBtn.style.display = 'none';
+                } else {
+                    if (mobileMenu && !menu.classList.contains('active')) {
+                        mobileMenu.style.display = 'block';
+                    }
+                }
+            });
+            
+            // Inicialização - esconder botão mobile em telas grandes
+            if (window.innerWidth >= 992 && mobileMenu) {
+                mobileMenu.style.display = 'none';
+            }
+        });
     });
-</script>
+    </script>
 </body>
 </html>
