@@ -17,25 +17,17 @@ session_start();
 <header>
     <nav class="navbar">
         <div class="logo-container">
-        <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
+            <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
             <div class="logo">ProLink</div>
         </div>
-        <!-- Botão de lista (ícone de hambúrguer) -->
+        
+        <!-- Botão de menu hambúrguer (só aparece em mobile) -->
         <div class="menu-toggle" id="mobile-menu">
-            <div class="menu-icon">
-                <img src="../assets/img/icons8-menu-48.png" alt="Menu">
-            </div>
+            <img src="../assets/img/icons8-menu-48.png" alt="Menu" class="menu-icon">
         </div>
+        
         <!-- Menu de navegação -->
         <ul class="menu" id="menu">
-            <!-- Botão de lista dentro do menu (para telas pequenas/médias) -->
-            <li class="menu-close-item">
-                <div class="menu-toggle close-toggle" id="close-menu">
-                    <div class="menu-icon">
-                        <img src="../assets/img/icons8-menu-48.png" alt="Fechar Menu">
-                    </div>
-                </div>
-            </li>
             <li><a href="#home">Home</a></li>
             <li><a href="#webinars">Webinars</a></li>
             <li><a href="#job-opportunities">Oportunidades de Trabalho</a></li>
@@ -48,7 +40,6 @@ session_start();
             <?php else: ?>
                 <li><button class="logout-btn" onclick="logout()">Olá, <?php echo $_SESSION['nome_usuario']; ?></button></li>
             <?php endif; ?>
-            <!-- Botões de Perfil (dentro do menu para telas pequenas/médias) -->
             <li class="profile-item">
                 <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
             </li>
@@ -107,10 +98,6 @@ session_start();
     }
 }
 </script>
-        <!-- <div class="search-bar">
-            <input type="text" placeholder="Pesquisar por profissionais, áreas...">
-            <a href="./lista_profissionais.html"><button class="search-btn1">Procurar</button></a>
-        </div> -->
     </section>
 
     <section id="webinars1" class="webinars">
@@ -235,6 +222,72 @@ session_start();
             // Redireciona para o arquivo de logout (que destruirá a sessão)
             window.location.href = '../php/logout.php';
         }
+
+        // Script para menu responsivo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Selecionando os elementos
+            const mobileMenu = document.getElementById('mobile-menu');
+            const closeMenu = document.getElementById('close-menu');
+            const closeMenuOutside = document.getElementById('close-menu-outside');
+            const menu = document.getElementById('menu');
+            
+            // Função para abrir o menu
+            if (mobileMenu) {
+                mobileMenu.addEventListener('click', function() {
+                    menu.classList.add('active');
+                    this.style.display = 'none';
+                    closeMenuOutside.style.display = 'flex'; // Mostrar botão de fechar fora do menu
+                });
+            }
+            
+            // Função para fechar o menu (botão dentro do menu)
+            if (closeMenu) {
+                closeMenu.addEventListener('click', function() {
+                    menu.classList.remove('active');
+                    mobileMenu.style.display = 'block';
+                    closeMenuOutside.style.display = 'none';
+                });
+            }
+            
+            // Função para fechar o menu (botão fora do menu)
+            if (closeMenuOutside) {
+                closeMenuOutside.addEventListener('click', function() {
+                    menu.classList.remove('active');
+                    mobileMenu.style.display = 'block';
+                    this.style.display = 'none';
+                });
+            }
+            
+            // Fechar o menu ao clicar em um link
+            const menuLinks = menu.querySelectorAll('a');
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 992) {
+                        menu.classList.remove('active');
+                        mobileMenu.style.display = 'block';
+                        closeMenuOutside.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Ajustar visualização em redimensionamento
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    menu.classList.remove('active');
+                    if (mobileMenu) mobileMenu.style.display = 'none';
+                    closeMenuOutside.style.display = 'none';
+                } else {
+                    if (mobileMenu && !menu.classList.contains('active')) {
+                        mobileMenu.style.display = 'block';
+                    }
+                }
+            });
+            
+            // Inicialização - esconder botão mobile em telas grandes
+            if (window.innerWidth >= 992) {
+                if (mobileMenu) mobileMenu.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>

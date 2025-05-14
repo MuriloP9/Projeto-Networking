@@ -314,6 +314,10 @@ try {
                 width: 100%;
                 height: 250px;
             }
+            .profile-icon{
+                display: none;
+            }
+
         }
 
         /* Efeito de fade-in nos botões do menu */
