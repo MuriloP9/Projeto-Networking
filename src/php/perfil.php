@@ -184,6 +184,8 @@ try {
             background-color: #f4f7fb;
             color: #333;
             padding-top: 80px;
+            line-height: 1.6;
+            font-size: 16px;
         }
 
         header {
@@ -201,6 +203,8 @@ try {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .logo-container {
@@ -210,6 +214,7 @@ try {
 
         .logo-icon {
             width: 50px;
+            height: auto;
             margin-right: 10px;
         }
 
@@ -233,11 +238,63 @@ try {
             background-color: white;
             padding: 8px 16px;
             border-radius: 5px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
         .menu a:hover {
             background-color: #2e5ca8;
             color: white;
+        }
+
+        /* Estilos para o menu móvel */
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            background-color: #3b6ebb;
+            padding: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 999;
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        .mobile-menu ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .mobile-menu li {
+            margin: 10px 0;
+        }
+
+        .mobile-menu a {
+            display: block;
+            text-decoration: none;
+            color: #0a0a0a;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu a:hover {
+            background-color: #2e5ca8;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
         .cabecalho {
@@ -246,86 +303,25 @@ try {
             background-color: #3b6ebb;
             color: white;
             border-radius: 1em;
-            padding: 1em;
+            padding: 1.5em;
             margin: 2em auto;
             max-width: 960px;
+            box-shadow: 0 0.4em 0.8em rgba(0, 0, 0, 0.1);
         }
 
         .box-imagem {
             background-color: #3b6ebb;
             border-radius: 50%;
             padding: 10px;
-            margin-right: 1em;
-        }
-
-        .perfil-imagem {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .info-usuario h1 {
-            font-size: 1.8em;
-        }
-
-        .detalhes,
-        .projetos,
-        .caixa-central {
-            background-color: #fff;
-            margin: 1em auto;
-            padding: 1.5em;
-            border-radius: 0.8em;
-            max-width: 960px;
-            box-shadow: 0 0.4em 1em rgba(0, 0, 0, 0.1);
-            font-size: 0.95em;
-        }
-
-        .detalhes h2,
-        .projetos h2,
-        .caixa-central h2 {
-            font-size: 1.5em;
-            margin-bottom: 1em;
-            color: #3b6ebb;
-        }
-
-        .detalhes div {
-            display: flex;
-            gap: 0.5em;
-            margin-bottom: 0.8em;
-        }
-
-        .detalhes p {
-            margin: 0;
-        }
-
-        .projetos .conteudo {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 1em;
-        }
-
-        .imagem-projeto-perfil {
-            max-width: 180px;
-            height: auto;
-        }
-
-        .caixa-central .projetos ul {
-            padding-left: 1em;
-        }
-
-        .box-imagem {
-            background-color: #3b6ebb;
-            border-radius: 50%;
-            padding: 10px;
-            margin-right: 1em;
+            margin-right: 1.5em;
             width: 110px;
             height: 110px;
+            min-width: 110px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .perfil-imagem {
@@ -336,14 +332,101 @@ try {
             border: 2px solid white;
         }
 
+        .info-usuario {
+            flex-grow: 1;
+        }
+
+        .info-usuario h1 {
+            font-size: 1.8em;
+            margin-bottom: 0.3em;
+        }
+
+        .info-usuario p {
+            margin-bottom: 0.8em;
+            font-size: 1.1em;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 0.8em;
+        }
+
+        .detalhes,
+        .projetos,
+        .caixa-central {
+            background-color: #fff;
+            margin: 1.5em auto;
+            padding: 1.8em;
+            border-radius: 0.8em;
+            max-width: 960px;
+            box-shadow: 0 0.4em 1em rgba(0, 0, 0, 0.1);
+        }
+
+        .detalhes h2,
+        .projetos h2,
+        .caixa-central h2 {
+            font-size: 1.6em;
+            margin-bottom: 1em;
+            color: #3b6ebb;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 0.5em;
+        }
+
+        .detalhes div {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5em;
+            margin-bottom: 1em;
+            border-bottom: 1px solid #f5f5f5;
+            padding-bottom: 0.8em;
+        }
+
+        .detalhes strong {
+            min-width: 200px;
+            font-weight: 600;
+        }
+
+        .detalhes p {
+            flex: 1;
+            margin: 0;
+        }
+
+        .projetos .conteudo {
+            display: flex;
+            align-items: flex-start;
+            gap: 2em;
+        }
+
+        .projetos .texto-conteudo {
+            flex: 1;
+        }
+
+        .imagem-projeto-perfil {
+            max-width: 180px;
+            width: 25%;
+            height: auto;
+            margin-left: auto;
+        }
+
+        .projetos ul, .caixa-central ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 1em;
+        }
+        
+        .projetos li, .caixa-central li {
+            margin-bottom: 0.8em;
+            line-height: 1.6;
+        }
+
         .footer-section {
             background-color: #2e2e2e;
             color: white;
-            padding: 10px;
+            padding: 1.2em 0;
             text-align: center;
-            position: relative;
-            bottom: 0;
-            width: 100%;
+            margin-top: 2em;
         }
 
         .footer-content {
@@ -351,6 +434,9 @@ try {
             justify-content: center;
             align-items: center;
             gap: 10px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
         .footer-logo {
@@ -368,17 +454,19 @@ try {
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0,0,0,0.6);
         }
 
         .modal-content {
             background-color: #fefefe;
             margin: 5% auto;
-            padding: 20px;
+            padding: 25px;
             border-radius: 8px;
-            width: 80%;
+            width: 90%;
             max-width: 700px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .close {
@@ -387,20 +475,22 @@ try {
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
+            transition: color 0.2s;
         }
 
         .close:hover {
-            color: black;
+            color: #333;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: 600;
+            color: #3b6ebb;
         }
 
         .form-group input[type="text"],
@@ -409,10 +499,19 @@ try {
         .form-group input[type="number"],
         .form-group textarea {
             width: 100%;
-            padding: 8px;
+            padding: 10px 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #3b6ebb;
+            outline: none;
+            box-shadow: 0 0 5px rgba(59, 110, 187, 0.3);
         }
 
         .form-group textarea {
@@ -424,11 +523,14 @@ try {
             background-color: #3b6ebb;
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 12px 20px;
             border-radius: 4px;
             cursor: pointer;
             font-family: 'Montserrat', sans-serif;
-            font-size: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            display: inline-block;
         }
 
         .btn:hover {
@@ -442,157 +544,272 @@ try {
             padding: 8px 16px;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 10px;
+            font-size: 14px;
+            transition: background-color 0.3s;
         }
 
         .btn-editar:hover {
             background-color: #2e5ca8;
         }
 
+        .btn-gerar-pdf {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-gerar-pdf:hover {
+            background-color: #c0392b;
+        }
+
         .mensagem {
-            padding: 10px;
-            margin: 10px 0;
+            padding: 15px;
+            margin: 20px auto;
             border-radius: 4px;
             text-align: center;
+            max-width: 960px;
+            animation: fadeOut 5s forwards;
+            position: relative;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
         }
 
         .sucesso {
             background-color: #d4edda;
             color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
         .erro {
             background-color: #f8d7da;
             color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
-        .projetos ul, .caixa-central ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-        
-        /* Remover margens/paddings extras das listas */
-        .projetos li, .caixa-central li {
-            margin-bottom: 8px;
-        }
-        .btn-gerar-pdf {
-        background-color: #3b6ebb;
-        color: white;
-        border: none;
-        padding: 8px 15px; /* Reduzido de 10px 20px */
-        border-radius: 4px; /* Reduzido de 5px */
-        cursor: pointer;
-        font-size: 14px; /* Reduzido de 16px */
-        margin-left: 8px; /* Reduzido de 10px */
-        transition: background-color 0.2s; /* Tempo de transição reduzido */
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            margin-left: auto;
         }
 
-        .btn-gerar-pdf:hover {
-        background-color: #e74c3c;
+        .hamburger-menu span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 3px 0;
+            transition: 0.3s;
         }
 
+        /* Responsividade */
         @media (max-width: 1200px) {
-            .cabecalho {
-                width: 95%;
-                margin: 9em 2.5%;
+            .cabecalho, 
+            .detalhes,
+            .projetos,
+            .caixa-central,
+            .mensagem {
+                width: 90%;
+                max-width: 90%;
             }
 
-            .menu {
-                gap: 1.5em;
+            .info-usuario h1 {
+                font-size: 1.6em;
             }
+        }
 
-            .menu li a {
-                font-size: 1.1em;
+        @media (max-width: 992px) {
+            body {
+                font-size: 15px;
             }
-
-            .banners img {
-                width: 3em;
-                height: 3em;
+            
+            .detalhes strong {
+                min-width: 180px;
+            }
+            
+            .imagem-projeto-perfil {
+                max-width: 150px;
             }
         }
 
         @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
+            
+            header {
+                padding: 0.8em 1.5em;
+            }
+            
             .navbar {
-                flex-direction: column;
-                align-items: center;
-                gap: 1em;
-                padding: 20px;
+                padding: 0;
             }
-
+            
             .menu {
-                flex-direction: column;
-                align-items: center;
-                gap: 1em;
-                width: 100%;
+                display: none;
             }
-
-            .menu li a {
-                font-size: 1.3em;
+            
+            .hamburger-menu {
+                display: flex;
             }
-
+            
+            .mobile-menu {
+                top: 70px; /* Ajustado para altura menor do header em mobile */
+            }
+            
             .cabecalho {
                 flex-direction: column;
                 text-align: center;
+                padding: 1.2em;
             }
-
-            .cabecalho h1 {
-                font-size: 2em;
+            
+            .box-imagem {
+                margin-right: 0;
+                margin-bottom: 1em;
             }
-
-            .perfil-imagem {
-                width: 7em;
-                height: 7em;
+            
+            .info-usuario h1 {
+                font-size: 1.5em;
             }
-
-            .info-usuario {
-                width: 100%;
+            
+            .btn-container {
+                justify-content: center;
             }
-
-            .detalhes,
-            .projetos,
+            
+            .detalhes, 
+            .projetos, 
             .caixa-central {
-                width: 95%;
-                padding: 5%;
+                padding: 1.2em;
             }
-
+            
+            .detalhes div {
+                flex-direction: column;
+                gap: 0.3em;
+            }
+            
+            .detalhes strong {
+                min-width: unset;
+            }
+            
+            .projetos .conteudo {
+                flex-direction: column;
+            }
+            
             .imagem-projeto-perfil {
-                display: none;
+                max-width: 200px;
+                width: 80%;
+                margin: 1em auto;
+                display: block;
             }
-
+            
             .modal-content {
                 width: 95%;
-                margin: 10% auto;
+                margin: 10% auto 5% auto;
+                padding: 20px;
             }
         }
 
-        @media (max-width: 480px) {
-            .cabecalho h1 {
-                font-size: 1.6em;
+        @media (max-width: 576px) {
+            body {
+                font-size: 14px;
             }
-
-            .menu li a {
-                font-size: 1em;
+            
+            .logo-icon {
+                width: 40px;
             }
-
-            .perfil-imagem {
-                width: 6em;
-                height: 6em;
+            
+            .logo {
+                font-size: 20px;
             }
+            
+            .cabecalho {
+                margin: 1em auto;
+            }
+            
+            .box-imagem {
+                width: 90px;
+                height: 90px;
+                min-width: 90px;
+            }
+            
+            .info-usuario h1 {
+                font-size: 1.3em;
+            }
+            
+            .detalhes h2,
+            .projetos h2,
+            .caixa-central h2 {
+                font-size: 1.3em;
+            }
+            
+            .btn-editar,
+            .btn-gerar-pdf {
+                padding: 7px 14px;
+                font-size: 13px;
+            }
+            
+            .form-group label {
+                font-size: 14px;
+            }
+            
+            .form-group input,
+            .form-group textarea {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
 
-            .banners img {
-                width: 2.5em;
-                height: 2.5em;
+        @media (max-width: 400px) {
+            .box-imagem {
+                width: 80px;
+                height: 80px;
+                min-width: 80px;
+            }
+            
+            .info-usuario h1 {
+                font-size: 1.2em;
+            }
+            
+            .btn-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .btn-editar,
+            .btn-gerar-pdf {
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
 </head>
 
 <body>
-    <header>
+     <header>
         <nav class="navbar">
             <div class="logo-container">
                 <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
                 <div class="logo">ProLink</div>
+            </div>
+            <div class="hamburger-menu" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
             <ul class="menu">
                 <li><a href="../php/index.php">Home</a></li>
@@ -600,6 +817,14 @@ try {
             </ul>
         </nav>
     </header>
+    
+    <!-- Menu Mobile - Adicionado aqui -->
+    <div class="mobile-menu">
+        <ul>
+            <li><a href="../php/index.php">Home</a></li>
+            <li><a href="#" class="btn-logout" onclick="logout(); return false;">Sair</a></li>
+        </ul>
+    </div>
 
     <?php if (!empty($mensagem)): ?>
         <div class="mensagem <?php echo strpos($mensagem, 'sucesso') !== false ? 'sucesso' : 'erro'; ?>">
@@ -757,25 +982,66 @@ try {
                 modal.style.display = 'none';
             }
         }
+
+        // Gerar PDF
+        function gerarPDF() {
+            // Mostra um alerta enquanto processa
+            alert("Gerando PDF... Isso pode levar alguns instantes.");
+            
+            // Envia uma requisição para o servidor gerar o PDF
+            window.location.href = "../php/gerar_pdf.php";
+        }
+        
+        // Função de logout
+        function logout() {
+            if(confirm('Tem certeza que deseja sair?')) {
+                window.location.href = '../php/logout.php';
+            }
+        }
+        
+        // Função para alternar o menu móvel
+        function toggleMobileMenu() {
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const hamburger = document.querySelector('.hamburger-menu');
+            
+            // Alterna a classe 'active' no menu mobile
+            mobileMenu.classList.toggle('active');
+            
+            // Transforma o ícone do hambúrguer em X quando o menu está aberto
+            if (mobileMenu.classList.contains('active')) {
+                hamburger.children[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                hamburger.children[1].style.opacity = '0';
+                hamburger.children[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+            } else {
+                hamburger.children[0].style.transform = 'rotate(0) translate(0)';
+                hamburger.children[1].style.opacity = '1';
+                hamburger.children[2].style.transform = 'rotate(0) translate(0)';
+            }
+        }
+
+        // Fechar o menu ao clicar em um link
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.mobile-menu a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    // Se não for o link de logout, fecha o menu automaticamente
+                    if (!link.classList.contains('btn-logout')) {
+                        toggleMobileMenu();
+                    }
+                });
+            });
+            
+            // Fechar o menu ao clicar fora dele
+            document.addEventListener('click', (event) => {
+                const mobileMenu = document.querySelector('.mobile-menu');
+                const hamburger = document.querySelector('.hamburger-menu');
+                
+                if (mobileMenu.classList.contains('active') && 
+                    !mobileMenu.contains(event.target) && 
+                    !hamburger.contains(event.target)) {
+                    toggleMobileMenu();
+                }
+            });
+        });
     </script>
-
-<script>
-function gerarPDF() {
-    // Mostra um alerta enquanto processa
-    alert("Gerando PDF... Isso pode levar alguns instantes.");
-    
-    // Envia uma requisição para o servidor gerar o PDF
-    window.location.href = "../php/gerar_pdf.php";
-}
-</script>
-
-<script>
-function logout() {
-    if(confirm('Tem certeza que deseja sair?')) {
-        window.location.href = '../php/logout.php';
-    }
-}
-</script>
 </body>
-
 </html>
