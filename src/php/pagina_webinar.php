@@ -289,7 +289,11 @@ try {
             .contact-container {
                 flex-direction: column;
             }
-        }
+
+             }
+            .profile-icon{
+                display: none;
+            }
 
         @media (max-width: 768px) {
             .webinars-section {
