@@ -180,12 +180,96 @@ try {
             border-radius: 15px;
         }
 
-        /* Media Queries */
-        @media (max-width: 768px) {
-            .webinar-listings {
-                grid-template-columns: 1fr;
-            }
+        /* Estilos para menu responsivo */
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            z-index: 1100;
+        }
 
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        /* Estilo modificado para o botão de fechar */
+        .menu-close-item {
+            display: none; /* Será mostrado via JS quando o menu estiver ativo */
+            position: fixed; /* Fixo na tela */
+            top: 20px; /* Espaço do topo */
+            right: 20px; /* Espaço da direita */
+            padding: 10px;
+            background-color: rgba(14, 23, 104, 0.8); /* Fundo semi-transparente */
+            border-radius: 50%; /* Formato circular */
+            width: 40px; /* Largura fixa */
+            height: 40px; /* Altura fixa */
+            display: flex; /* Para centralizar o ícone */
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1200; /* Acima do menu */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Sombra para destacar */
+        }
+
+        .menu-close-item .menu-icon {
+            width: 24px;
+            height: 24px;
+            transform: rotate(45deg); /* Rotacionar para formar um X */
+        }
+
+        /* Media Queries */
+        @media (max-width: 991px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .logo {
+                font-size: 20px;
+            }
+            
+            .logo-icon {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .menu {
+                display: none;
+                flex-direction: column;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                background-color: #0e1768;
+                padding: 60px 20px 20px;
+                z-index: 1000;
+                justify-content: flex-start;
+                overflow-y: auto;
+            }
+            
+            .menu.active {
+                display: flex;
+            }
+            
+            .menu li {
+                width: 100%;
+                margin: 10px 0;
+            }
+            
+            .menu li a {
+                width: 100%;
+                text-align: center;
+                padding: 12px;
+            }
+            
             .search-container {
                 flex-direction: column;
                 align-items: stretch;
@@ -195,12 +279,63 @@ try {
             .search-btn {
                 width: 100%;
                 margin-bottom: 10px;
+                border-radius: 5px;
             }
-
+            
+            .webinar-listings {
+                grid-template-columns: 1fr;
+            }
+            
             .contact-container {
                 flex-direction: column;
             }
         }
+
+        @media (max-width: 768px) {
+            .webinars-section {
+                padding: 20px;
+            }
+            
+            .navbar {
+                padding: 10px 15px;
+            }
+            
+            .logo {
+                font-size: 18px;
+            }
+            
+            .logo-icon {
+                width: 25px;
+                height: 25px;
+                margin-right: 5px;
+            }
+            
+            .map-container iframe {
+                width: 100%;
+                height: 250px;
+            }
+        }
+
+        /* Efeito de fade-in nos botões do menu */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu.active li {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .menu.active li:nth-child(1) { animation-delay: 0.1s; }
+        .menu.active li:nth-child(2) { animation-delay: 0.2s; }
+        .menu.active li:nth-child(3) { animation-delay: 0.3s; }
+        .menu.active li:nth-child(4) { animation-delay: 0.4s; }
     </style>
 </head>
 
@@ -211,7 +346,7 @@ try {
                 <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
                 <div class="logo">ProLink</div>
             </div>
-            <ul class="menu">
+            <ul class="menu" id="menu">
                 <li><a href="../php/index.php">Home</a></li>
                 <li><a href="../php/paginaEmprego.php">Oportunidades</a></li>
                 <li><a href="#contato">Contato</a></li>
@@ -222,8 +357,14 @@ try {
             <div class="profile">
                 <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
             </div>
+            <!-- Botão do menu mobile será inserido via JavaScript -->
         </nav>
     </header>
+
+    <!-- Botão de fechamento separado do menu (fora da lista) -->
+    <div id="close-menu" class="menu-close-item" style="display: none;">
+        <img src="../assets/img/icons8-menu-48.png" alt="Fechar" class="menu-icon">
+    </div>
 
     <section class="webinars-section">
         <h2>Webinars Disponíveis</h2>
@@ -294,6 +435,71 @@ try {
         document.getElementById('searchInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 buscarWebinars();
+            }
+        });
+        
+        // Script para menu responsivo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adicionar botão do menu mobile se não existir
+            const navbar = document.querySelector('.navbar');
+            const closeMenuBtn = document.getElementById('close-menu');
+            
+            if (!document.getElementById('mobile-menu')) {
+                const menuToggle = document.createElement('button');
+                menuToggle.id = 'mobile-menu';
+                menuToggle.className = 'menu-toggle';
+                menuToggle.innerHTML = '<img src="../assets/img/icons8-menu-48.png" alt="Menu" class="menu-icon">';
+                navbar.appendChild(menuToggle);
+            }
+            
+            // Controle do menu mobile
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menu = document.getElementById('menu');
+            
+            if (mobileMenu) {
+                mobileMenu.addEventListener('click', function() {
+                    menu.classList.add('active');
+                    this.style.display = 'none';
+                    closeMenuBtn.style.display = 'flex'; // Mostrar botão de fechar
+                });
+            }
+            
+            if (closeMenuBtn) {
+                closeMenuBtn.addEventListener('click', function() {
+                    menu.classList.remove('active');
+                    mobileMenu.style.display = 'block';
+                    this.style.display = 'none'; // Esconder botão de fechar
+                });
+            }
+            
+            // Fechar o menu ao clicar em um link
+            const menuLinks = menu.querySelectorAll('a');
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 992) {
+                        menu.classList.remove('active');
+                        mobileMenu.style.display = 'block';
+                        closeMenuBtn.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Ajustar visualização em redimensionamento
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    menu.classList.remove('active');
+                    if (mobileMenu) mobileMenu.style.display = 'none';
+                    closeMenuBtn.style.display = 'none';
+                } else {
+                    if (mobileMenu && !menu.classList.contains('active')) {
+                        mobileMenu.style.display = 'block';
+                    }
+                }
+            });
+            
+            // Inicialização - esconder botão mobile em telas grandes
+            if (window.innerWidth >= 992 && mobileMenu) {
+                mobileMenu.style.display = 'none';
             }
         });
     </script>
