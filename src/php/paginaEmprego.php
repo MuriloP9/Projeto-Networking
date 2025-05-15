@@ -335,7 +335,7 @@ if (isset($_SESSION['id_usuario'])) {
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 2000;
             visibility: hidden;
             opacity: 0;
             transition: visibility 0s linear 0.25s, opacity 0.25s 0s;
@@ -505,9 +505,120 @@ if (isset($_SESSION['id_usuario'])) {
             border-radius: 15px;
         }
 
-        /* Media Queries */
-        @media (max-width: 768px) {
+        /* Estilos para menu responsivo */
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            z-index: 1100;
+        }
 
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        /* Estilo modificado para o botão de fechar */
+       .menu-close-item {
+        display: none; /* Inicialmente oculto */
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px;
+        background-color: rgba(14, 23, 104, 0.8);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        z-index: 1500;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+        .menu-close-item .menu-icon {
+            width: 24px;
+            height: 24px;
+            transform: rotate(45deg); /* Rotacionar para formar um X */
+        }
+
+        /* Media Queries */
+        @media (max-width: 991px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .logo {
+                font-size: 20px;
+            }
+            
+            .logo-icon {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .menu {
+                display: none;
+                flex-direction: column;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                background-color: #0e1768;
+                padding: 60px 20px 20px;
+                z-index: 1000;
+                justify-content: flex-start;
+                overflow-y: auto;
+            }
+            
+            .menu.active {
+                display: flex;
+            }
+            
+            .menu li {
+                width: 100%;
+                margin: 10px 0;
+            }
+            
+            .menu li a {
+                width: 100%;
+                text-align: center;
+                padding: 12px;
+            }
+            
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-bar,
+            .search-btn {
+                width: 100%;
+                margin-bottom: 10px;
+                border-radius: 5px;
+            }
+            
+            .job-listings {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-container {
+                flex-direction: column;
+            }
+            
+            .profile-icon {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
             .job-listings,
             .saved-jobs-list {
                 grid-template-columns: 1fr;
@@ -527,7 +638,51 @@ if (isset($_SESSION['id_usuario'])) {
             .contact-container {
                 flex-direction: column;
             }
+            
+            .navbar {
+                padding: 10px 15px;
+            }
+            
+            .logo {
+                font-size: 18px;
+            }
+            
+            .logo-icon {
+                width: 25px;
+                height: 25px;
+                margin-right: 5px;
+            }
+            
+            .map-container iframe {
+                width: 100%;
+                height: 250px;
+            }
+            
+            .profile-icon {
+                display: none;
+            }
         }
+
+        /* Efeito de fade-in nos botões do menu */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu.active li {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .menu.active li:nth-child(1) { animation-delay: 0.1s; }
+        .menu.active li:nth-child(2) { animation-delay: 0.2s; }
+        .menu.active li:nth-child(3) { animation-delay: 0.3s; }
+        .menu.active li:nth-child(4) { animation-delay: 0.4s; }
     </style>
 </head>
 
@@ -538,7 +693,7 @@ if (isset($_SESSION['id_usuario'])) {
                 <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
                 <div class="logo">ProLink</div>
             </div>
-            <ul class="menu">
+            <ul class="menu" id="menu">
                 <li><a href="../php/index.php">Home</a></li>
                 <li><a href="../php/pagina_webinar.php">Webinars</a></li>
                 <li><a href="#contato">Contato</a></li>
@@ -547,10 +702,15 @@ if (isset($_SESSION['id_usuario'])) {
                 <?php endif; ?>
             </ul>
             <div class="profile">
-                <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
+                <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Perfil" class="profile-icon"></a>
             </div>
         </nav>
     </header>
+
+    <div id="close-menu" class="menu-close-item">
+        <img src="../assets/img/icons8-menu-48.png" alt="Fechar" class="menu-icon">
+    </div>
+
 
     <?php if (isset($_SESSION['id_usuario'])): ?>
     <!-- Seção de vagas salvas/candidatadas -->
@@ -725,8 +885,7 @@ if (isset($_SESSION['id_usuario'])) {
                 });
             });
 
-            // Como não temos o arquivo buscar_vaga.php ainda, vamos adicionar um código temporário 
-            // para demonstrar a funcionalidade sem necessidade do AJAX inicialmente
+        
             $('.more-info-btn').on('click', function() {
                 const vagaId = $(this).data('vaga-id');
                 const card = $(this).closest('.job-card');
@@ -827,8 +986,8 @@ if (isset($_SESSION['id_usuario'])) {
         alert('Erro ao processar candidatura. Verifique sua conexão e tente novamente.');
         $('#confirm-yes').prop('disabled', false);
     }
+    });
 });
-            });
 
             // Função para mostrar mensagem toast
             function showToast(message) {
@@ -871,3 +1030,5 @@ if (isset($_SESSION['id_usuario'])) {
             });
         });
     </script>
+
+      
