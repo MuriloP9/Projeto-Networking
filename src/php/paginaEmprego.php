@@ -76,6 +76,27 @@ try {
 } catch (PDOException $e) {
     echo "<script>alert('Erro ao buscar vagas: " . addslashes($e->getMessage()) . "');</script>";
 }
+
+// Buscar candidaturas do usuário logado
+$candidaturas_usuario = [];
+if (isset($_SESSION['id_usuario'])) {
+    try {
+        $stmt = $pdo->prepare("
+            SELECT c.id_vaga 
+            FROM Candidatura c
+            JOIN Perfil p ON c.id_perfil = p.id_perfil
+            WHERE p.id_usuario = ?
+        ");
+        $stmt->execute([$_SESSION['id_usuario']]);
+        $candidaturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($candidaturas as $candidatura) {
+            $candidaturas_usuario[] = $candidatura['id_vaga'];
+        }
+    } catch (PDOException $e) {
+        // Silenciosamente falha
+    }
+}
 ?>
 
 
@@ -206,6 +227,7 @@ try {
             text-decoration: underline;
         }
 
+        .more-info-btn,
         .apply-btn {
             padding: 8px 16px;
             background-color: #0e1768;
@@ -217,63 +239,241 @@ try {
             transition: background-color 0.3s;
         }
 
+        .more-info-btn:hover,
         .apply-btn:hover {
             background-color: #3b6ebb;
+        }
+
+        .already-applied {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: default;
         }
 
         /* Saved Jobs Section */
         .saved-jobs-section {
             padding: 40px;
-
-            background-color: #ffffff;
+            background-color: #f9f9f9;
+            color: #333;
         }
 
         .saved-jobs-container {
-            border: 2px solid #ccc;
-            border-radius: 15px;
             padding: 20px;
-            background-color: #0e1768;
+            background-color: white;
+            border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin: 0 auto;
+            margin-bottom: 40px;
         }
 
-        .saved-jobs-container p {
-            align-items: center;
-        }
-
-
-        /* Notifications Section */
-        .notifications-section {
-            align-items: center;
+        .saved-jobs-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
             color: #333;
-            padding: 40px;
-            background-color: #f9f9f9;
         }
 
-        .notifications-form .form-input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #0e1768;
-            font-size: 1em;
+        .saved-jobs-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
-        .notifications-btn {
+        .saved-job-card {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #0e1768;
+        }
+
+        .saved-job-card h4 {
+            margin: 0;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .saved-job-card p {
+            color: #555;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        .saved-job-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .status-pendente {
+            background-color: #FFF3CD;
+            color: #856404;
+        }
+
+        .status-aprovada {
+            background-color: #D4EDDA;
+            color: #155724;
+        }
+
+        .status-recusada {
+            background-color: #F8D7DA;
+            color: #721C24;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 10px;
-            font-size: 1em;
-            background-color: #0e1768;
-            color: white;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s linear 0.25s, opacity 0.25s 0s;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+            transition-delay: 0s;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #777;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal-title {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-description {
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        .modal-info {
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .modal-info strong {
+            color: #333;
+        }
+
+        .modal-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-btn-cancel {
+            padding: 8px 16px;
+            background-color: #e0e0e0;
+            color: #333;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
 
-        .notifications-btn:hover {
-            background-color: #3b6ebb;
+        .modal-btn-cancel:hover {
+            background-color: #d0d0d0;
+        }
+
+        /* Confirmation dialog styles */
+        .confirm-dialog {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .confirm-title {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .confirm-message {
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .confirm-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .confirm-yes {
+            padding: 8px 20px;
+            background-color: #0e1768;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .confirm-no {
+            padding: 8px 20px;
+            background-color: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Toast message style */
+        .toast-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            display: none;
         }
 
         /* Contact Section */
@@ -309,7 +509,7 @@ try {
         @media (max-width: 768px) {
 
             .job-listings,
-            .highlighted-job-listings {
+            .saved-jobs-list {
                 grid-template-columns: 1fr;
             }
 
@@ -326,10 +526,6 @@ try {
 
             .contact-container {
                 flex-direction: column;
-            }
-
-            .saved-jobs-container {
-                padding: 10px;
             }
         }
     </style>
@@ -356,6 +552,52 @@ try {
         </nav>
     </header>
 
+    <?php if (isset($_SESSION['id_usuario'])): ?>
+    <!-- Seção de vagas salvas/candidatadas -->
+    <section class="saved-jobs-section">
+        <div class="saved-jobs-container">
+            <h2 class="saved-jobs-title">Minhas Candidaturas</h2>
+            
+            <?php
+            // Buscar candidaturas do usuário
+            try {
+                $stmt = $pdo->prepare("
+                    SELECT c.*, v.titulo_vaga, v.tipo_emprego, v.localizacao, a.nome_area 
+                    FROM Candidatura c
+                    JOIN Perfil p ON c.id_perfil = p.id_perfil
+                    JOIN Vagas v ON c.id_vaga = v.id_vaga
+                    LEFT JOIN AreaAtuacao a ON v.id_area = a.id_area
+                    WHERE p.id_usuario = ?
+                    ORDER BY c.data_candidatura DESC
+                ");
+                $stmt->execute([$_SESSION['id_usuario']]);
+                $minhas_candidaturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                if (empty($minhas_candidaturas)): ?>
+                    <p>Você ainda não se candidatou a nenhuma vaga.</p>
+                <?php else: ?>
+                    <div class="saved-jobs-list">
+                        <?php foreach ($minhas_candidaturas as $candidatura): ?>
+                            <div class="saved-job-card">
+                                <h4><?= htmlspecialchars($candidatura['titulo_vaga']) ?></h4>
+                                <p><?= htmlspecialchars($candidatura['nome_area'] ?? 'Área não especificada') ?></p>
+                                <p><?= htmlspecialchars($candidatura['tipo_emprego']) ?> - <?= htmlspecialchars($candidatura['localizacao'] ?? 'Local não especificado') ?></p>
+                                <span class="saved-job-status status-<?= strtolower($candidatura['status']) ?>">
+                                    <?= htmlspecialchars($candidatura['status']) ?>
+                                </span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif;
+                
+            } catch (PDOException $e) {
+                echo "<p>Erro ao carregar candidaturas.</p>";
+            }
+            ?>
+        </div>
+    </section>
+    <?php endif; ?>
+
     <section id="job-opportunities" class="job-opportunities">
         <h2>Oportunidades de Emprego</h2>
 
@@ -379,21 +621,55 @@ try {
                         <p><?= htmlspecialchars($vaga['nome_area'] ?? 'Área não especificada') ?></p>
                         <p>Tipo: <?= htmlspecialchars($vaga['tipo_emprego']) ?></p>
                         <p>Localização: <?= htmlspecialchars($vaga['localizacao'] ?? 'Não especificado') ?></p>
-                        <?php if (!empty($vaga['descricao'])): ?>
-                                <p>Descrição:</p>
-                                <p><?= nl2br(htmlspecialchars($vaga['descricao'])) ?></p>
+                        
+                        <?php if (isset($_SESSION['id_usuario'])): ?>
+                            <?php if (in_array($vaga['id_vaga'], $candidaturas_usuario)): ?>
+                                <button class="already-applied" disabled>Candidatura Enviada</button>
+                            <?php else: ?>
+                                <button class="more-info-btn" data-vaga-id="<?= $vaga['id_vaga'] ?>">Saiba Mais</button>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <p><a href="../pages/login.html" class="job-link">Faça login para se candidatar</a></p>
                         <?php endif; ?>
-                        <form method="POST" class="candidatura-form" data-vaga-id="<?= $vaga['id_vaga'] ?>">
-                            <input type="hidden" name="id_vaga" value="<?= $vaga['id_vaga'] ?>">
-                            <button type="submit" class="apply-btn" id="btn-<?= $vaga['id_vaga'] ?>">
-                                Candidatar-se
-                            </button>
-                        </form>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
     </section>
+
+    <!-- Modal para detalhes da vaga -->
+    <div class="modal-overlay" id="job-modal">
+        <div class="modal-content">
+            <span class="modal-close" id="modal-close">&times;</span>
+            <h3 class="modal-title" id="modal-title">Título da Vaga</h3>
+            
+            <p class="modal-info"><strong>Área:</strong> <span id="modal-area">Área</span></p>
+            <p class="modal-info"><strong>Tipo:</strong> <span id="modal-tipo">Tipo</span></p>
+            <p class="modal-info"><strong>Localização:</strong> <span id="modal-localizacao">Localização</span></p>
+            
+            <h4>Descrição da Vaga:</h4>
+            <div class="modal-description" id="modal-descricao">
+                Descrição detalhada da vaga...
+            </div>
+            
+            <div class="modal-actions">
+                <button class="modal-btn-cancel" id="modal-btn-cancel">Fechar</button>
+                <button class="apply-btn" id="modal-apply-btn" data-vaga-id="">Candidatar-se</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmação -->
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="confirm-dialog">
+            <h3 class="confirm-title">Confirmar Candidatura</h3>
+            <p class="confirm-message">Deseja realmente se candidatar a esta vaga?</p>
+            <div class="confirm-actions">
+                <button class="confirm-no" id="confirm-no">Cancelar</button>
+                <button class="confirm-yes" id="confirm-yes" data-vaga-id="">Confirmar</button>
+            </div>
+        </div>
+    </div>
 
     <section id="contato" class="contact-section">
         <div class="contact-container">
@@ -418,32 +694,101 @@ try {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../assets/js/script.js"></script>
     <script>
-        // Função para buscar vagas via AJAX (opcional)
-        function buscarVagas() {
-            const termo = document.getElementById('searchInput').value;
-            window.location.href = '?search=' + encodeURIComponent(termo);
-        }
-
-        // Adicionar evento de tecla para buscar ao pressionar Enter
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                buscarVagas();
-            }
-        });
-    </script>
-    <script>
         $(document).ready(function() {
-            // Função para tratar o envio do formulário via AJAX
-            $('.candidatura-form').on('submit', function(e) {
-                e.preventDefault();
+            // Modal de detalhes da vaga
+            $('.more-info-btn').on('click', function() {
+                const vagaId = $(this).data('vaga-id');
+                
+                // Busca os detalhes da vaga via AJAX
+                $.ajax({
+                    type: 'GET',
+                    url: 'buscar_vaga.php', // Você precisará criar este arquivo
+                    data: { id_vaga: vagaId },
+                    dataType: 'json',
+                    success: function(vaga) {
+                        // Preenche o modal com as informações da vaga
+                        $('#modal-title').text(vaga.titulo_vaga);
+                        $('#modal-area').text(vaga.nome_area || 'Área não especificada');
+                        $('#modal-tipo').text(vaga.tipo_emprego);
+                        $('#modal-localizacao').text(vaga.localizacao || 'Localização não especificada');
+                        $('#modal-descricao').html(vaga.descricao ? vaga.descricao.replace(/\n/g, '<br>') : 'Sem descrição detalhada.');
+                        
+                        // Define o ID da vaga no botão de candidatura
+                        $('#modal-apply-btn').data('vaga-id', vagaId);
+                        
+                        // Mostra o modal
+                        $('#job-modal').addClass('active');
+                    },
+                    error: function() {
+                        alert('Erro ao carregar detalhes da vaga. Tente novamente.');
+                    }
+                });
+            });
 
-                const form = $(this);
-                const vagaId = form.data('vaga-id');
-                const btn = $(`#btn-${vagaId}`);
+            // Como não temos o arquivo buscar_vaga.php ainda, vamos adicionar um código temporário 
+            // para demonstrar a funcionalidade sem necessidade do AJAX inicialmente
+            $('.more-info-btn').on('click', function() {
+                const vagaId = $(this).data('vaga-id');
+                const card = $(this).closest('.job-card');
+                
+                // Pega os dados diretamente do card
+                const titulo = card.find('h3').text();
+                const area = card.find('p').eq(0).text();
+                const tipo = card.find('p').eq(1).text().replace('Tipo: ', '');
+                const localizacao = card.find('p').eq(2).text().replace('Localização: ', '');
+                
+                // Busca a descrição (pode não estar completa no card)
+                let descricao = '';
+                if (card.find('p').length > 3) {
+                    descricao = card.find('p').eq(4).text();
+                } else {
+                    descricao = 'Contate-nos para mais informações sobre esta vaga.';
+                }
+                
+                // Preenche o modal
+                $('#modal-title').text(titulo);
+                $('#modal-area').text(area);
+                $('#modal-tipo').text(tipo);
+                $('#modal-localizacao').text(localizacao);
+                $('#modal-descricao').html(descricao.replace(/\n/g, '<br>'));
+                
+                // Define o ID da vaga no botão de candidatura
+                $('#modal-apply-btn').data('vaga-id', vagaId);
+                
+                // Mostra o modal
+                $('#job-modal').addClass('active');
+            });
 
-                // Desativar o botão temporariamente para evitar múltiplos cliques
-                btn.prop('disabled', true);
+            // Fechar modal
+            $('#modal-close, #modal-btn-cancel').on('click', function() {
+                $('#job-modal').removeClass('active');
+            });
 
+            // Botão de candidatura no modal
+            $('#modal-apply-btn').on('click', function() {
+                const vagaId = $(this).data('vaga-id');
+                $('#confirm-yes').data('vaga-id', vagaId);
+                
+                // Fecha o modal de detalhes
+                $('#job-modal').removeClass('active');
+                
+                // Abre o modal de confirmação
+                $('#confirm-modal').addClass('active');
+            });
+
+            // Fechar modal de confirmação
+            $('#confirm-no').on('click', function() {
+                $('#confirm-modal').removeClass('active');
+            });
+
+            // Confirmar candidatura
+            $('#confirm-yes').on('click', function() {
+                const vagaId = $(this).data('vaga-id');
+                
+                // Desativa o botão temporariamente para evitar múltiplos cliques
+                $(this).prop('disabled', true);
+                
+                // Processa a candidatura via AJAX
                 $.ajax({
                     type: 'POST',
                     url: '', // A mesma página
@@ -453,44 +798,76 @@ try {
                     },
                     dataType: 'json',
                     success: function(response) {
+                        // Fecha o modal de confirmação
+                        $('#confirm-modal').removeClass('active');
+                        
                         if (response.success) {
-                            // Mudar o estilo do botão
-                            btn.css('background-color', '#4CAF50');
-                            btn.text('Candidatado');
-
-                            // Mostrar mensagem de sucesso de forma mais elegante
-                            const toast = $('<div class="toast-message">' + response.message + '</div>');
-                            $('body').append(toast);
-                            toast.fadeIn().delay(3000).fadeOut(function() {
-                                $(this).remove();
-                            });
-                        } else {
-                            // Mostrar mensagem de erro
-                            alert(response.message);
-                            btn.prop('disabled', false);
-                        }
-                    },
-                    error: function() {
-                        alert('Erro ao processar sua solicitação. Tente novamente.');
-                        btn.prop('disabled', false);
-                    }
-                });
+            // Mostra mensagem de sucesso
+            showToast(response.message);
+            
+            // Atualiza o botão da vaga para "Candidatura Enviada"
+            $(`button[data-vaga-id="${vagaId}"]`).replaceWith(
+                $('<button class="already-applied" disabled>Candidatura Enviada</button>')
+            );
+            
+            // Recarrega a página após 2 segundos para atualizar a lista de candidaturas
+            setTimeout(function() {
+                location.reload();
+            }, 2000);
+        } else {
+            // Mostra mensagem de erro
+            alert(response.message || 'Erro ao processar candidatura. Tente novamente.');
+            
+            // Reativa o botão
+            $('#confirm-yes').prop('disabled', false);
+        }
+    },
+    error: function() {
+        $('#confirm-modal').removeClass('active');
+        alert('Erro ao processar candidatura. Verifique sua conexão e tente novamente.');
+        $('#confirm-yes').prop('disabled', false);
+    }
+});
             });
 
-            // Função para buscar vagas via AJAX (opcional)
-            function buscarVagas() {
-                const termo = $('#searchInput').val();
-                window.location.href = '?search=' + encodeURIComponent(termo);
+            // Função para mostrar mensagem toast
+            function showToast(message) {
+                // Cria o elemento toast se ainda não existir
+                if ($('#toast-message').length === 0) {
+                    $('body').append('<div id="toast-message" class="toast-message"></div>');
+                }
+                
+                // Define a mensagem e mostra o toast
+                $('#toast-message').text(message).fadeIn();
+                
+                // Esconde o toast após 3 segundos
+                setTimeout(function() {
+                    $('#toast-message').fadeOut();
+                }, 3000);
             }
 
-            // Adicionar evento de tecla para buscar ao pressionar Enter
-            $('#searchInput').on('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    buscarVagas();
+            // Fechar modais ao clicar fora deles
+            $('.modal-overlay').on('click', function(e) {
+                if (e.target === this) {
+                    $(this).removeClass('active');
+                }
+            });
+
+            // Previne o fechamento do modal ao clicar no seu conteúdo
+            $('.modal-content, .confirm-dialog').on('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            // Animação suave ao rolar para âncoras
+            $('a[href^="#"]').on('click', function(e) {
+                e.preventDefault();
+                
+                const target = $(this.getAttribute('href'));
+                if (target.length) {
+                    $('html, body').animate({
+                        scrollTop: target.offset().top - 100
+                    }, 800);
                 }
             });
         });
     </script>
-</body>
-
-</html>
