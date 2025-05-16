@@ -389,7 +389,7 @@ try {
         <!-- Lista de webinars -->
         <div class="webinar-listings">
             <?php if (empty($webinars)): ?>
-                <p>Nenhum webinar encontrado.</p>
+                <p style="color: #000000;">Nenhum webinar encontrado.</p>
             <?php else: ?>
                 <?php foreach ($webinars as $webinar): ?>
                     <div class="webinar-card">
