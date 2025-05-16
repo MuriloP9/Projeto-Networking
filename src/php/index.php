@@ -77,25 +77,63 @@ session_start();
         <h1>Descubra. Aprenda. Aproveite</h1>
         <p>Plataforma para profissionais de todo o mundo</p>
 
-        <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Pesquisar por profissionais, áreas...">
-    <button class="search-btn1" onclick="buscarProfissionais()">Procurar</button>
-    </div>
+<div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Pesquisar por profissionais, áreas..." 
+           maxlength="100" pattern="[^\x00-\x1F\x7F]+" title="Não use caracteres de controle">
+    <button class="search-btn1" id="searchButton">Procurar</button>
+</div>
 
     <script>
-   function buscarProfissionais() {
-    // Pega o valor do campo de busca e remove espaços extras
-    const termoBusca = document.getElementById('searchInput').value.trim();
+// Espera o DOM carregar completamente
+document.addEventListener('DOMContentLoaded', function() {
+    // Adiciona event listener ao botão
+    document.getElementById('searchButton').addEventListener('click', buscarProfissionais);
     
-    // Verifica se o usuário digitou algo
-    if (termoBusca !== "") {
-        // Redireciona para a página de resultados com o termo de busca
-        window.location.href = `listaProfissionais.php?search=${encodeURIComponent(termoBusca)}`;
-    } else {
-        // Se estiver vazio, mostra alerta e coloca o foco no campo
-        alert("Por favor, digite um termo para buscar.");
-        document.getElementById('searchInput').focus();
+    // Adiciona event listener para tecla Enter
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            buscarProfissionais();
+        }
+    });
+});
+
+function buscarProfissionais() {
+    // Pega o valor do campo de busca
+    const inputElement = document.getElementById('searchInput');
+    let termoBusca = inputElement.value.trim();
+    
+    // Sanitização do lado do cliente (defesa em profundidade)
+    termoBusca = termoBusca.replace(/[\x00-\x1F\x7F]/g, ''); // Remove caracteres de controle
+    termoBusca = termoBusca.substring(0, 100); // Limita o tamanho
+    
+    // Verifica se o termo de busca é válido
+    if (!termoBusca || !/^[\w\sáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\-.,;:!?@#%&*()+=]{3,}$/.test(termoBusca)) {
+        // Mostra mensagem de erro acessível (melhor que alert)
+        const errorElement = document.createElement('div');
+        errorElement.className = 'search-error';
+        errorElement.textContent = 'Por favor, digite um termo válido (mínimo 3 caracteres).';
+        errorElement.setAttribute('role', 'alert');
+        errorElement.setAttribute('aria-live', 'assertive');
+        
+        // Remove mensagens anteriores
+        const oldError = document.querySelector('.search-error');
+        if (oldError) oldError.remove();
+        
+        // Insere a mensagem após a barra de pesquisa
+        inputElement.insertAdjacentElement('afterend', errorElement);
+        inputElement.focus();
+        return;
     }
+    
+    // Codifica o termo para URL (previne XSS e injection na URL)
+    const termoCodificado = encodeURIComponent(termoBusca)
+        .replace(/%20/g, '+') // Espaços como +
+        .replace(/[!'()*]/g, function(c) {
+            return '%' + c.charCodeAt(0).toString(16);
+        });
+    
+    // Redireciona de forma segura
+    window.location.href = `listaProfissionais.php?search=${termoCodificado}`;
 }
 </script>
     </section>
