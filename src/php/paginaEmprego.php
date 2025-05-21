@@ -856,34 +856,34 @@ if (isset($_SESSION['id_usuario'])) {
     <script>
         $(document).ready(function() {
             // Modal de detalhes da vaga
-            $('.more-info-btn').on('click', function() {
-                const vagaId = $(this).data('vaga-id');
-                
-                // Busca os detalhes da vaga via AJAX
-                $.ajax({
-                    type: 'GET',
-                    url: 'buscar_vaga.php', // Você precisará criar este arquivo
-                    data: { id_vaga: vagaId },
-                    dataType: 'json',
-                    success: function(vaga) {
-                        // Preenche o modal com as informações da vaga
-                        $('#modal-title').text(vaga.titulo_vaga);
-                        $('#modal-area').text(vaga.nome_area || 'Área não especificada');
-                        $('#modal-tipo').text(vaga.tipo_emprego);
-                        $('#modal-localizacao').text(vaga.localizacao || 'Localização não especificada');
-                        $('#modal-descricao').html(vaga.descricao ? vaga.descricao.replace(/\n/g, '<br>') : 'Sem descrição detalhada.');
-                        
-                        // Define o ID da vaga no botão de candidatura
-                        $('#modal-apply-btn').data('vaga-id', vagaId);
-                        
-                        // Mostra o modal
-                        $('#job-modal').addClass('active');
-                    },
-                    error: function() {
-                        alert('Erro ao carregar detalhes da vaga. Tente novamente.');
-                    }
-                });
-            });
+           $('.more-info-btn').on('click', function() {
+    const vagaId = $(this).data('vaga-id');
+    
+    // Busca os detalhes completos da vaga via AJAX
+    $.ajax({
+        type: 'GET',
+        url: 'buscar_vaga.php', // Você precisará criar este arquivo
+        data: { id_vaga: vagaId },
+        dataType: 'json',
+        success: function(vaga) {
+            // Preenche o modal com as informações da vaga
+            $('#modal-title').text(vaga.titulo_vaga);
+            $('#modal-area').text(vaga.nome_area || 'Área não especificada');
+            $('#modal-tipo').text(vaga.tipo_emprego);
+            $('#modal-localizacao').text(vaga.localizacao || 'Localização não especificada');
+            $('#modal-descricao').html(vaga.descricao ? vaga.descricao.replace(/\n/g, '<br>') : 'Sem descrição detalhada.');
+            
+            // Define o ID da vaga no botão de candidatura
+            $('#modal-apply-btn').data('vaga-id', vagaId);
+            
+            // Mostra o modal
+            $('#job-modal').addClass('active');
+        },
+        error: function() {
+            alert('Erro ao carregar detalhes da vaga. Tente novamente.');
+        }
+    });
+});
 
         
             $('.more-info-btn').on('click', function() {
