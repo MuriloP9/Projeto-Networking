@@ -578,6 +578,9 @@ if (isset($_SESSION['id_usuario'])) {
                 width: 100%;
                 margin-bottom: 10px;
             }
+             .profile-icon{
+                display: none;
+            }
 
             .modal-content {
                 width: 95%;
@@ -615,6 +618,9 @@ if (isset($_SESSION['id_usuario'])) {
             .map-container iframe {
                 width: 100%;
                 height: 200px;
+            }
+             .profile-icon{
+                display: none;
             }
         }
 
@@ -712,7 +718,6 @@ if (isset($_SESSION['id_usuario'])) {
                 <?php endif; ?>
             </ul>
             <div class="profile">
-                <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Perfil" class="profile-icon"></a>
             </div>
         </nav>
     </header>

@@ -30,7 +30,7 @@ session_start();
         <ul class="menu" id="menu">
             <li><a href="#home">Home</a></li>
             <li><a href="#webinars">Webinars</a></li>
-            <li><a href="#job-opportunities">Oportunidades de Trabalho</a></li>
+            <li><a href="#job-opportunities">Oportunidades</a></li>
             <li><a href="#contato">Contato</a></li>
             <?php if (!isset($_SESSION['usuario_logado'])): ?>
                 <li><a href="../pages/login.html">Login</a></li>
