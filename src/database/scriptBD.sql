@@ -30,7 +30,9 @@ CREATE TABLE Usuario (
     foto_perfil VARBINARY(MAX) NULL,
     token_rec_senha NVARCHAR(64) NULL,
     dt_expiracao_token DATETIME NULL,
-    timestamp_expiracao BIGINT NULL
+    timestamp_expiracao BIGINT NULL,
+	statusLGPD BIT NOT NULL DEFAULT 0,
+    IP_registro VARCHAR(45) NULL
 );
 GO
 
@@ -185,13 +187,13 @@ GO
 -- Começo com as tabelas que não dependem de outras
 
 -- 1. Inserção na tabela Usuario
-INSERT INTO Usuario (nome, email, senha, dataNascimento, telefone, ativo)
+INSERT INTO Usuario (nome, email, senha, dataNascimento, telefone, ativo, statusLGPD)
 VALUES 
-('João Silva', 'joao.silva@email.com', 'senha123', '1990-05-15', '11987654321', 1),
-('Maria Oliveira', 'maria.oliveira@email.com', 'senha456', '1985-08-20', '21987654321', 1),
-('Carlos Souza', 'carlos.souza@email.com', 'senha789', '1995-03-10', '31987654321', 1),
-('Ana Pereira', 'ana.pereira@email.com', 'senhaabc', '1992-11-25', '41987654321', 1),
-('Pedro Costa', 'pedro.costa@email.com', 'senhaxyz', '1988-07-30', '51987654321', 1);
+('João Silva', 'joao.silva@email.com', 'senha123', '1990-05-15', '11987654321', 1, 1),
+('Maria Oliveira', 'maria.oliveira@email.com', 'senha456', '1985-08-20', '21987654321', 1, 1),
+('Carlos Souza', 'carlos.souza@email.com', 'senha789', '1995-03-10', '31987654321', 1, 1),
+('Ana Pereira', 'ana.pereira@email.com', 'senhaabc', '1992-11-25', '41987654321', 1, 1),
+('Pedro Costa', 'pedro.costa@email.com', 'senhaxyz', '1988-07-30', '51987654321', 1, 1);
 GO
 
 -- 2. Inserção na tabela Funcionario (começando pelo admin master que não tem referência)

@@ -75,6 +75,10 @@
                         <label for="habilidades">Habilidades:</label>
                         <textarea id="habilidades" name="habilidades" placeholder="Descreva suas habilidades"></textarea>
                     </div>
+                    <div class="form-group lgpd-checkbox">
+    <input type="checkbox" id="aceitoLGPD" name="aceitoLGPD" required>
+    <label for="aceitoLGPD">Li e aceito os <a href="#" id="lgpdLink">Termos de Política de Privacidade e LGPD</a></label>
+</div>
                     <button type="button" id="submitBtn" class="submit-btn">Cadastrar</button>
                 </form>
             </div>
@@ -125,6 +129,51 @@
             }
         });
     });</script>
+
+
+<div id="lgpdModal" class="modal-lgpd">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Termos de Política de Privacidade e LGPD</h2>
+        <div id="lgpdTermsContent">
+            <p>Ao se cadastrar em nossa plataforma, você concorda com os seguintes termos:</p>
+            <ol>
+                <li><strong>Coleta de Dados:</strong> Coletamos informações pessoais como nome, e-mail, data de nascimento e outras informações necessárias para o funcionamento da plataforma.</li>
+                <li><strong>Uso dos Dados:</strong> Seus dados serão utilizados para personalizar sua experiência, fornecer serviços e melhorar nossa plataforma.</li>
+                <li><strong>Compartilhamento:</strong> Não compartilhamos seus dados pessoais com terceiros sem seu consentimento, exceto quando exigido por lei.</li>
+                <li><strong>Segurança:</strong> Implementamos medidas de segurança para proteger seus dados contra acesso não autorizado.</li>
+                <li><strong>Seus Direitos:</strong> Você tem o direito de acessar, corrigir, excluir ou portar seus dados pessoais a qualquer momento.</li>
+                <li><strong>Cookies:</strong> Utilizamos cookies para melhorar sua experiência, que podem ser desativados nas configurações do seu navegador.</li>
+                <li><strong>Alterações:</strong> Esta política pode ser atualizada periodicamente, com aviso prévio aos usuários.</li>
+            </ol>
+            <p>Para exercer seus direitos ou ter dúvidas sobre o tratamento de seus dados, entre em contato conosco.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Modal para os termos LGPD
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById("lgpdModal");
+    const btn = document.getElementById("lgpdLink");
+    const span = document.getElementsByClassName("close")[0];
+    
+    btn.onclick = function(e) {
+        e.preventDefault();
+        modal.style.display = "block";
+    }
+    
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+    
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+});
+</script>
    
 
 </body>
@@ -386,6 +435,67 @@ footer {
 /* Estilo para quando uma imagem é selecionada */
 .avatar-preview.has-image {
     border-color: #0e1768;
+}
+.lgpd-checkbox {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.lgpd-checkbox input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+}
+
+.lgpd-checkbox label {
+    margin: 0;
+    font-size: 14px;
+}
+
+.lgpd-checkbox a {
+    color: #3b6ebb;
+    text-decoration: none;
+}
+
+.lgpd-checkbox a:hover {
+    text-decoration: underline;
+}
+
+/* Modal para exibir os termos */
+.modal-lgpd {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 800px;
+    border-radius: 8px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: black;
 }
 
 /* Estilos adicionais para responsividade */
