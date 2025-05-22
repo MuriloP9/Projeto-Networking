@@ -13,6 +13,26 @@ function limpar($valor) {
     return htmlspecialchars($valor, ENT_QUOTES, 'UTF-8');
 }
 
+// Função para obter o IP do usuário
+function get_client_ip() {
+    $ipaddress = '';
+    if (isset($_SERVER['HTTP_CLIENT_IP']))
+        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+    else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    else if(isset($_SERVER['HTTP_X_FORWARDED']))
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+    else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
+        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+    else if(isset($_SERVER['HTTP_FORWARDED']))
+        $ipaddress = $_SERVER['HTTP_FORWARDED'];
+    else if(isset($_SERVER['REMOTE_ADDR']))
+        $ipaddress = $_SERVER['REMOTE_ADDR'];
+    else
+        $ipaddress = 'UNKNOWN';
+    return $ipaddress;
+}
+
 // Verifica se o formulário foi enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Dados básicos do usuário (com tratamento especial de encoding)
@@ -21,6 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $senha = isset($_POST["senha"]) ? trim($_POST["senha"]) : null;
     $dataNascimento = isset($_POST["dataNascimento"]) ? trim($_POST["dataNascimento"]) : null;
     $telefone = isset($_POST["telefone"]) ? mb_convert_encoding(limpar($_POST["telefone"]), 'ASCII', 'auto') : null;
+    $aceitoLGPD = isset($_POST["aceitoLGPD"]) ? 1 : 0; // Novo campo do checkbox LGPD
     
     // Dados do perfil (com tratamento de encoding)
     $idade = isset($_POST["idade"]) ? filter_var($_POST["idade"], FILTER_VALIDATE_INT) : null;
@@ -31,9 +52,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $projetos_especializacoes = isset($_POST["projetos_especializacoes"]) ? mb_convert_encoding(limpar($_POST["projetos_especializacoes"]), 'UTF-8', 'auto') : null;
     $habilidades = isset($_POST["habilidades"]) ? mb_convert_encoding(limpar($_POST["habilidades"]), 'UTF-8', 'auto') : null;
 
+    // Obtém o IP do usuário
+    $ip_registro = get_client_ip();
+
     // Validação dos campos obrigatórios
     if (!$nome || !$email || !$senha || !$dataNascimento || !$telefone) {
         echo "Todos os campos obrigatórios devem ser preenchidos!";
+        exit;
+    }
+
+    // Validação do aceite LGPD
+    if (!$aceitoLGPD) {
+        echo "Você deve aceitar os termos de política de privacidade e LGPD para se cadastrar!";
         exit;
     }
 
@@ -91,8 +121,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         // 1. Primeiro insere os dados básicos sem a foto
         $sql = $pdo->prepare("INSERT INTO Usuario 
-                            (nome, email, senha, dataNascimento, telefone, qr_code, data_geracao_qr) 
-                            VALUES (:nome, :email, :senha, :dataNascimento, :telefone, :qr_code, GETDATE())");
+                            (nome, email, senha, dataNascimento, telefone, qr_code, data_geracao_qr, statusLGPD, IP_registro) 
+                            VALUES (:nome, :email, :senha, :dataNascimento, :telefone, :qr_code, GETDATE(), :statusLGPD, :IP_registro)");
         
         $sql->bindValue(":nome", $nome, PDO::PARAM_STR);
         $sql->bindValue(":email", $email, PDO::PARAM_STR);
@@ -100,6 +130,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql->bindValue(":dataNascimento", $dataNascimento, PDO::PARAM_STR);
         $sql->bindValue(":telefone", $telefone, PDO::PARAM_STR);
         $sql->bindValue(":qr_code", $qr_code_path, PDO::PARAM_STR);
+        $sql->bindValue(":statusLGPD", $aceitoLGPD, PDO::PARAM_INT); // Novo campo
+        $sql->bindValue(":IP_registro", $ip_registro, PDO::PARAM_STR); // Novo campo
         
         $sql->execute();
         $id_usuario = $pdo->lastInsertId();

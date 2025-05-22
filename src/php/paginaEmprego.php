@@ -5,50 +5,57 @@ include("../php/conexao.php");
 
 $pdo = conectar();
 
-// Processar candidatura via AJAX
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['ajax'] === 'candidatura') {
-    header('Content-Type: application/json');
-
-    if (!isset($_POST['id_vaga'])) {
-        echo json_encode(['success' => false, 'message' => 'Vaga não especificada.']);
+    if (!isset($_SESSION['id_usuario'])) {
+        echo json_encode(['success' => false, 'message' => 'Você precisa fazer login para se candidatar.']);
         exit;
     }
 
-    $id_vaga = $_POST['id_vaga'];
-    $id_usuario = $_SESSION['id_usuario'];
+    // Processar candidatura via AJAX
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['ajax'] === 'candidatura') {
+        header('Content-Type: application/json');
 
-    try {
-        // Verificar se o usuário tem perfil
-        $stmt = $pdo->prepare("SELECT id_perfil FROM Perfil WHERE id_usuario = ?");
-        $stmt->execute([$id_usuario]);
-        $perfil = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$perfil) {
-            echo json_encode(['success' => false, 'message' => 'Você precisa completar seu perfil antes de se candidatar.']);
+        if (!isset($_POST['id_vaga'])) {
+            echo json_encode(['success' => false, 'message' => 'Vaga não especificada.']);
             exit;
         }
 
-        $id_perfil = $perfil['id_perfil'];
+        $id_vaga = $_POST['id_vaga'];
+        $id_usuario = $_SESSION['id_usuario'];
 
-        // Verificar se já existe candidatura
-        $stmt = $pdo->prepare("SELECT * FROM Candidatura WHERE id_vaga = ? AND id_perfil = ?");
-        $stmt->execute([$id_vaga, $id_perfil]);
+        try {
+            // Verificar se o usuário tem perfil
+            $stmt = $pdo->prepare("SELECT id_perfil FROM Perfil WHERE id_usuario = ?");
+            $stmt->execute([$id_usuario]);
+            $perfil = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($stmt->rowCount() > 0) {
-            echo json_encode(['success' => false, 'message' => 'Você já se candidatou a esta vaga.']);
-            exit;
-        }
+            if (!$perfil) {
+                echo json_encode(['success' => false, 'message' => 'Você precisa completar seu perfil antes de se candidatar.']);
+                exit;
+            }
 
-        // Inserir nova candidatura
-        $stmt = $pdo->prepare("INSERT INTO Candidatura (id_vaga, id_perfil, data_candidatura, status) 
+            $id_perfil = $perfil['id_perfil'];
+
+            // Verificar se já existe candidatura
+            $stmt = $pdo->prepare("SELECT * FROM Candidatura WHERE id_vaga = ? AND id_perfil = ?");
+            $stmt->execute([$id_vaga, $id_perfil]);
+
+            if ($stmt->rowCount() > 0) {
+                echo json_encode(['success' => false, 'message' => 'Você já se candidatou a esta vaga.']);
+                exit;
+            }
+
+            // Inserir nova candidatura
+            $stmt = $pdo->prepare("INSERT INTO Candidatura (id_vaga, id_perfil, data_candidatura, status) 
                               VALUES (?, ?, GETDATE(), 'Pendente')");
-        $stmt->execute([$id_vaga, $id_perfil]);
+            $stmt->execute([$id_vaga, $id_perfil]);
 
-        echo json_encode(['success' => true, 'message' => 'Candidatura realizada com sucesso!']);
-        exit;
-    } catch (PDOException $e) {
-        echo json_encode(['success' => false, 'message' => 'Erro ao processar candidatura: ' . $e->getMessage()]);
-        exit;
+            echo json_encode(['success' => true, 'message' => 'Candidatura realizada com sucesso!']);
+            exit;
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erro ao processar candidatura: ' . $e->getMessage()]);
+            exit;
+        }
     }
 }
 
@@ -89,7 +96,7 @@ if (isset($_SESSION['id_usuario'])) {
         ");
         $stmt->execute([$_SESSION['id_usuario']]);
         $candidaturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         foreach ($candidaturas as $candidatura) {
             $candidaturas_usuario[] = $candidatura['id_vaga'];
         }
@@ -522,145 +529,143 @@ if (isset($_SESSION['id_usuario'])) {
         }
 
         /* Estilo modificado para o botão de fechar */
-       .menu-close-item {
-        display: none; /* Inicialmente oculto */
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 10px;
-        background-color: rgba(14, 23, 104, 0.8);
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        z-index: 1500;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    }
+        .menu-close-item {
+            display: none;
+            /* Inicialmente oculto */
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: rgba(14, 23, 104, 0.8);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1500;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
         .menu-close-item .menu-icon {
             width: 24px;
             height: 24px;
-            transform: rotate(45deg); /* Rotacionar para formar um X */
+            transform: rotate(45deg);
+            /* Rotacionar para formar um X */
         }
 
-        /* Media Queries */
         @media (max-width: 991px) {
-            .navbar {
-                padding: 15px 20px;
-            }
-            
-            .logo {
-                font-size: 20px;
-            }
-            
-            .logo-icon {
-                width: 30px;
-                height: 30px;
-            }
-            
-            .menu-toggle {
-                display: block;
-            }
-            
-            .menu {
-                display: none;
-                flex-direction: column;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100vh;
-                background-color: #0e1768;
-                padding: 60px 20px 20px;
-                z-index: 1000;
-                justify-content: flex-start;
-                overflow-y: auto;
-            }
-            
-            .menu.active {
-                display: flex;
-            }
-            
-            .menu li {
-                width: 100%;
-                margin: 10px 0;
-            }
-            
-            .menu li a {
-                width: 100%;
-                text-align: center;
-                padding: 12px;
-            }
-            
-            .search-container {
-                flex-direction: column;
-                align-items: stretch;
+            body {
+                font-size: 14px;
             }
 
-            .search-bar,
-            .search-btn {
-                width: 100%;
-                margin-bottom: 10px;
-                border-radius: 5px;
+            .job-opportunities,
+            .saved-jobs-section {
+                padding: 20px;
             }
-            
-            .job-listings {
-                grid-template-columns: 1fr;
-            }
-            
-            .contact-container {
-                flex-direction: column;
-            }
-            
-            .profile-icon {
-                display: none;
-            }
-        }
 
-        @media (max-width: 768px) {
             .job-listings,
             .saved-jobs-list {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .job-card,
+            .saved-job-card {
+                padding: 15px;
+                margin-bottom: 15px;
             }
 
             .search-filter-container {
                 flex-direction: column;
-                align-items: stretch;
             }
 
             .search-bar,
-            .filter-dropdown,
             .search-btn {
+                width: 100%;
                 margin-bottom: 10px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                font-size: 13px;
+            }
+
+            .job-opportunities h2,
+            .saved-jobs-title {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+
+            .job-card h3,
+            .saved-job-card h4 {
+                font-size: 1.1rem;
+            }
+
+            .more-info-btn,
+            .apply-btn,
+            .already-applied {
+                padding: 8px 12px;
+                font-size: 0.9rem;
             }
 
             .contact-container {
                 flex-direction: column;
             }
-            
-            .navbar {
-                padding: 10px 15px;
-            }
-            
-            .logo {
-                font-size: 18px;
-            }
-            
-            .logo-icon {
-                width: 25px;
-                height: 25px;
-                margin-right: 5px;
-            }
-            
+
             .map-container iframe {
                 width: 100%;
-                height: 250px;
+                height: 200px;
             }
-            
-            .profile-icon {
-                display: none;
-            }
+        }
+
+        /* Adicione estas regras para corrigir problemas específicos */
+        .saved-jobs-container {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .saved-jobs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .saved-job-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .job-card p,
+        .saved-job-card p {
+            margin: 5px 0;
+            line-height: 1.4;
+        }
+
+        /* Corrige o texto "Você ainda não se candidatou..." */
+        .saved-jobs-container>p {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        /* Garante que os botões tenham tamanho consistente */
+        .more-info-btn,
+        .apply-btn,
+        .already-applied {
+            min-width: 120px;
+            text-align: center;
+            display: inline-block;
         }
 
         /* Efeito de fade-in nos botões do menu */
@@ -669,6 +674,7 @@ if (isset($_SESSION['id_usuario'])) {
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -679,10 +685,21 @@ if (isset($_SESSION['id_usuario'])) {
             animation: fadeIn 0.5s ease forwards;
         }
 
-        .menu.active li:nth-child(1) { animation-delay: 0.1s; }
-        .menu.active li:nth-child(2) { animation-delay: 0.2s; }
-        .menu.active li:nth-child(3) { animation-delay: 0.3s; }
-        .menu.active li:nth-child(4) { animation-delay: 0.4s; }
+        .menu.active li:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .menu.active li:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .menu.active li:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .menu.active li:nth-child(4) {
+            animation-delay: 0.4s;
+        }
     </style>
 </head>
 
@@ -713,15 +730,15 @@ if (isset($_SESSION['id_usuario'])) {
 
 
     <?php if (isset($_SESSION['id_usuario'])): ?>
-    <!-- Seção de vagas salvas/candidatadas -->
-    <section class="saved-jobs-section">
-        <div class="saved-jobs-container">
-            <h2 class="saved-jobs-title">Minhas Candidaturas</h2>
-            
-            <?php
-            // Buscar candidaturas do usuário
-            try {
-                $stmt = $pdo->prepare("
+        <!-- Seção de vagas salvas/candidatadas -->
+        <section class="saved-jobs-section">
+            <div class="saved-jobs-container">
+                <h2 class="saved-jobs-title">Minhas Candidaturas</h2>
+
+                <?php
+                // Buscar candidaturas do usuário
+                try {
+                    $stmt = $pdo->prepare("
                     SELECT c.*, v.titulo_vaga, v.tipo_emprego, v.localizacao, a.nome_area 
                     FROM Candidatura c
                     JOIN Perfil p ON c.id_perfil = p.id_perfil
@@ -730,32 +747,31 @@ if (isset($_SESSION['id_usuario'])) {
                     WHERE p.id_usuario = ?
                     ORDER BY c.data_candidatura DESC
                 ");
-                $stmt->execute([$_SESSION['id_usuario']]);
-                $minhas_candidaturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                if (empty($minhas_candidaturas)): ?>
-                    <p>Você ainda não se candidatou a nenhuma vaga.</p>
-                <?php else: ?>
-                    <div class="saved-jobs-list">
-                        <?php foreach ($minhas_candidaturas as $candidatura): ?>
-                            <div class="saved-job-card">
-                                <h4><?= htmlspecialchars($candidatura['titulo_vaga']) ?></h4>
-                                <p><?= htmlspecialchars($candidatura['nome_area'] ?? 'Área não especificada') ?></p>
-                                <p><?= htmlspecialchars($candidatura['tipo_emprego']) ?> - <?= htmlspecialchars($candidatura['localizacao'] ?? 'Local não especificado') ?></p>
-                                <span class="saved-job-status status-<?= strtolower($candidatura['status']) ?>">
-                                    <?= htmlspecialchars($candidatura['status']) ?>
-                                </span>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+                    $stmt->execute([$_SESSION['id_usuario']]);
+                    $minhas_candidaturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    if (empty($minhas_candidaturas)): ?>
+                        <p>Você ainda não se candidatou a nenhuma vaga.</p>
+                    <?php else: ?>
+                        <div class="saved-jobs-list">
+                            <?php foreach ($minhas_candidaturas as $candidatura): ?>
+                                <div class="saved-job-card">
+                                    <h4><?= htmlspecialchars($candidatura['titulo_vaga']) ?></h4>
+                                    <p><?= htmlspecialchars($candidatura['nome_area'] ?? 'Área não especificada') ?></p>
+                                    <p><?= htmlspecialchars($candidatura['tipo_emprego']) ?> - <?= htmlspecialchars($candidatura['localizacao'] ?? 'Local não especificado') ?></p>
+                                    <span class="saved-job-status status-<?= strtolower($candidatura['status']) ?>">
+                                        <?= htmlspecialchars($candidatura['status']) ?>
+                                    </span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                 <?php endif;
-                
-            } catch (PDOException $e) {
-                echo "<p>Erro ao carregar candidaturas.</p>";
-            }
-            ?>
-        </div>
-    </section>
+                } catch (PDOException $e) {
+                    echo "<p>Erro ao carregar candidaturas.</p>";
+                }
+                ?>
+            </div>
+        </section>
     <?php endif; ?>
 
     <section id="job-opportunities" class="job-opportunities">
@@ -781,7 +797,7 @@ if (isset($_SESSION['id_usuario'])) {
                         <p><?= htmlspecialchars($vaga['nome_area'] ?? 'Área não especificada') ?></p>
                         <p>Tipo: <?= htmlspecialchars($vaga['tipo_emprego']) ?></p>
                         <p>Localização: <?= htmlspecialchars($vaga['localizacao'] ?? 'Não especificado') ?></p>
-                        
+
                         <?php if (isset($_SESSION['id_usuario'])): ?>
                             <?php if (in_array($vaga['id_vaga'], $candidaturas_usuario)): ?>
                                 <button class="already-applied" disabled>Candidatura Enviada</button>
@@ -802,16 +818,16 @@ if (isset($_SESSION['id_usuario'])) {
         <div class="modal-content">
             <span class="modal-close" id="modal-close">&times;</span>
             <h3 class="modal-title" id="modal-title">Título da Vaga</h3>
-            
+
             <p class="modal-info"><strong>Área:</strong> <span id="modal-area">Área</span></p>
             <p class="modal-info"><strong>Tipo:</strong> <span id="modal-tipo">Tipo</span></p>
             <p class="modal-info"><strong>Localização:</strong> <span id="modal-localizacao">Localização</span></p>
-            
+
             <h4>Descrição da Vaga:</h4>
             <div class="modal-description" id="modal-descricao">
                 Descrição detalhada da vaga...
             </div>
-            
+
             <div class="modal-actions">
                 <button class="modal-btn-cancel" id="modal-btn-cancel">Fechar</button>
                 <button class="apply-btn" id="modal-apply-btn" data-vaga-id="">Candidatar-se</button>
@@ -856,46 +872,48 @@ if (isset($_SESSION['id_usuario'])) {
     <script>
         $(document).ready(function() {
             // Modal de detalhes da vaga
-           $('.more-info-btn').on('click', function() {
-    const vagaId = $(this).data('vaga-id');
-    
-    // Busca os detalhes completos da vaga via AJAX
-    $.ajax({
-        type: 'GET',
-        url: 'buscar_vaga.php', // Você precisará criar este arquivo
-        data: { id_vaga: vagaId },
-        dataType: 'json',
-        success: function(vaga) {
-            // Preenche o modal com as informações da vaga
-            $('#modal-title').text(vaga.titulo_vaga);
-            $('#modal-area').text(vaga.nome_area || 'Área não especificada');
-            $('#modal-tipo').text(vaga.tipo_emprego);
-            $('#modal-localizacao').text(vaga.localizacao || 'Localização não especificada');
-            $('#modal-descricao').html(vaga.descricao ? vaga.descricao.replace(/\n/g, '<br>') : 'Sem descrição detalhada.');
-            
-            // Define o ID da vaga no botão de candidatura
-            $('#modal-apply-btn').data('vaga-id', vagaId);
-            
-            // Mostra o modal
-            $('#job-modal').addClass('active');
-        },
-        error: function() {
-            alert('Erro ao carregar detalhes da vaga. Tente novamente.');
-        }
-    });
-});
+            $('.more-info-btn').on('click', function() {
+                const vagaId = $(this).data('vaga-id');
 
-        
+                // Busca os detalhes completos da vaga via AJAX
+                $.ajax({
+                    type: 'GET',
+                    url: 'buscar_vaga.php', // Você precisará criar este arquivo
+                    data: {
+                        id_vaga: vagaId
+                    },
+                    dataType: 'json',
+                    success: function(vaga) {
+                        // Preenche o modal com as informações da vaga
+                        $('#modal-title').text(vaga.titulo_vaga);
+                        $('#modal-area').text(vaga.nome_area || 'Área não especificada');
+                        $('#modal-tipo').text(vaga.tipo_emprego);
+                        $('#modal-localizacao').text(vaga.localizacao || 'Localização não especificada');
+                        $('#modal-descricao').html(vaga.descricao ? vaga.descricao.replace(/\n/g, '<br>') : 'Sem descrição detalhada.');
+
+                        // Define o ID da vaga no botão de candidatura
+                        $('#modal-apply-btn').data('vaga-id', vagaId);
+
+                        // Mostra o modal
+                        $('#job-modal').addClass('active');
+                    },
+                    error: function() {
+                        alert('Erro ao carregar detalhes da vaga. Tente novamente.');
+                    }
+                });
+            });
+
+
             $('.more-info-btn').on('click', function() {
                 const vagaId = $(this).data('vaga-id');
                 const card = $(this).closest('.job-card');
-                
+
                 // Pega os dados diretamente do card
                 const titulo = card.find('h3').text();
                 const area = card.find('p').eq(0).text();
                 const tipo = card.find('p').eq(1).text().replace('Tipo: ', '');
                 const localizacao = card.find('p').eq(2).text().replace('Localização: ', '');
-                
+
                 // Busca a descrição (pode não estar completa no card)
                 let descricao = '';
                 if (card.find('p').length > 3) {
@@ -903,17 +921,17 @@ if (isset($_SESSION['id_usuario'])) {
                 } else {
                     descricao = 'Contate-nos para mais informações sobre esta vaga.';
                 }
-                
+
                 // Preenche o modal
                 $('#modal-title').text(titulo);
                 $('#modal-area').text(area);
                 $('#modal-tipo').text(tipo);
                 $('#modal-localizacao').text(localizacao);
                 $('#modal-descricao').html(descricao.replace(/\n/g, '<br>'));
-                
+
                 // Define o ID da vaga no botão de candidatura
                 $('#modal-apply-btn').data('vaga-id', vagaId);
-                
+
                 // Mostra o modal
                 $('#job-modal').addClass('active');
             });
@@ -925,12 +943,16 @@ if (isset($_SESSION['id_usuario'])) {
 
             // Botão de candidatura no modal
             $('#modal-apply-btn').on('click', function() {
+                <?php if (!isset($_SESSION['id_usuario'])): ?>
+                    redirectToLogin();
+                    return false;
+                <?php endif; ?>
                 const vagaId = $(this).data('vaga-id');
                 $('#confirm-yes').data('vaga-id', vagaId);
-                
+
                 // Fecha o modal de detalhes
                 $('#job-modal').removeClass('active');
-                
+
                 // Abre o modal de confirmação
                 $('#confirm-modal').addClass('active');
             });
@@ -943,10 +965,10 @@ if (isset($_SESSION['id_usuario'])) {
             // Confirmar candidatura
             $('#confirm-yes').on('click', function() {
                 const vagaId = $(this).data('vaga-id');
-                
+
                 // Desativa o botão temporariamente para evitar múltiplos cliques
                 $(this).prop('disabled', true);
-                
+
                 // Processa a candidatura via AJAX
                 $.ajax({
                     type: 'POST',
@@ -959,35 +981,35 @@ if (isset($_SESSION['id_usuario'])) {
                     success: function(response) {
                         // Fecha o modal de confirmação
                         $('#confirm-modal').removeClass('active');
-                        
+
                         if (response.success) {
-            // Mostra mensagem de sucesso
-            showToast(response.message);
-            
-            // Atualiza o botão da vaga para "Candidatura Enviada"
-            $(`button[data-vaga-id="${vagaId}"]`).replaceWith(
-                $('<button class="already-applied" disabled>Candidatura Enviada</button>')
-            );
-            
-            // Recarrega a página após 2 segundos para atualizar a lista de candidaturas
-            setTimeout(function() {
-                location.reload();
-            }, 2000);
-        } else {
-            // Mostra mensagem de erro
-            alert(response.message || 'Erro ao processar candidatura. Tente novamente.');
-            
-            // Reativa o botão
-            $('#confirm-yes').prop('disabled', false);
-        }
-    },
-    error: function() {
-        $('#confirm-modal').removeClass('active');
-        alert('Erro ao processar candidatura. Verifique sua conexão e tente novamente.');
-        $('#confirm-yes').prop('disabled', false);
-    }
-    });
-});
+                            // Mostra mensagem de sucesso
+                            showToast(response.message);
+
+                            // Atualiza o botão da vaga para "Candidatura Enviada"
+                            $(`button[data-vaga-id="${vagaId}"]`).replaceWith(
+                                $('<button class="already-applied" disabled>Candidatura Enviada</button>')
+                            );
+
+                            // Recarrega a página após 2 segundos para atualizar a lista de candidaturas
+                            setTimeout(function() {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            // Mostra mensagem de erro
+                            alert(response.message || 'Erro ao processar candidatura. Tente novamente.');
+
+                            // Reativa o botão
+                            $('#confirm-yes').prop('disabled', false);
+                        }
+                    },
+                    error: function() {
+                        $('#confirm-modal').removeClass('active');
+                        alert('Erro ao processar candidatura. Verifique sua conexão e tente novamente.');
+                        $('#confirm-yes').prop('disabled', false);
+                    }
+                });
+            });
 
             // Função para mostrar mensagem toast
             function showToast(message) {
@@ -995,10 +1017,10 @@ if (isset($_SESSION['id_usuario'])) {
                 if ($('#toast-message').length === 0) {
                     $('body').append('<div id="toast-message" class="toast-message"></div>');
                 }
-                
+
                 // Define a mensagem e mostra o toast
                 $('#toast-message').text(message).fadeIn();
-                
+
                 // Esconde o toast após 3 segundos
                 setTimeout(function() {
                     $('#toast-message').fadeOut();
@@ -1016,11 +1038,11 @@ if (isset($_SESSION['id_usuario'])) {
             $('.modal-content, .confirm-dialog').on('click', function(e) {
                 e.stopPropagation();
             });
-            
+
             // Animação suave ao rolar para âncoras
             $('a[href^="#"]').on('click', function(e) {
                 e.preventDefault();
-                
+
                 const target = $(this.getAttribute('href'));
                 if (target.length) {
                     $('html, body').animate({
@@ -1030,5 +1052,3 @@ if (isset($_SESSION['id_usuario'])) {
             });
         });
     </script>
-
-      
