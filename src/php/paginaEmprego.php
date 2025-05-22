@@ -5,12 +5,6 @@ include("../php/conexao.php");
 
 $pdo = conectar();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['ajax'] === 'candidatura') {
-    if (!isset($_SESSION['id_usuario'])) {
-        echo json_encode(['success' => false, 'message' => 'Você precisa fazer login para se candidatar.']);
-        exit;
-    }
-
     // Processar candidatura via AJAX
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['ajax'] === 'candidatura') {
         header('Content-Type: application/json');
@@ -57,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['aj
             exit;
         }
     }
-}
 
 // Buscar vagas com base no termo de pesquisa
 $termoBusca = isset($_GET['search']) ? trim($_GET['search']) : '';
