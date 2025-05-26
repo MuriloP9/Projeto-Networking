@@ -38,7 +38,7 @@ session_start();
                     <li><a href="../pages/cadastro.html" class="signup-btn">Cadastre-se</a></li>
                 <?php endif; ?>
             <?php else: ?>
-                <li><button class="logout-btn" onclick="logout()">Olá, <?php echo $_SESSION['nome_usuario']; ?></button></li>
+               <li><button class="logout-btn" onclick="logout()">Olá, <?php echo explode(' ', $_SESSION['nome_usuario'])[0]; ?></button></li>
             <?php endif; ?>
             <li class="profile-item">
                 <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
