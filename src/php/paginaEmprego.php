@@ -1,102 +1,143 @@
-<?php
-session_start();
+<?php 
+session_start();  
+include("../php/conexao.php");  
+$pdo = conectar();      
 
-include("../php/conexao.php");
+// Processar candidatura via AJAX     
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['ajax'] === 'candidatura') {         
+    header('Content-Type: application/json');          
+    
+    if (!isset($_POST['id_vaga'])) {             
+        echo json_encode(['success' => false, 'message' => 'Vaga não especificada.']);             
+        exit;         
+    }          
+    
+    $id_vaga = $_POST['id_vaga'];         
+    $id_usuario = $_SESSION['id_usuario'];          
+    
+    try {             
+        // Verificar se o usuário tem perfil             
+        $stmt = $pdo->prepare("SELECT id_perfil FROM Perfil WHERE id_usuario = ?");             
+        $stmt->execute([$id_usuario]);             
+        $perfil = $stmt->fetch(PDO::FETCH_ASSOC);              
+        
+        if (!$perfil) {                 
+            echo json_encode(['success' => false, 'message' => 'Você precisa completar seu perfil antes de se candidatar.']);                 
+            exit;             
+        }              
+        
+        $id_perfil = $perfil['id_perfil'];              
+        
+        // Verificar se já existe candidatura             
+        $stmt = $pdo->prepare("SELECT * FROM Candidatura WHERE id_vaga = ? AND id_perfil = ?");             
+        $stmt->execute([$id_vaga, $id_perfil]);              
+        
+        if ($stmt->rowCount() > 0) {                 
+            echo json_encode(['success' => false, 'message' => 'Você já se candidatou a esta vaga.']);                 
+            exit;             
+        }              
+        
+        // Inserir nova candidatura             
+        $stmt = $pdo->prepare("INSERT INTO Candidatura (id_vaga, id_perfil, data_candidatura, status)                                VALUES (?, ?, GETDATE(), 'Pendente')");             
+        $stmt->execute([$id_vaga, $id_perfil]);              
+        
+        echo json_encode(['success' => true, 'message' => 'Candidatura realizada com sucesso!']);             
+        exit;         
+    } catch (PDOException $e) {             
+        echo json_encode(['success' => false, 'message' => 'Erro ao processar candidatura: ' . $e->getMessage()]);             
+        exit;         
+    }     
+}  
 
-$pdo = conectar();
-
-    // Processar candidatura via AJAX
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['ajax'] === 'candidatura') {
-        header('Content-Type: application/json');
-
-        if (!isset($_POST['id_vaga'])) {
-            echo json_encode(['success' => false, 'message' => 'Vaga não especificada.']);
-            exit;
-        }
-
-        $id_vaga = $_POST['id_vaga'];
-        $id_usuario = $_SESSION['id_usuario'];
-
-        try {
-            // Verificar se o usuário tem perfil
-            $stmt = $pdo->prepare("SELECT id_perfil FROM Perfil WHERE id_usuario = ?");
-            $stmt->execute([$id_usuario]);
-            $perfil = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$perfil) {
-                echo json_encode(['success' => false, 'message' => 'Você precisa completar seu perfil antes de se candidatar.']);
-                exit;
-            }
-
-            $id_perfil = $perfil['id_perfil'];
-
-            // Verificar se já existe candidatura
-            $stmt = $pdo->prepare("SELECT * FROM Candidatura WHERE id_vaga = ? AND id_perfil = ?");
-            $stmt->execute([$id_vaga, $id_perfil]);
-
-            if ($stmt->rowCount() > 0) {
-                echo json_encode(['success' => false, 'message' => 'Você já se candidatou a esta vaga.']);
-                exit;
-            }
-
-            // Inserir nova candidatura
-            $stmt = $pdo->prepare("INSERT INTO Candidatura (id_vaga, id_perfil, data_candidatura, status) 
-                              VALUES (?, ?, GETDATE(), 'Pendente')");
-            $stmt->execute([$id_vaga, $id_perfil]);
-
-            echo json_encode(['success' => true, 'message' => 'Candidatura realizada com sucesso!']);
-            exit;
-        } catch (PDOException $e) {
-            echo json_encode(['success' => false, 'message' => 'Erro ao processar candidatura: ' . $e->getMessage()]);
-            exit;
-        }
+// Processar busca de detalhes da vaga via AJAX
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'] === 'buscar_vaga') {
+    header('Content-Type: application/json');
+    
+    if (!isset($_GET['id_vaga'])) {
+        echo json_encode(['success' => false, 'message' => 'Vaga não especificada.']);
+        exit;
     }
-
-// Buscar vagas com base no termo de pesquisa
-$termoBusca = isset($_GET['search']) ? trim($_GET['search']) : '';
-$vagas = [];
-
-try {
-    if (!empty($termoBusca)) {
-        $stmt = $pdo->prepare("SELECT v.*, a.nome_area 
-                              FROM Vagas v
-                              LEFT JOIN AreaAtuacao a ON v.id_area = a.id_area
-                              WHERE v.titulo_vaga LIKE ? OR a.nome_area LIKE ?
-                              ORDER BY v.id_vaga DESC");
-        $termoLike = "%$termoBusca%";
-        $stmt->execute([$termoLike, $termoLike]);
-    } else {
-        $stmt = $pdo->query("SELECT v.*, a.nome_area 
-                            FROM Vagas v
-                            LEFT JOIN AreaAtuacao a ON v.id_area = a.id_area
-                            ORDER BY v.id_vaga DESC");
-    }
-
-    $vagas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    echo "<script>alert('Erro ao buscar vagas: " . addslashes($e->getMessage()) . "');</script>";
-}
-
-// Buscar candidaturas do usuário logado
-$candidaturas_usuario = [];
-if (isset($_SESSION['id_usuario'])) {
+    
+    $id_vaga = $_GET['id_vaga'];
+    
     try {
         $stmt = $pdo->prepare("
-            SELECT c.id_vaga 
-            FROM Candidatura c
-            JOIN Perfil p ON c.id_perfil = p.id_perfil
-            WHERE p.id_usuario = ?
+            SELECT v.*, a.nome_area 
+            FROM Vagas v
+            LEFT JOIN AreaAtuacao a ON v.id_area = a.id_area
+            WHERE v.id_vaga = ? AND v.ativa = 1
         ");
-        $stmt->execute([$_SESSION['id_usuario']]);
-        $candidaturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($candidaturas as $candidatura) {
-            $candidaturas_usuario[] = $candidatura['id_vaga'];
+        $stmt->execute([$id_vaga]);
+        $vaga = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($vaga) {
+            // Formatar o salário se existir
+            if ($vaga['salario']) {
+                $vaga['salario_formatado'] = 'R$ ' . number_format($vaga['salario'], 2, ',', '.');
+            }
+            
+            // Formatar a data de encerramento se existir
+            if ($vaga['data_encerramento']) {
+                $vaga['data_encerramento_formatada'] = date('d/m/Y', strtotime($vaga['data_encerramento']));
+            }
+            
+            echo json_encode(['success' => true, 'vaga' => $vaga]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Vaga não encontrada.']);
         }
+        exit;
     } catch (PDOException $e) {
-        // Silenciosamente falha
+        echo json_encode(['success' => false, 'message' => 'Erro ao buscar vaga: ' . $e->getMessage()]);
+        exit;
     }
 }
+
+// Buscar vagas com base no termo de pesquisa 
+$termoBusca = isset($_GET['search']) ? trim($_GET['search']) : ''; 
+$vagas = [];  
+
+try {     
+    if (!empty($termoBusca)) {         
+        $stmt = $pdo->prepare("SELECT v.*, a.nome_area                                
+                               FROM Vagas v                               
+                               LEFT JOIN AreaAtuacao a ON v.id_area = a.id_area                               
+                               WHERE (v.titulo_vaga LIKE ? OR a.nome_area LIKE ?) AND v.ativa = 1                               
+                               ORDER BY v.id_vaga DESC");         
+        $termoLike = "%$termoBusca%";         
+        $stmt->execute([$termoLike, $termoLike]);     
+    } else {         
+        $stmt = $pdo->query("SELECT v.*, a.nome_area                              
+                             FROM Vagas v                             
+                             LEFT JOIN AreaAtuacao a ON v.id_area = a.id_area    
+                             WHERE v.ativa = 1                         
+                             ORDER BY v.id_vaga DESC");     
+    }      
+    
+    $vagas = $stmt->fetchAll(PDO::FETCH_ASSOC); 
+} catch (PDOException $e) {     
+    echo "<script>alert('Erro ao buscar vagas: " . addslashes($e->getMessage()) . "');</script>"; 
+}  
+
+// Buscar candidaturas do usuário logado 
+$candidaturas_usuario = []; 
+if (isset($_SESSION['id_usuario'])) {     
+    try {         
+        $stmt = $pdo->prepare("             
+            SELECT c.id_vaga              
+            FROM Candidatura c             
+            JOIN Perfil p ON c.id_perfil = p.id_perfil             
+            WHERE p.id_usuario = ?         
+        ");         
+        $stmt->execute([$_SESSION['id_usuario']]);         
+        $candidaturas = $stmt->fetchAll(PDO::FETCH_ASSOC);          
+        
+        foreach ($candidaturas as $candidatura) {             
+            $candidaturas_usuario[] = $candidatura['id_vaga'];         
+        }     
+    } catch (PDOException $e) {         
+        // Silenciosamente falha     
+    } 
+} 
 ?>
 
 
@@ -700,10 +741,7 @@ if (isset($_SESSION['id_usuario'])) {
             animation-delay: 0.4s;
         }
     </style>
-</head>
-
-<body>
-    <header>
+ <header>
         <nav class="navbar">
             <div class="logo-container">
                 <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
@@ -726,7 +764,6 @@ if (isset($_SESSION['id_usuario'])) {
         <img src="../assets/img/icons8-menu-48.png" alt="Fechar" class="menu-icon">
     </div>
 
-
     <?php if (isset($_SESSION['id_usuario'])): ?>
         <!-- Seção de vagas salvas/candidatadas -->
         <section class="saved-jobs-section">
@@ -737,7 +774,7 @@ if (isset($_SESSION['id_usuario'])) {
                 // Buscar candidaturas do usuário
                 try {
                     $stmt = $pdo->prepare("
-                    SELECT c.*, v.titulo_vaga, v.tipo_emprego, v.localizacao, a.nome_area 
+                    SELECT c.*, v.titulo_vaga, v.tipo_emprego, v.localizacao, v.empresa, a.nome_area 
                     FROM Candidatura c
                     JOIN Perfil p ON c.id_perfil = p.id_perfil
                     JOIN Vagas v ON c.id_vaga = v.id_vaga
@@ -755,6 +792,7 @@ if (isset($_SESSION['id_usuario'])) {
                             <?php foreach ($minhas_candidaturas as $candidatura): ?>
                                 <div class="saved-job-card">
                                     <h4><?= htmlspecialchars($candidatura['titulo_vaga']) ?></h4>
+                                    <p><strong>Empresa:</strong> <?= htmlspecialchars($candidatura['empresa']) ?></p>
                                     <p><?= htmlspecialchars($candidatura['nome_area'] ?? 'Área não especificada') ?></p>
                                     <p><?= htmlspecialchars($candidatura['tipo_emprego']) ?> - <?= htmlspecialchars($candidatura['localizacao'] ?? 'Local não especificado') ?></p>
                                     <span class="saved-job-status status-<?= strtolower($candidatura['status']) ?>">
@@ -792,9 +830,13 @@ if (isset($_SESSION['id_usuario'])) {
                 <?php foreach ($vagas as $vaga): ?>
                     <div class="job-card">
                         <h3><?= htmlspecialchars($vaga['titulo_vaga']) ?></h3>
+                        <p><strong>Empresa:</strong> <?= htmlspecialchars($vaga['empresa']) ?></p>
                         <p><?= htmlspecialchars($vaga['nome_area'] ?? 'Área não especificada') ?></p>
                         <p>Tipo: <?= htmlspecialchars($vaga['tipo_emprego']) ?></p>
                         <p>Localização: <?= htmlspecialchars($vaga['localizacao'] ?? 'Não especificado') ?></p>
+                        <?php if ($vaga['salario']): ?>
+                            <p><strong>Salário:</strong> R$ <?= number_format($vaga['salario'], 2, ',', '.') ?></p>
+                        <?php endif; ?>
 
                         <?php if (isset($_SESSION['id_usuario'])): ?>
                             <?php if (in_array($vaga['id_vaga'], $candidaturas_usuario)): ?>
@@ -817,13 +859,34 @@ if (isset($_SESSION['id_usuario'])) {
             <span class="modal-close" id="modal-close">&times;</span>
             <h3 class="modal-title" id="modal-title">Título da Vaga</h3>
 
-            <p class="modal-info"><strong>Área:</strong> <span id="modal-area">Área</span></p>
-            <p class="modal-info"><strong>Tipo:</strong> <span id="modal-tipo">Tipo</span></p>
-            <p class="modal-info"><strong>Localização:</strong> <span id="modal-localizacao">Localização</span></p>
+            <div class="modal-info-grid">
+                <p class="modal-info"><strong>Empresa:</strong> <span id="modal-empresa">Empresa</span></p>
+                <p class="modal-info"><strong>Área:</strong> <span id="modal-area">Área</span></p>
+                <p class="modal-info"><strong>Tipo:</strong> <span id="modal-tipo">Tipo</span></p>
+                <p class="modal-info"><strong>Localização:</strong> <span id="modal-localizacao">Localização</span></p>
+                <p class="modal-info" id="modal-salario-container"><strong>Salário:</strong> <span id="modal-salario">Não informado</span></p>
+                <p class="modal-info" id="modal-encerramento-container"><strong>Data de Encerramento:</strong> <span id="modal-encerramento">Não informado</span></p>
+            </div>
 
-            <h4>Descrição da Vaga:</h4>
-            <div class="modal-description" id="modal-descricao">
-                Descrição detalhada da vaga...
+            <div class="modal-section">
+                <h4>Descrição da Vaga:</h4>
+                <div class="modal-description" id="modal-descricao">
+                    Descrição detalhada da vaga...
+                </div>
+            </div>
+
+            <div class="modal-section" id="modal-requisitos-section">
+                <h4>Requisitos:</h4>
+                <div class="modal-text" id="modal-requisitos">
+                    Requisitos da vaga...
+                </div>
+            </div>
+
+            <div class="modal-section" id="modal-beneficios-section">
+                <h4>Benefícios:</h4>
+                <div class="modal-text" id="modal-beneficios">
+                    Benefícios oferecidos...
+                </div>
             </div>
 
             <div class="modal-actions">
@@ -876,62 +939,71 @@ if (isset($_SESSION['id_usuario'])) {
                 // Busca os detalhes completos da vaga via AJAX
                 $.ajax({
                     type: 'GET',
-                    url: 'buscar_vaga.php', // Você precisará criar este arquivo
+                    url: window.location.href,
                     data: {
+                        ajax: 'buscar_vaga',
                         id_vaga: vagaId
                     },
                     dataType: 'json',
-                    success: function(vaga) {
-                        // Preenche o modal com as informações da vaga
-                        $('#modal-title').text(vaga.titulo_vaga);
-                        $('#modal-area').text(vaga.nome_area || 'Área não especificada');
-                        $('#modal-tipo').text(vaga.tipo_emprego);
-                        $('#modal-localizacao').text(vaga.localizacao || 'Localização não especificada');
-                        $('#modal-descricao').html(vaga.descricao ? vaga.descricao.replace(/\n/g, '<br>') : 'Sem descrição detalhada.');
+                    success: function(response) {
+                        if (response.success) {
+                            const vaga = response.vaga;
+                            
+                            // Preenche o modal com as informações da vaga
+                            $('#modal-title').text(vaga.titulo_vaga);
+                            $('#modal-empresa').text(vaga.empresa);
+                            $('#modal-area').text(vaga.nome_area || 'Área não especificada');
+                            $('#modal-tipo').text(vaga.tipo_emprego);
+                            $('#modal-localizacao').text(vaga.localizacao || 'Localização não especificada');
+                            $('#modal-descricao').html(vaga.descricao ? vaga.descricao.replace(/\n/g, '<br>') : 'Sem descrição detalhada.');
 
-                        // Define o ID da vaga no botão de candidatura
-                        $('#modal-apply-btn').data('vaga-id', vagaId);
+                            // Salário
+                            if (vaga.salario_formatado) {
+                                $('#modal-salario').text(vaga.salario_formatado);
+                                $('#modal-salario-container').show();
+                            } else {
+                                $('#modal-salario').text('Não informado');
+                                $('#modal-salario-container').show();
+                            }
 
-                        // Mostra o modal
-                        $('#job-modal').addClass('active');
+                            // Data de encerramento
+                            if (vaga.data_encerramento_formatada) {
+                                $('#modal-encerramento').text(vaga.data_encerramento_formatada);
+                                $('#modal-encerramento-container').show();
+                            } else {
+                                $('#modal-encerramento').text('Não informado');
+                                $('#modal-encerramento-container').show();
+                            }
+
+                            // Requisitos
+                            if (vaga.requisitos) {
+                                $('#modal-requisitos').html(vaga.requisitos.replace(/\n/g, '<br>'));
+                                $('#modal-requisitos-section').show();
+                            } else {
+                                $('#modal-requisitos-section').hide();
+                            }
+
+                            // Benefícios
+                            if (vaga.beneficios) {
+                                $('#modal-beneficios').html(vaga.beneficios.replace(/\n/g, '<br>'));
+                                $('#modal-beneficios-section').show();
+                            } else {
+                                $('#modal-beneficios-section').hide();
+                            }
+
+                            // Define o ID da vaga no botão de candidatura
+                            $('#modal-apply-btn').data('vaga-id', vagaId);
+
+                            // Mostra o modal
+                            $('#job-modal').addClass('active');
+                        } else {
+                            alert(response.message || 'Erro ao carregar detalhes da vaga. Tente novamente.');
+                        }
                     },
                     error: function() {
                         alert('Erro ao carregar detalhes da vaga. Tente novamente.');
                     }
                 });
-            });
-
-
-            $('.more-info-btn').on('click', function() {
-                const vagaId = $(this).data('vaga-id');
-                const card = $(this).closest('.job-card');
-
-                // Pega os dados diretamente do card
-                const titulo = card.find('h3').text();
-                const area = card.find('p').eq(0).text();
-                const tipo = card.find('p').eq(1).text().replace('Tipo: ', '');
-                const localizacao = card.find('p').eq(2).text().replace('Localização: ', '');
-
-                // Busca a descrição (pode não estar completa no card)
-                let descricao = '';
-                if (card.find('p').length > 3) {
-                    descricao = card.find('p').eq(4).text();
-                } else {
-                    descricao = 'Contate-nos para mais informações sobre esta vaga.';
-                }
-
-                // Preenche o modal
-                $('#modal-title').text(titulo);
-                $('#modal-area').text(area);
-                $('#modal-tipo').text(tipo);
-                $('#modal-localizacao').text(localizacao);
-                $('#modal-descricao').html(descricao.replace(/\n/g, '<br>'));
-
-                // Define o ID da vaga no botão de candidatura
-                $('#modal-apply-btn').data('vaga-id', vagaId);
-
-                // Mostra o modal
-                $('#job-modal').addClass('active');
             });
 
             // Fechar modal
@@ -942,7 +1014,7 @@ if (isset($_SESSION['id_usuario'])) {
             // Botão de candidatura no modal
             $('#modal-apply-btn').on('click', function() {
                 <?php if (!isset($_SESSION['id_usuario'])): ?>
-                    redirectToLogin();
+                    window.location.href = '../pages/login.html';
                     return false;
                 <?php endif; ?>
                 const vagaId = $(this).data('vaga-id');
@@ -970,7 +1042,7 @@ if (isset($_SESSION['id_usuario'])) {
                 // Processa a candidatura via AJAX
                 $.ajax({
                     type: 'POST',
-                    url: '', // A mesma página
+                    url: window.location.href,
                     data: {
                         ajax: 'candidatura',
                         id_vaga: vagaId
@@ -1050,3 +1122,4 @@ if (isset($_SESSION['id_usuario'])) {
             });
         });
     </script>
+</body>
