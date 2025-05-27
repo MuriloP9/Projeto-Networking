@@ -120,7 +120,7 @@
             </div>
             <button type="submit" class="btn-submit" id="btnRequest">Solicitar Redefinição</button>
             <div class="login-link">
-                Lembrou sua senha? <a href="index.html">Faça login</a>
+                Lembrou sua senha? <a href="../pages/login.html">Faça login</a>
             </div>
         </form>
     </div>
