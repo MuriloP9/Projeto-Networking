@@ -121,17 +121,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         
         $sql = $pdo->prepare("INSERT INTO Usuario 
-                            (nome, email, senha, dataNascimento, telefone, qr_code, data_geracao_qr, statusLGPD, IP_registro) 
-                            VALUES (:nome, :email, :senha, :dataNascimento, :telefone, :qr_code, GETDATE(), :statusLGPD, :IP_registro)");
-        
-        $sql->bindValue(":nome", $nome, PDO::PARAM_STR);
-        $sql->bindValue(":email", $email, PDO::PARAM_STR);
-        $sql->bindValue(":senha", $senha, PDO::PARAM_STR);
-        $sql->bindValue(":dataNascimento", $dataNascimento, PDO::PARAM_STR);
-        $sql->bindValue(":telefone", $telefone, PDO::PARAM_STR);
-        $sql->bindValue(":qr_code", $qr_code_path, PDO::PARAM_STR);
-        $sql->bindValue(":statusLGPD", $aceitoLGPD, PDO::PARAM_INT);
-        $sql->bindValue(":IP_registro", $ip_registro, PDO::PARAM_STR);
+                    (nome, email, senha, dataNascimento, telefone, qr_code, data_geracao_qr, statusLGPD, IP_registro, ultimo_acesso) 
+                    VALUES (:nome, :email, :senha, :dataNascimento, :telefone, :qr_code, GETDATE(), :statusLGPD, :IP_registro, GETDATE())");
+
+            $sql->bindValue(":nome", $nome, PDO::PARAM_STR);
+            $sql->bindValue(":email", $email, PDO::PARAM_STR);
+            $sql->bindValue(":senha", $senha, PDO::PARAM_STR);
+            $sql->bindValue(":dataNascimento", $dataNascimento, PDO::PARAM_STR);
+            $sql->bindValue(":telefone", $telefone, PDO::PARAM_STR);
+            $sql->bindValue(":qr_code", $qr_code_path, PDO::PARAM_STR);
+            $sql->bindValue(":statusLGPD", $aceitoLGPD, PDO::PARAM_INT);
+            $sql->bindValue(":IP_registro", $ip_registro, PDO::PARAM_STR);
         
         $sql->execute();
         $id_usuario = $pdo->lastInsertId();

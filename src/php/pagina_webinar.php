@@ -12,12 +12,13 @@ $webinars = [];
 try {
     if (!empty($termoBusca)) {
         $stmt = $pdo->prepare("SELECT * FROM Webinar 
-                              WHERE tema LIKE ? OR palestrante LIKE ? OR descricao LIKE ?
+                              WHERE (tema LIKE ? OR palestrante LIKE ? OR descricao LIKE ?)
+                              AND ativo = 1
                               ORDER BY data_hora DESC");
         $termoLike = "%$termoBusca%";
         $stmt->execute([$termoLike, $termoLike, $termoLike]);
     } else {
-        $stmt = $pdo->query("SELECT * FROM Webinar ORDER BY data_hora DESC");
+        $stmt = $pdo->query("SELECT * FROM Webinar WHERE ativo = 1 ORDER BY data_hora DESC");
     }
 
     $webinars = $stmt->fetchAll(PDO::FETCH_ASSOC);
