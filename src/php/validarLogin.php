@@ -25,7 +25,7 @@ if (!$email || !$senha || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
 }
 
 try {
-    // Executar a stored procedure
+  
     $sql = $pdo->prepare("EXEC sp_ValidarLogin :email, :senha");
     $sql->bindValue(":email", $email);
     $sql->bindValue(":senha", $senha);
