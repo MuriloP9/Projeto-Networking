@@ -16,10 +16,10 @@ $token_hash = hash("sha256", $token);
 include("../php/conexao.php"); 
 $pdo = conectar();
 
-// Função para criptografar a senha usando a procedure do banco (copiada do cadastro.php)
+
 function criptografarSenha($pdo, $senhaTexto) {
     try {
-        // Método alternativo: executar SQL diretamente para criptografar
+        
         $sql = "
         DECLARE @SenhaCriptografada VARBINARY(MAX);
         EXEC sp_CriptografarSenha :senhaTexto, @SenhaCriptografada OUTPUT;
@@ -41,7 +41,7 @@ function criptografarSenha($pdo, $senhaTexto) {
     } catch (Exception $e) {
         error_log("Erro ao criptografar senha: " . $e->getMessage());
         
-        // Fallback: usar criptografia direta no SQL
+        
         try {
             $sql_fallback = "
             DECLARE @GUID UNIQUEIDENTIFIER;
