@@ -16,6 +16,68 @@ $token_hash = hash("sha256", $token);
 include("../php/conexao.php"); 
 $pdo = conectar();
 
+// Função para criptografar a senha usando a procedure do banco (copiada do cadastro.php)
+function criptografarSenha($pdo, $senhaTexto) {
+    try {
+        // Método alternativo: executar SQL diretamente para criptografar
+        $sql = "
+        DECLARE @SenhaCriptografada VARBINARY(MAX);
+        EXEC sp_CriptografarSenha :senhaTexto, @SenhaCriptografada OUTPUT;
+        SELECT @SenhaCriptografada as senha_cripto;
+        ";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':senhaTexto', $senhaTexto, PDO::PARAM_STR);
+        $stmt->execute();
+        
+        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($resultado && isset($resultado['senha_cripto'])) {
+            return $resultado['senha_cripto'];
+        } else {
+            throw new Exception("Falha ao obter senha criptografada");
+        }
+        
+    } catch (Exception $e) {
+        error_log("Erro ao criptografar senha: " . $e->getMessage());
+        
+        // Fallback: usar criptografia direta no SQL
+        try {
+            $sql_fallback = "
+            DECLARE @GUID UNIQUEIDENTIFIER;
+            DECLARE @SenhaCriptografada VARBINARY(MAX);
+            
+            OPEN SYMMETRIC KEY ChaveSenhaUsuario
+            DECRYPTION BY CERTIFICATE CertificadoSenhaUsuario 
+            WITH PASSWORD = 'SENHA@123ProLink2024!';
+            
+            SET @GUID = (SELECT KEY_GUID('ChaveSenhaUsuario'));
+            SET @SenhaCriptografada = ENCRYPTBYKEY(@GUID, :senhaTexto);
+            
+            CLOSE SYMMETRIC KEY ChaveSenhaUsuario;
+            
+            SELECT @SenhaCriptografada as senha_cripto;
+            ";
+            
+            $stmt_fallback = $pdo->prepare($sql_fallback);
+            $stmt_fallback->bindParam(':senhaTexto', $senhaTexto, PDO::PARAM_STR);
+            $stmt_fallback->execute();
+            
+            $resultado_fallback = $stmt_fallback->fetch(PDO::FETCH_ASSOC);
+            
+            if ($resultado_fallback && isset($resultado_fallback['senha_cripto'])) {
+                return $resultado_fallback['senha_cripto'];
+            } else {
+                throw new Exception("Falha no método alternativo de criptografia");
+            }
+            
+        } catch (Exception $e2) {
+            error_log("Erro no fallback de criptografia: " . $e2->getMessage());
+            throw new Exception("Erro ao processar senha - todos os métodos falharam");
+        }
+    }
+}
+
 // Três abordagens de verificação para garantir consistência
 $sql = "SELECT 
           token_rec_senha, 
@@ -243,6 +305,9 @@ try {
         if (!empty($senha) && !empty($confirmaSenha)) {
             if ($senha == $confirmaSenha) {
                 try {
+                    // Criptografar a nova senha usando a mesma função do cadastro
+                    $senhaCriptografada = criptografarSenha($pdo, $senha);
+                    
                     // Atualizar a tabela Usuario - limpar todos os campos relacionados ao token
                     $exec5 = $pdo->prepare("UPDATE Usuario 
                                            SET senha = :senha, 
@@ -251,11 +316,12 @@ try {
                                                timestamp_expiracao = NULL
                                            WHERE token_rec_senha = :token_hash");
                     $exec5->bindValue(":token_hash", $token_hash);
-                    $exec5->bindValue(":senha", $senha);
+                    $exec5->bindParam(":senha", $senhaCriptografada, PDO::PARAM_LOB, 0, PDO::SQLSRV_ENCODING_BINARY);
                     
                     if ($exec5->execute()) {
                         // Verificar se a atualização afetou alguma linha
                         if ($exec5->rowCount() > 0) {
+                            error_log("Senha redefinida com sucesso para token: " . $token_hash);
                             echo "<script>
                                 document.getElementById('message').innerHTML = 'Senha redefinida com sucesso! Redirecionando...';
                                 document.getElementById('message').className = 'message success';
@@ -265,6 +331,7 @@ try {
                                 }, 3000);
                             </script>";
                         } else {
+                            error_log("Nenhuma linha afetada ao tentar redefinir senha para token: " . $token_hash);
                             echo "<script>
                                 document.getElementById('message').innerHTML = 'Não foi possível atualizar a senha. Por favor, tente novamente.';
                                 document.getElementById('message').className = 'message error';
@@ -282,7 +349,7 @@ try {
                 } catch (Exception $e) {
                     error_log("Exceção ao atualizar senha: " . $e->getMessage());
                     echo "<script>
-                        document.getElementById('message').innerHTML = 'Erro: " . addslashes($e->getMessage()) . "';
+                        document.getElementById('message').innerHTML = 'Erro ao processar nova senha. Por favor, tente novamente.';
                         document.getElementById('message').className = 'message error';
                         document.getElementById('message').style.display = 'block';
                     </script>";
