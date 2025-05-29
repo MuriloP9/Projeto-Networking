@@ -7,8 +7,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;900&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="../assets/css/loginpage.css"> <!-- Certifique-se que este arquivo está no mesmo diretório -->
-    <title>Login</title>
+    <link rel="stylesheet" href="../assets/css/loginpage.css">
+    <title>Login Seguro - ProLink</title>
 </head>
 <body>
     <div class="main-login">
@@ -22,12 +22,12 @@
                 <form id="form-login" method="POST" action="../php/validarLogin.php">
                     <div class="textfield">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" placeholder="Digite seu Email" required>
+                        <input type="email" id="email" name="email" placeholder="Digite seu Email" required maxlength="100">
                     </div>
                     <div class="textfield">
                         <br>
                         <label for="senha">Senha</label>
-                        <input type="password" id="senha" name="senha" placeholder="Digite sua Senha" required>
+                        <input type="password" id="senha" name="senha" placeholder="Digite sua Senha" required maxlength="255">
                     </div>
                     <button type="button" class="btn-login" id="btnLogin">Login</button>
                 </form>
@@ -53,5 +53,3 @@
     <script src="../assets/js/login.js"></script> 
 </body>
 </html>
-
-       
