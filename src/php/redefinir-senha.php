@@ -4,18 +4,86 @@ date_default_timezone_set('America/Sao_Paulo');
 include("../php/ErroMensagem.php"); 
 $msgErro = new MensagemErro();
 
+// Função de sanitização aprimorada
+function limpar($valor) {
+    // Primeira camada: remove caracteres de controle
+    $valor = preg_replace('/[\x00-\x1F\x7F]/u', '', $valor);
+    // Segunda camada: remove tags HTML
+    $valor = strip_tags(trim($valor));
+    // Terceira camada: escapa caracteres especiais
+    return htmlspecialchars($valor, ENT_QUOTES, 'UTF-8');
+}
+
+// Função aprimorada de sanitização com validação rigorosa
+function sanitizar_input($valor, $tipo = 'string') {
+    if (empty($valor)) {
+        return null;
+    }
+    
+    switch ($tipo) {
+        case 'token':
+            // Sanitiza token (apenas caracteres alfanuméricos)
+            $token = preg_replace('/[^a-zA-Z0-9]/', '', $valor);
+            if (strlen($token) >= 32 && strlen($token) <= 128) {
+                return $token;
+            }
+            return false;
+            
+        case 'password':
+            // Remove apenas caracteres de controle, mantendo caracteres especiais para senhas
+            $senha = preg_replace('/[\x00-\x1F\x7F]/u', '', $valor);
+            if (strlen($senha) >= 6 && strlen($senha) <= 15) {
+                return $senha;
+            }
+            return false;
+            
+        case 'string':
+        default:
+            // Sanitização padrão para strings
+            return mb_convert_encoding(limpar($valor), 'UTF-8', 'auto');
+    }
+}
+
+function get_client_ip() {
+    $ipaddress = '';
+    if (isset($_SERVER['HTTP_CLIENT_IP']))
+        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+    else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    else if(isset($_SERVER['HTTP_X_FORWARDED']))
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+    else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
+        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+    else if(isset($_SERVER['HTTP_FORWARDED']))
+        $ipaddress = $_SERVER['HTTP_FORWARDED'];
+    else if(isset($_SERVER['REMOTE_ADDR']))
+        $ipaddress = $_SERVER['REMOTE_ADDR'];
+    else
+        $ipaddress = 'UNKNOWN';
+    
+    // Sanitiza o IP
+    return filter_var($ipaddress, FILTER_SANITIZE_STRING);
+}
+
+// Validação e sanitização do token
 if (!isset($_GET['token'])) {
     $mensagem = "Token não fornecido.";
     $msgErro->exibirMensagemErro($mensagem, "");
     exit;
 }
 
-$token = $_GET['token'];
+$token_raw = sanitizar_input($_GET['token'], 'token');
+if ($token_raw === false || empty($token_raw)) {
+    $mensagem = "Token inválido.";
+    $msgErro->exibirMensagemErro($mensagem, "");
+    exit;
+}
+
+$token = $token_raw;
 $token_hash = hash("sha256", $token);
 
 include("../php/conexao.php"); 
 $pdo = conectar();
-
 
 function criptografarSenha($pdo, $senhaTexto) {
     try {
@@ -96,7 +164,7 @@ $sql = "SELECT
 
 $exec4 = $pdo->prepare($sql);
 $current_timestamp = time();
-$exec4->bindValue(":token_hash", $token_hash);
+$exec4->bindValue(":token_hash", $token_hash, PDO::PARAM_STR);
 $exec4->bindValue(":current_timestamp", $current_timestamp, PDO::PARAM_INT);
 $exec4->execute();
 $user = $exec4->fetch(PDO::FETCH_ASSOC);
@@ -291,79 +359,226 @@ try {
                 <input type="password" id="confirmaSenha" name="confirmaSenha" maxlength="15" placeholder="Confirme sua senha" required>
             </div>
             
-            <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
+            <input type="hidden" name="token" value="<?php echo htmlspecialchars($token, ENT_QUOTES, 'UTF-8'); ?>">
             <button type="submit" class="btn-submit">REDEFINIR SENHA</button>
             <a href="../php/index.php" class="btn-return">VOLTAR</a>
         </form>
     </div>
 
-    <?php
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $senha = $_POST['senha'];
-        $confirmaSenha = $_POST['confirmaSenha'];
-
-        if (!empty($senha) && !empty($confirmaSenha)) {
-            if ($senha == $confirmaSenha) {
-                try {
-                    // Criptografar a nova senha usando a mesma função do cadastro
-                    $senhaCriptografada = criptografarSenha($pdo, $senha);
-                    
-                    // Atualizar a tabela Usuario - limpar todos os campos relacionados ao token
-                    $exec5 = $pdo->prepare("UPDATE Usuario 
-                                           SET senha = :senha, 
-                                               token_rec_senha = NULL, 
-                                               dt_expiracao_token = NULL,
-                                               timestamp_expiracao = NULL
-                                           WHERE token_rec_senha = :token_hash");
-                    $exec5->bindValue(":token_hash", $token_hash);
-                    $exec5->bindParam(":senha", $senhaCriptografada, PDO::PARAM_LOB, 0, PDO::SQLSRV_ENCODING_BINARY);
-                    
-                    if ($exec5->execute()) {
-                        // Verificar se a atualização afetou alguma linha
-                        if ($exec5->rowCount() > 0) {
-                            error_log("Senha redefinida com sucesso para token: " . $token_hash);
-                            echo "<script>
-                                document.getElementById('message').innerHTML = 'Senha redefinida com sucesso! Redirecionando...';
-                                document.getElementById('message').className = 'message success';
-                                document.getElementById('message').style.display = 'block';
-                                setTimeout(function() {
-                                    window.location.href = '../php/index.php';
-                                }, 3000);
-                            </script>";
-                        } else {
-                            error_log("Nenhuma linha afetada ao tentar redefinir senha para token: " . $token_hash);
-                            echo "<script>
-                                document.getElementById('message').innerHTML = 'Não foi possível atualizar a senha. Por favor, tente novamente.';
-                                document.getElementById('message').className = 'message error';
-                                document.getElementById('message').style.display = 'block';
-                            </script>";
+    <script>
+        // Proteção contra alteração de campos pelo F12
+        const originalFormHTML = document.getElementById('formRecupSenha').innerHTML;
+        
+        // Verificar se campos obrigatórios foram alterados
+        function verificarIntegridade() {
+            const senha = document.getElementById('senha');
+            const confirmaSenha = document.getElementById('confirmaSenha');
+            
+            // Verificar se os tipos dos inputs foram alterados
+            if (senha.type !== 'password' || confirmaSenha.type !== 'password') {
+                alert('Tentativa de alteração detectada! A página será recarregada.');
+                location.reload();
+                return false;
+            }
+            
+            // Verificar se maxlength foi alterado
+            if (senha.maxLength !== 15 || confirmaSenha.maxLength !== 15) {
+                alert('Tentativa de alteração detectada! A página será recarregada.');
+                location.reload();
+                return false;
+            }
+            
+            // Verificar se required foi removido
+            if (!senha.required || !confirmaSenha.required) {
+                alert('Tentativa de alteração detectada! A página será recarregada.');
+                location.reload();
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Verificar integridade antes do envio
+        document.getElementById('formRecupSenha').addEventListener('submit', function(e) {
+            if (!verificarIntegridade()) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Monitorar mudanças no DOM
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes') {
+                    const target = mutation.target;
+                    if (target.id === 'senha' || target.id === 'confirmaSenha') {
+                        if (!verificarIntegridade()) {
+                            return;
                         }
-                    } else {
-                        error_log("Erro ao executar atualização: " . print_r($exec5->errorInfo(), true));
-                        echo "<script>
-                            document.getElementById('message').innerHTML = 'Erro ao atualizar senha. Por favor, tente novamente.';
-                            document.getElementById('message').className = 'message error';
-                            document.getElementById('message').style.display = 'block';
-                        </script>";
                     }
-                } catch (Exception $e) {
-                    error_log("Exceção ao atualizar senha: " . $e->getMessage());
+                }
+            });
+        });
+        
+        // Observar mudanças nos campos
+        observer.observe(document.getElementById('senha'), { attributes: true });
+        observer.observe(document.getElementById('confirmaSenha'), { attributes: true });
+        
+        // Verificar periodicamente
+        setInterval(verificarIntegridade, 2000);
+    </script>
+
+    <?php
+    // Verificação se é uma requisição POST válida
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        
+        // Verificação de dados POST
+        if (!isset($_POST) || empty($_POST)) {
+            echo "<script>
+                document.getElementById('message').innerHTML = 'Dados não recebidos corretamente!';
+                document.getElementById('message').className = 'message error';
+                document.getElementById('message').style.display = 'block';
+            </script>";
+            exit;
+        }
+        
+        // SANITIZAÇÃO E VALIDAÇÃO DOS DADOS DE ENTRADA
+        $senha = sanitizar_input($_POST['senha'] ?? null, 'password');
+        $confirmaSenha = sanitizar_input($_POST['confirmaSenha'] ?? null, 'password');
+        $token_post = sanitizar_input($_POST['token'] ?? null, 'token');
+        
+        $ip_reset = get_client_ip();
+        
+        // VALIDAÇÕES RIGOROSAS (proteção contra F12)
+        if ($senha === false || empty($senha)) {
+            echo "<script>
+                document.getElementById('message').innerHTML = 'Senha inválida! Deve ter entre 6 e 15 caracteres.';
+                document.getElementById('message').className = 'message error';
+                document.getElementById('message').style.display = 'block';
+            </script>";
+            exit;
+        }
+        
+        if ($confirmaSenha === false || empty($confirmaSenha)) {
+            echo "<script>
+                document.getElementById('message').innerHTML = 'Confirmação de senha inválida! Deve ter entre 6 e 15 caracteres.';
+                document.getElementById('message').className = 'message error';
+                document.getElementById('message').style.display = 'block';
+            </script>";
+            exit;
+        }
+        
+        if ($token_post === false || empty($token_post)) {
+            echo "<script>
+                document.getElementById('message').innerHTML = 'Token inválido!';
+                document.getElementById('message').className = 'message error';
+                document.getElementById('message').style.display = 'block';
+            </script>";
+            exit;
+        }
+        
+        // Verificar se os tokens coincidem (proteção adicional)
+        if ($token_post !== $token) {
+            error_log("Tentativa de ataque: Token POST diferente do GET - IP: " . $ip_reset);
+            echo "<script>
+                document.getElementById('message').innerHTML = 'Token inválido!';
+                document.getElementById('message').className = 'message error';
+                document.getElementById('message').style.display = 'block';
+            </script>";
+            exit;
+        }
+
+        if ($senha !== $confirmaSenha) {
+            echo "<script>
+                document.getElementById('message').innerHTML = 'As senhas não coincidem!';
+                document.getElementById('message').className = 'message error';
+                document.getElementById('message').style.display = 'block';
+            </script>";
+            exit;
+        }
+        
+        try {
+            // Log da tentativa de redefinição
+            error_log("Tentativa de redefinição de senha - Token: " . $token_hash . " - IP: " . $ip_reset);
+            
+            // Verificar novamente se o token ainda é válido (proteção contra ataques de timing)
+            $verify_sql = "SELECT COUNT(*) FROM Usuario 
+                          WHERE token_rec_senha = :token_hash 
+                          AND (dt_expiracao_token > GETDATE() OR timestamp_expiracao > :current_timestamp)";
+            $verify_stmt = $pdo->prepare($verify_sql);
+            $verify_stmt->bindValue(":token_hash", $token_hash, PDO::PARAM_STR);
+            $verify_stmt->bindValue(":current_timestamp", time(), PDO::PARAM_INT);
+            $verify_stmt->execute();
+            
+            if ($verify_stmt->fetchColumn() == 0) {
+                error_log("Token expirado durante processamento - Token: " . $token_hash);
+                echo "<script>
+                    document.getElementById('message').innerHTML = 'Token expirado. Solicite um novo link.';
+                    document.getElementById('message').className = 'message error';
+                    document.getElementById('message').style.display = 'block';
+                </script>";
+                exit;
+            }
+            
+            // Criptografar a nova senha usando a mesma função do cadastro
+            $senhaCriptografada = criptografarSenha($pdo, $senha);
+            
+            // Atualizar a tabela Usuario - limpar todos os campos relacionados ao token
+            $exec5 = $pdo->prepare("UPDATE Usuario 
+                                   SET senha = :senha, 
+                                       token_rec_senha = NULL, 
+                                       dt_expiracao_token = NULL,
+                                       timestamp_expiracao = NULL,
+                                       ultimo_acesso = GETDATE()
+                                   WHERE token_rec_senha = :token_hash");
+            $exec5->bindValue(":token_hash", $token_hash, PDO::PARAM_STR);
+            $exec5->bindParam(":senha", $senhaCriptografada, PDO::PARAM_LOB, 0, PDO::SQLSRV_ENCODING_BINARY);
+            
+            if ($exec5->execute()) {
+                // Verificar se a atualização afetou alguma linha
+                if ($exec5->rowCount() > 0) {
+                    error_log("Senha redefinida com sucesso para token: " . $token_hash . " - IP: " . $ip_reset);
+                    
+                    // Limpeza da senha da memória (boa prática de segurança)
+                    $senha = null;
+                    $confirmaSenha = null;
+                    $senhaCriptografada = null;
+                    unset($senha, $confirmaSenha, $senhaCriptografada);
+                    
                     echo "<script>
-                        document.getElementById('message').innerHTML = 'Erro ao processar nova senha. Por favor, tente novamente.';
+                        document.getElementById('message').innerHTML = 'Senha redefinida com sucesso! Redirecionando...';
+                        document.getElementById('message').className = 'message success';
+                        document.getElementById('message').style.display = 'block';
+                        setTimeout(function() {
+                            window.location.href = '../php/index.php';
+                        }, 3000);
+                    </script>";
+                } else {
+                    error_log("Nenhuma linha afetada ao tentar redefinir senha para token: " . $token_hash);
+                    echo "<script>
+                        document.getElementById('message').innerHTML = 'Não foi possível atualizar a senha. Por favor, tente novamente.';
                         document.getElementById('message').className = 'message error';
                         document.getElementById('message').style.display = 'block';
                     </script>";
                 }
             } else {
+                error_log("Erro ao executar atualização: " . print_r($exec5->errorInfo(), true));
                 echo "<script>
-                    document.getElementById('message').innerHTML = 'As senhas não coincidem!';
+                    document.getElementById('message').innerHTML = 'Erro ao atualizar senha. Por favor, tente novamente.';
                     document.getElementById('message').className = 'message error';
                     document.getElementById('message').style.display = 'block';
                 </script>";
             }
-        } else {
+        } catch (Exception $e) {
+            error_log("Exceção ao atualizar senha: " . $e->getMessage() . " - IP: " . $ip_reset);
+            
+            // Limpeza em caso de erro
+            $senha = null;
+            $confirmaSenha = null;
+            unset($senha, $confirmaSenha);
+            
             echo "<script>
-                document.getElementById('message').innerHTML = 'Por favor, preencha todos os campos!';
+                document.getElementById('message').innerHTML = 'Erro interno do servidor. Tente novamente mais tarde.';
                 document.getElementById('message').className = 'message error';
                 document.getElementById('message').style.display = 'block';
             </script>";
