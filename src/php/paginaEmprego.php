@@ -1,3 +1,4 @@
+
 <?php 
 session_start();  
 include("../php/conexao.php");  
@@ -28,8 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['aj
         
         $id_perfil = $perfil['id_perfil'];              
         
-        // Verificar se já existe candidatura             
-        $stmt = $pdo->prepare("SELECT * FROM Candidatura WHERE id_vaga = ? AND id_perfil = ?");             
+        // Verificar se já existe candidatura ATIVA             
+        $stmt = $pdo->prepare("SELECT * FROM Candidatura WHERE id_vaga = ? AND id_perfil = ? AND ativo = 1");             
         $stmt->execute([$id_vaga, $id_perfil]);              
         
         if ($stmt->rowCount() > 0) {                 
@@ -37,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['aj
             exit;             
         }              
         
-        // Inserir nova candidatura             
-        $stmt = $pdo->prepare("INSERT INTO Candidatura (id_vaga, id_perfil, data_candidatura, status)                                VALUES (?, ?, GETDATE(), 'Pendente')");             
+        // Inserir nova candidatura com ativo = 1             
+        $stmt = $pdo->prepare("INSERT INTO Candidatura (id_vaga, id_perfil, data_candidatura, status, data_atualizacao_status, ativo) VALUES (?, ?, GETDATE(), 'Pendente', NULL, 1)");             
         $stmt->execute([$id_vaga, $id_perfil]);              
         
         echo json_encode(['success' => true, 'message' => 'Candidatura realizada com sucesso!']);             
@@ -92,6 +93,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
     }
 }
 
+// Handler AJAX para verificar atualizações de status das candidaturas
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'] === 'verificar_status_atualizacoes') {
+    header('Content-Type: application/json');
+    
+    if (!isset($_SESSION['id_usuario'])) {
+        echo json_encode(['success' => false, 'message' => 'Usuário não logado.']);
+        exit;
+    }
+    
+    try {
+        // Buscar candidaturas que mudaram de status recentemente (últimos 5 segundos) E estão ativas
+        $stmt = $pdo->prepare("
+            SELECT c.id_candidatura, c.status, v.titulo_vaga, c.data_atualizacao_status
+            FROM Candidatura c
+            JOIN Perfil p ON c.id_perfil = p.id_perfil
+            JOIN Vagas v ON c.id_vaga = v.id_vaga
+            WHERE p.id_usuario = ?
+            AND c.ativo = 1
+            AND c.status IN ('Aprovado', 'Reprovado')
+            AND c.data_atualizacao_status IS NOT NULL
+            AND DATEDIFF(second, c.data_atualizacao_status, GETDATE()) <= 5
+            ORDER BY c.data_atualizacao_status DESC
+        ");
+        
+        $stmt->execute([$_SESSION['id_usuario']]);
+        $atualizacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode([
+            'success' => true,
+            'atualizacoes' => $atualizacoes
+        ]);
+        exit;
+        
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Erro ao verificar atualizações.']);
+        exit;
+    }
+}
+
 // Buscar vagas com base no termo de pesquisa 
 $termoBusca = isset($_GET['search']) ? trim($_GET['search']) : ''; 
 $vagas = [];  
@@ -118,7 +158,7 @@ try {
     echo "<script>alert('Erro ao buscar vagas: " . addslashes($e->getMessage()) . "');</script>"; 
 }  
 
-// Buscar candidaturas do usuário logado 
+// Buscar candidaturas ATIVAS do usuário logado 
 $candidaturas_usuario = []; 
 if (isset($_SESSION['id_usuario'])) {     
     try {         
@@ -126,7 +166,7 @@ if (isset($_SESSION['id_usuario'])) {
             SELECT c.id_vaga              
             FROM Candidatura c             
             JOIN Perfil p ON c.id_perfil = p.id_perfil             
-            WHERE p.id_usuario = ?         
+            WHERE p.id_usuario = ? AND c.ativo = 1         
         ");         
         $stmt->execute([$_SESSION['id_usuario']]);         
         $candidaturas = $stmt->fetchAll(PDO::FETCH_ASSOC);          
@@ -135,7 +175,7 @@ if (isset($_SESSION['id_usuario'])) {
             $candidaturas_usuario[] = $candidatura['id_vaga'];         
         }     
     } catch (PDOException $e) {         
-        // Silenciosamente falha     
+          
     } 
 } 
 ?>
@@ -740,7 +780,133 @@ if (isset($_SESSION['id_usuario'])) {
         .menu.active li:nth-child(4) {
             animation-delay: 0.4s;
         }
+        .status-pendente {
+            background-color: #FFF3CD;
+            color: #856404;
+            border-left: 4px solid #FFC107;
+        }
+
+        .status-aprovado {
+            background-color: #D4EDDA;
+            color: #155724;
+            border-left: 4px solid #28A745;
+        }
+
+        .status-reprovado {
+            background-color: #F8D7DA;
+            color: #721C24;
+            border-left: 4px solid #DC3545;
+        }
+
+        /* Animação de fade-out para candidaturas expiradas */
+        .candidatura-expirando {
+            opacity: 0.7;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .candidatura-expirando::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57);
+            animation: countdown-bar 3s linear;
+        }
+
+        @keyframes countdown-bar {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /* Indicador de tempo restante */
+        .tempo-restante {
+            font-size: 0.8em;
+            color: #666;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        .tempo-restante.urgente {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        /* Badge de novo status */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.aprovado {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-badge.reprovado {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Notificação de status */
+        .status-notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 300px;
+            z-index: 2001;
+            display: none;
+        }
+
+        .status-notification.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-close {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            cursor: pointer;
+            color: #999;
+            font-size: 18px;
+        }
+
+        .notification-close:hover {
+            color: #333;
+        }
     </style>
+</head>
+<body>
  <header>
         <nav class="navbar">
             <div class="logo-container">
@@ -770,31 +936,50 @@ if (isset($_SESSION['id_usuario'])) {
             <div class="saved-jobs-container">
                 <h2 class="saved-jobs-title">Minhas Candidaturas</h2>
 
-                <?php
-                // Buscar candidaturas do usuário
-                try {
-                    $stmt = $pdo->prepare("
-                    SELECT c.*, v.titulo_vaga, v.tipo_emprego, v.localizacao, v.empresa, a.nome_area 
-                    FROM Candidatura c
-                    JOIN Perfil p ON c.id_perfil = p.id_perfil
-                    JOIN Vagas v ON c.id_vaga = v.id_vaga
-                    LEFT JOIN AreaAtuacao a ON v.id_area = a.id_area
-                    WHERE p.id_usuario = ?
-                    ORDER BY c.data_candidatura DESC
-                ");
-                    $stmt->execute([$_SESSION['id_usuario']]);
-                    $minhas_candidaturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            <?php
+                // Buscar APENAS candidaturas ATIVAS (ativo = 1) - SEM FILTROS DE TEMPO
+               try {
+                   $stmt = $pdo->prepare("
+                       SELECT c.*, v.titulo_vaga, v.tipo_emprego, v.localizacao, v.empresa, a.nome_area
+                       FROM Candidatura c
+                       JOIN Perfil p ON c.id_perfil = p.id_perfil
+                       JOIN Vagas v ON c.id_vaga = v.id_vaga
+                       LEFT JOIN AreaAtuacao a ON v.id_area = a.id_area
+                       WHERE p.id_usuario = ?
+                       AND c.ativo = 1
+                       ORDER BY 
+                           CASE c.status 
+                               WHEN 'Aprovado' THEN 1 
+                               WHEN 'Reprovado' THEN 2 
+                               WHEN 'Pendente' THEN 3 
+                           END,
+                           c.data_atualizacao_status DESC,
+                           c.data_candidatura DESC
+                   ");
+                   $stmt->execute([$_SESSION['id_usuario']]);
+                   $minhas_candidaturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    if (empty($minhas_candidaturas)): ?>
+                     if (empty($minhas_candidaturas)): ?>
                         <p>Você ainda não se candidatou a nenhuma vaga.</p>
                     <?php else: ?>
                         <div class="saved-jobs-list">
-                            <?php foreach ($minhas_candidaturas as $candidatura): ?>
-                                <div class="saved-job-card">
-                                    <h4><?= htmlspecialchars($candidatura['titulo_vaga']) ?></h4>
+                            <?php foreach ($minhas_candidaturas as $candidatura): 
+                                $classes = ['saved-job-card', 'status-' . strtolower($candidatura['status'])];
+                            ?>
+                                <div class="<?= implode(' ', $classes) ?>" 
+                                     data-candidatura-id="<?= $candidatura['id_candidatura'] ?>">
+                                    <h4>
+                                        <?= htmlspecialchars($candidatura['titulo_vaga']) ?>
+                                        <?php if ($candidatura['status'] !== 'Pendente'): ?>
+                                            <span class="status-badge <?= strtolower($candidatura['status']) ?>">
+                                                <?= $candidatura['status'] ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </h4>
                                     <p><strong>Empresa:</strong> <?= htmlspecialchars($candidatura['empresa']) ?></p>
                                     <p><?= htmlspecialchars($candidatura['nome_area'] ?? 'Área não especificada') ?></p>
                                     <p><?= htmlspecialchars($candidatura['tipo_emprego']) ?> - <?= htmlspecialchars($candidatura['localizacao'] ?? 'Local não especificado') ?></p>
+                                    
                                     <span class="saved-job-status status-<?= strtolower($candidatura['status']) ?>">
                                         <?= htmlspecialchars($candidatura['status']) ?>
                                     </span>
@@ -809,6 +994,12 @@ if (isset($_SESSION['id_usuario'])) {
             </div>
         </section>
     <?php endif; ?>
+
+
+      <div class="status-notification" id="statusNotification">
+        <span class="notification-close" onclick="closeNotification()">&times;</span>
+        <div id="notificationContent"></div>
+    </div>
 
     <section id="job-opportunities" class="job-opportunities">
         <h2>Oportunidades de Emprego</h2>
@@ -931,195 +1122,195 @@ if (isset($_SESSION['id_usuario'])) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../assets/js/script.js"></script>
     <script>
-        $(document).ready(function() {
-            // Modal de detalhes da vaga
-            $('.more-info-btn').on('click', function() {
-                const vagaId = $(this).data('vaga-id');
 
-                // Busca os detalhes completos da vaga via AJAX
-                $.ajax({
-                    type: 'GET',
-                    url: window.location.href,
-                    data: {
-                        ajax: 'buscar_vaga',
-                        id_vaga: vagaId
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            const vaga = response.vaga;
-                            
-                            // Preenche o modal com as informações da vaga
-                            $('#modal-title').text(vaga.titulo_vaga);
-                            $('#modal-empresa').text(vaga.empresa);
-                            $('#modal-area').text(vaga.nome_area || 'Área não especificada');
-                            $('#modal-tipo').text(vaga.tipo_emprego);
-                            $('#modal-localizacao').text(vaga.localizacao || 'Localização não especificada');
-                            $('#modal-descricao').html(vaga.descricao ? vaga.descricao.replace(/\n/g, '<br>') : 'Sem descrição detalhada.');
+$(document).ready(function() {
+    // Verificar mudanças de status periodicamente (apenas para notificações)
+    checkStatusUpdates();
+    setInterval(checkStatusUpdates, 30000); // Verifica a cada 30 segundos
 
-                            // Salário
-                            if (vaga.salario_formatado) {
-                                $('#modal-salario').text(vaga.salario_formatado);
-                                $('#modal-salario-container').show();
-                            } else {
-                                $('#modal-salario').text('Não informado');
-                                $('#modal-salario-container').show();
-                            }
+    // Modal de detalhes da vaga
+    $('.more-info-btn').on('click', function() {
+        const vagaId = $(this).data('vaga-id');
 
-                            // Data de encerramento
-                            if (vaga.data_encerramento_formatada) {
-                                $('#modal-encerramento').text(vaga.data_encerramento_formatada);
-                                $('#modal-encerramento-container').show();
-                            } else {
-                                $('#modal-encerramento').text('Não informado');
-                                $('#modal-encerramento-container').show();
-                            }
+        $.ajax({
+            type: 'GET',
+            url: window.location.href,
+            data: {
+                ajax: 'buscar_vaga',
+                id_vaga: vagaId
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    const vaga = response.vaga;
+                    
+                    $('#modal-title').text(vaga.titulo_vaga);
+                    $('#modal-empresa').text(vaga.empresa);
+                    $('#modal-area').text(vaga.nome_area || 'Área não especificada');
+                    $('#modal-tipo').text(vaga.tipo_emprego);
+                    $('#modal-localizacao').text(vaga.localizacao || 'Localização não especificada');
+                    $('#modal-descricao').html(vaga.descricao ? vaga.descricao.replace(/\n/g, '<br>') : 'Sem descrição detalhada.');
 
-                            // Requisitos
-                            if (vaga.requisitos) {
-                                $('#modal-requisitos').html(vaga.requisitos.replace(/\n/g, '<br>'));
-                                $('#modal-requisitos-section').show();
-                            } else {
-                                $('#modal-requisitos-section').hide();
-                            }
-
-                            // Benefícios
-                            if (vaga.beneficios) {
-                                $('#modal-beneficios').html(vaga.beneficios.replace(/\n/g, '<br>'));
-                                $('#modal-beneficios-section').show();
-                            } else {
-                                $('#modal-beneficios-section').hide();
-                            }
-
-                            // Define o ID da vaga no botão de candidatura
-                            $('#modal-apply-btn').data('vaga-id', vagaId);
-
-                            // Mostra o modal
-                            $('#job-modal').addClass('active');
-                        } else {
-                            alert(response.message || 'Erro ao carregar detalhes da vaga. Tente novamente.');
-                        }
-                    },
-                    error: function() {
-                        alert('Erro ao carregar detalhes da vaga. Tente novamente.');
+                    if (vaga.salario_formatado) {
+                        $('#modal-salario').text(vaga.salario_formatado);
+                        $('#modal-salario-container').show();
+                    } else {
+                        $('#modal-salario').text('Não informado');
+                        $('#modal-salario-container').show();
                     }
-                });
-            });
 
-            // Fechar modal
-            $('#modal-close, #modal-btn-cancel').on('click', function() {
-                $('#job-modal').removeClass('active');
-            });
-
-            // Botão de candidatura no modal
-            $('#modal-apply-btn').on('click', function() {
-                <?php if (!isset($_SESSION['id_usuario'])): ?>
-                    window.location.href = '../pages/login.html';
-                    return false;
-                <?php endif; ?>
-                const vagaId = $(this).data('vaga-id');
-                $('#confirm-yes').data('vaga-id', vagaId);
-
-                // Fecha o modal de detalhes
-                $('#job-modal').removeClass('active');
-
-                // Abre o modal de confirmação
-                $('#confirm-modal').addClass('active');
-            });
-
-            // Fechar modal de confirmação
-            $('#confirm-no').on('click', function() {
-                $('#confirm-modal').removeClass('active');
-            });
-
-            // Confirmar candidatura
-            $('#confirm-yes').on('click', function() {
-                const vagaId = $(this).data('vaga-id');
-
-                // Desativa o botão temporariamente para evitar múltiplos cliques
-                $(this).prop('disabled', true);
-
-                // Processa a candidatura via AJAX
-                $.ajax({
-                    type: 'POST',
-                    url: window.location.href,
-                    data: {
-                        ajax: 'candidatura',
-                        id_vaga: vagaId
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        // Fecha o modal de confirmação
-                        $('#confirm-modal').removeClass('active');
-
-                        if (response.success) {
-                            // Mostra mensagem de sucesso
-                            showToast(response.message);
-
-                            // Atualiza o botão da vaga para "Candidatura Enviada"
-                            $(`button[data-vaga-id="${vagaId}"]`).replaceWith(
-                                $('<button class="already-applied" disabled>Candidatura Enviada</button>')
-                            );
-
-                            // Recarrega a página após 2 segundos para atualizar a lista de candidaturas
-                            setTimeout(function() {
-                                location.reload();
-                            }, 2000);
-                        } else {
-                            // Mostra mensagem de erro
-                            alert(response.message || 'Erro ao processar candidatura. Tente novamente.');
-
-                            // Reativa o botão
-                            $('#confirm-yes').prop('disabled', false);
-                        }
-                    },
-                    error: function() {
-                        $('#confirm-modal').removeClass('active');
-                        alert('Erro ao processar candidatura. Verifique sua conexão e tente novamente.');
-                        $('#confirm-yes').prop('disabled', false);
+                    if (vaga.data_encerramento_formatada) {
+                        $('#modal-encerramento').text(vaga.data_encerramento_formatada);
+                        $('#modal-encerramento-container').show();
+                    } else {
+                        $('#modal-encerramento').text('Não informado');
+                        $('#modal-encerramento-container').show();
                     }
-                });
-            });
 
-            // Função para mostrar mensagem toast
-            function showToast(message) {
-                // Cria o elemento toast se ainda não existir
-                if ($('#toast-message').length === 0) {
-                    $('body').append('<div id="toast-message" class="toast-message"></div>');
+                    if (vaga.requisitos) {
+                        $('#modal-requisitos').html(vaga.requisitos.replace(/\n/g, '<br>'));
+                        $('#modal-requisitos-section').show();
+                    } else {
+                        $('#modal-requisitos-section').hide();
+                    }
+
+                    if (vaga.beneficios) {
+                        $('#modal-beneficios').html(vaga.beneficios.replace(/\n/g, '<br>'));
+                        $('#modal-beneficios-section').show();
+                    } else {
+                        $('#modal-beneficios-section').hide();
+                    }
+
+                    $('#modal-apply-btn').data('vaga-id', vagaId);
+                    $('#job-modal').addClass('active');
+                } else {
+                    alert(response.message || 'Erro ao carregar detalhes da vaga.');
                 }
-
-                // Define a mensagem e mostra o toast
-                $('#toast-message').text(message).fadeIn();
-
-                // Esconde o toast após 3 segundos
-                setTimeout(function() {
-                    $('#toast-message').fadeOut();
-                }, 3000);
+            },
+            error: function(xhr, status, error) {
+                console.error('Erro AJAX:', error);
+                alert('Erro de conexão ao carregar detalhes da vaga.');
             }
-
-            // Fechar modais ao clicar fora deles
-            $('.modal-overlay').on('click', function(e) {
-                if (e.target === this) {
-                    $(this).removeClass('active');
-                }
-            });
-
-            // Previne o fechamento do modal ao clicar no seu conteúdo
-            $('.modal-content, .confirm-dialog').on('click', function(e) {
-                e.stopPropagation();
-            });
-
-            // Animação suave ao rolar para âncoras
-            $('a[href^="#"]').on('click', function(e) {
-                e.preventDefault();
-
-                const target = $(this.getAttribute('href'));
-                if (target.length) {
-                    $('html, body').animate({
-                        scrollTop: target.offset().top - 100
-                    }, 800);
-                }
-            });
         });
-    </script>
+    });
+
+    // Fechar modal
+    $('#modal-close, #modal-btn-cancel').on('click', function() {
+        $('#job-modal').removeClass('active');
+    });
+
+    // Candidatar-se
+    $('#modal-apply-btn').on('click', function() {
+        const vagaId = $(this).data('vaga-id');
+        $('#confirm-yes').data('vaga-id', vagaId);
+        $('#confirm-modal').addClass('active');
+    });
+
+    // Confirmação de candidatura
+    $('#confirm-yes').on('click', function() {
+        const vagaId = $(this).data('vaga-id');
+        
+        $.ajax({
+            type: 'POST',
+            url: window.location.href,
+            data: {
+                ajax: 'candidatura',
+                id_vaga: vagaId
+            },
+            dataType: 'json',
+            success: function(response) {
+                $('#confirm-modal').removeClass('active');
+                $('#job-modal').removeClass('active');
+                
+                if (response.success) {
+                    alert(response.message);
+                    location.reload();
+                } else {
+                    alert(response.message || 'Erro ao processar candidatura.');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Erro AJAX:', error);
+                $('#confirm-modal').removeClass('active');
+                $('#job-modal').removeClass('active');
+                alert('Erro de conexão ao processar candidatura.');
+            }
+        });
+    });
+
+    // Cancelar confirmação
+    $('#confirm-no').on('click', function() {
+        $('#confirm-modal').removeClass('active');
+    });
+
+    // Fechar modal clicando fora
+    $('.modal-overlay').on('click', function(e) {
+        if (e.target === this) {
+            $(this).removeClass('active');
+        }
+    });
+
+    // Fechar modal com tecla ESC
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape') {
+            $('.modal-overlay.active').removeClass('active');
+        }
+    });
+});
+
+// Função para verificar atualizações de status (apenas para mostrar notificações)
+function checkStatusUpdates() {
+    if (!window.location.href.includes('oportunidades.php')) return;
+    
+    $.ajax({
+        type: 'GET',
+        url: window.location.href,
+        data: {
+            ajax: 'verificar_status_atualizacoes'
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success && response.atualizacoes && response.atualizacoes.length > 0) {
+                response.atualizacoes.forEach(function(atualizacao) {
+                    showStatusNotification(atualizacao);
+                });
+            }
+        },
+        error: function() {
+            // Silenciosamente falha para não incomodar o usuário
+        }
+    });
+}
+
+// Função para mostrar notificação de status
+function showStatusNotification(atualizacao) {
+    const notification = $('#statusNotification');
+    const content = $('#notificationContent');
+    
+    let statusText = atualizacao.status === 'Aprovado' ? 'aprovada' : 'reprovada';
+    let statusClass = atualizacao.status === 'Aprovado' ? 'aprovado' : 'reprovado';
+    
+    content.html(`
+        <div class="notification-header">
+            <strong>Candidatura ${statusText.charAt(0).toUpperCase() + statusText.slice(1)}!</strong>
+        </div>
+        <div class="notification-body">
+            <p>Sua candidatura para <strong>${atualizacao.titulo_vaga}</strong> foi ${statusText}.</p>
+        </div>
+    `);
+    
+    notification.removeClass('aprovado reprovado').addClass(statusClass);
+    notification.addClass('show');
+    
+    // Auto-remover após 10 segundos
+    setTimeout(function() {
+        notification.removeClass('show');
+    }, 10000);
+}
+
+// Função para fechar notificação
+function closeNotification() {
+    $('#statusNotification').removeClass('show');
+}
+</script>
 </body>
