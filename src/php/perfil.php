@@ -11,63 +11,259 @@ if (!isset($_SESSION['usuario_logado']) || $_SESSION['usuario_logado'] !== true)
 $id_usuario = $_SESSION['id_usuario'];
 $mensagem = '';
 
-// Função para limpar e normalizar strings (igual ao cadastro.php)
+// Função para limpar e normalizar strings
 function limpar($valor) {
-    // Remove apenas caracteres de controle (0-31) e DEL (127)
     $valor = preg_replace('/[\x00-\x1F\x7F]/u', '', $valor);
-    // Mantém acentos e caracteres especiais, apenas remove tags HTML e espaços extras
     $valor = strip_tags(trim($valor));
     return htmlspecialchars($valor, ENT_QUOTES, 'UTF-8');
 }
 
+// Função para validar tipos de dados
+function validarTipo($valor, $tipo) {
+    switch ($tipo) {
+        case 'string':
+            return is_string($valor);
+        case 'int':
+            return is_numeric($valor) && (int)$valor == $valor;
+        case 'date':
+            return preg_match('/^\d{4}-\d{2}-\d{2}$/', $valor) && strtotime($valor);
+        case 'telefone':
+            return preg_match('/^[\d()\-\s+]{10,15}$/', $valor);
+        case 'boolean':
+            return is_bool($valor) || in_array($valor, ['0', '1', 0, 1, true, false], true);
+        default:
+            return false;
+    }
+}
+
+// BUSCAR DADOS DO USUÁRIO
+$usuario = null;
+$nome = '';
+$foto_perfil = null;
+
+try {
+    $pdo = conectar();
+    
+    // Buscar dados do usuário com LEFT JOIN para incluir dados do perfil
+    $sql = $pdo->prepare("
+        SELECT 
+            u.id_usuario,
+            u.nome,
+            u.email,
+            u.telefone,
+            u.dataNascimento,
+            u.foto_perfil,
+            p.idade,
+            p.endereco,
+            p.formacao,
+            p.experiencia_profissional,
+            p.interesses,
+            p.projetos_especializacoes,
+            p.habilidades
+        FROM Usuario u
+        LEFT JOIN Perfil p ON u.id_usuario = p.id_usuario
+        WHERE u.id_usuario = :id_usuario
+    ");
+    
+    $sql->bindValue(':id_usuario', $id_usuario, PDO::PARAM_INT);
+    $sql->execute();
+    
+    $resultado = $sql->fetch(PDO::FETCH_ASSOC);
+    
+    if ($resultado) {
+        $usuario = $resultado;
+        $nome = $usuario['nome'];
+        
+        // Processar foto de perfil
+        if ($usuario['foto_perfil']) {
+            // Se a foto está armazenada como BLOB no banco
+            $foto_perfil = 'data:image/jpeg;base64,' . base64_encode($usuario['foto_perfil']);
+        } else {
+            $foto_perfil = null; // Será usado a imagem padrão no HTML
+        }
+        
+        // Garantir que campos opcionais tenham valores padrão
+        $usuario['idade'] = $usuario['idade'] ?? null;
+        $usuario['endereco'] = $usuario['endereco'] ?? '';
+        $usuario['formacao'] = $usuario['formacao'] ?? '';
+        $usuario['experiencia_profissional'] = $usuario['experiencia_profissional'] ?? '';
+        $usuario['interesses'] = $usuario['interesses'] ?? '';
+        $usuario['projetos_especializacoes'] = $usuario['projetos_especializacoes'] ?? '';
+        $usuario['habilidades'] = $usuario['habilidades'] ?? '';
+        $usuario['telefone'] = $usuario['telefone'] ?? '';
+        $usuario['dataNascimento'] = $usuario['dataNascimento'] ?? '';
+        
+    } else {
+        // Usuário não encontrado
+        $mensagem = "Erro: Usuário não encontrado!";
+        $usuario = [
+            'nome' => '',
+            'email' => '',
+            'telefone' => '',
+            'dataNascimento' => '',
+            'idade' => null,
+            'endereco' => '',
+            'formacao' => '',
+            'experiencia_profissional' => '',
+            'interesses' => '',
+            'projetos_especializacoes' => '',
+            'habilidades' => ''
+        ];
+        $nome = 'Usuário não encontrado';
+    }
+    
+} catch (Exception $e) {
+    $mensagem = "Erro ao carregar dados do perfil: " . $e->getMessage();
+    $usuario = [
+        'nome' => '',
+        'email' => '',
+        'telefone' => '',
+        'dataNascimento' => '',
+        'idade' => null,
+        'endereco' => '',
+        'formacao' => '',
+        'experiencia_profissional' => '',
+        'interesses' => '',
+        'projetos_especializacoes' => '',
+        'habilidades' => ''
+    ];
+    $nome = 'Erro ao carregar';
+}
+
 // Processamento do formulário de edição
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $pdo = null;
+    $transacao_iniciada = false;
+    
     try {
         $pdo = conectar();
         
-        // Dados básicos (com tratamento de encoding igual ao cadastro.php)
-        $nome = isset($_POST["nome"]) ? mb_convert_encoding(limpar($_POST["nome"]), 'UTF-8', 'auto') : null;
-        $telefone = isset($_POST["telefone"]) ? mb_convert_encoding(limpar($_POST["telefone"]), 'ASCII', 'auto') : null;
-        $dataNascimento = isset($_POST["dataNascimento"]) ? trim($_POST["dataNascimento"]) : null;
-        
-        // Dados do perfil (com tratamento de encoding)
-        $idade = isset($_POST["idade"]) ? filter_var($_POST["idade"], FILTER_VALIDATE_INT) : null;
-        $endereco = isset($_POST["endereco"]) ? mb_convert_encoding(limpar($_POST["endereco"]), 'UTF-8', 'auto') : null;
-        $formacao = isset($_POST["formacao"]) ? mb_convert_encoding(limpar($_POST["formacao"]), 'UTF-8', 'auto') : null;
-        $experiencia_profissional = isset($_POST["experiencia_profissional"]) ? mb_convert_encoding(limpar($_POST["experiencia_profissional"]), 'UTF-8', 'auto') : null;
-        $interesses = isset($_POST["interesses"]) ? mb_convert_encoding(limpar($_POST["interesses"]), 'UTF-8', 'auto') : null;
-        $projetos_especializacoes = isset($_POST["projetos_especializacoes"]) ? mb_convert_encoding(limpar($_POST["projetos_especializacoes"]), 'UTF-8', 'auto') : null;
-        $habilidades = isset($_POST["habilidades"]) ? mb_convert_encoding(limpar($_POST["habilidades"]), 'UTF-8', 'auto') : null;
+        // Validação rigorosa dos tipos de dados
+        if (isset($_POST["nome"]) && !validarTipo($_POST["nome"], 'string')) {
+            throw new Exception("Tipo inválido para o campo nome!");
+        }
+        $nome_novo = isset($_POST["nome"]) ? mb_convert_encoding(limpar($_POST["nome"]), 'UTF-8', 'auto') : null;
 
-        $pdo->beginTransaction();
-        
-        // Atualiza os dados básicos na tabela Usuario
-        $sql = $pdo->prepare("UPDATE Usuario SET nome = :nome, telefone = :telefone, dataNascimento = :dataNascimento WHERE id_usuario = :id_usuario");
-        $sql->bindValue(":nome", $nome, PDO::PARAM_STR);
-        $sql->bindValue(":telefone", $telefone, PDO::PARAM_STR);
-        $sql->bindValue(":dataNascimento", $dataNascimento, PDO::PARAM_STR);
-        $sql->bindValue(":id_usuario", $id_usuario, PDO::PARAM_INT);
-        $sql->execute();
-        
-        // Processamento da foto de perfil (igual ao cadastro.php)
+        if (isset($_POST["telefone"]) && !validarTipo($_POST["telefone"], 'telefone')) {
+            throw new Exception("Tipo inválido para o campo telefone!");
+        }
+        $telefone_novo = isset($_POST["telefone"]) ? mb_convert_encoding(limpar($_POST["telefone"]), 'ASCII', 'auto') : null;
+
+        if (isset($_POST["dataNascimento"]) && !validarTipo($_POST["dataNascimento"], 'date')) {
+            throw new Exception("Tipo inválido para o campo data de nascimento!");
+        }
+        $dataNascimento_novo = isset($_POST["dataNascimento"]) ? trim($_POST["dataNascimento"]) : null;
+
+        // Validações adicionais para os campos
+        if (empty($nome_novo) || strlen($nome_novo) < 2 || strlen($nome_novo) > 100) {
+            throw new Exception("Nome inválido! Deve ter entre 2 e 100 caracteres.");
+        }
+
+        if (empty($telefone_novo)) {
+            throw new Exception("Telefone é obrigatório!");
+        }
+
+        if (empty($dataNascimento_novo)) {
+            throw new Exception("Data de nascimento é obrigatória!");
+        }
+
+        // Validação da data
+        $hoje = new DateTime();
+        $nascimento = new DateTime($dataNascimento_novo);
+        $idade_calculada = $hoje->diff($nascimento)->y;
+
+        if ($nascimento > $hoje) {
+            throw new Exception("Data de nascimento não pode ser futura!");
+        }
+
+        if ($idade_calculada < 18) {
+            throw new Exception("Idade mínima de 18 anos é necessária!");
+        }
+
+        // Validação dos campos do perfil
+        if (isset($_POST["idade"]) && !validarTipo($_POST["idade"], 'int')) {
+            throw new Exception("Tipo inválido para o campo idade!");
+        }
+        $idade_nova = isset($_POST["idade"]) ? filter_var($_POST["idade"], FILTER_VALIDATE_INT) : null;
+
+        if (isset($_POST["endereco"]) && !validarTipo($_POST["endereco"], 'string')) {
+            throw new Exception("Tipo inválido para o campo endereço!");
+        }
+        $endereco_novo = isset($_POST["endereco"]) ? mb_convert_encoding(limpar($_POST["endereco"]), 'UTF-8', 'auto') : null;
+
+        // Validação opcional da idade
+        if ($idade_nova !== false && ($idade_nova < 18 || $idade_nova > 80)) {
+            throw new Exception("Idade inválida! Deve estar entre 18 e 80 anos.");
+        }
+
+        // Validação dos demais campos do perfil
+        $camposPerfil = [
+            'formacao' => 'string',
+            'experiencia_profissional' => 'string',
+            'interesses' => 'string',
+            'projetos_especializacoes' => 'string',
+            'habilidades' => 'string'
+        ];
+
+        foreach ($camposPerfil as $campo => $tipo) {
+            if (isset($_POST[$campo]) && !validarTipo($_POST[$campo], $tipo)) {
+                throw new Exception("Tipo inválido para o campo {$campo}!");
+            }
+        }
+
+        $formacao_nova = isset($_POST["formacao"]) ? mb_convert_encoding(limpar($_POST["formacao"]), 'UTF-8', 'auto') : null;
+        $experiencia_profissional_nova = isset($_POST["experiencia_profissional"]) ? mb_convert_encoding(limpar($_POST["experiencia_profissional"]), 'UTF-8', 'auto') : null;
+        $interesses_novos = isset($_POST["interesses"]) ? mb_convert_encoding(limpar($_POST["interesses"]), 'UTF-8', 'auto') : null;
+        $projetos_especializacoes_novos = isset($_POST["projetos_especializacoes"]) ? mb_convert_encoding(limpar($_POST["projetos_especializacoes"]), 'UTF-8', 'auto') : null;
+        $habilidades_novas = isset($_POST["habilidades"]) ? mb_convert_encoding(limpar($_POST["habilidades"]), 'UTF-8', 'auto') : null;
+
+        // Validação do upload da foto
+        $foto_perfil_nova = null;
         if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
-            // Validação da imagem
+            // Verifica se é realmente um arquivo enviado
+            if (!is_uploaded_file($_FILES['foto_perfil']['tmp_name'])) {
+                throw new Exception("Possível ataque de upload de arquivo!");
+            }
+
+            // Validação do tipo MIME
             $mime = mime_content_type($_FILES['foto_perfil']['tmp_name']);
-            if (!in_array($mime, ['image/jpeg', 'image/png', 'image/gif'])) {
+            $tiposPermitidos = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif'];
+            
+            if (!array_key_exists($mime, $tiposPermitidos)) {
                 throw new Exception("Formato de imagem inválido! Apenas JPEG, PNG ou GIF são permitidos.");
             }
-            
+
             // Verifica tamanho máximo (5MB)
             if ($_FILES['foto_perfil']['size'] > 5 * 1024 * 1024) {
                 throw new Exception("A imagem deve ter no máximo 5MB!");
             }
-            
+
+            // Verificação adicional da imagem
+            $info = getimagesize($_FILES['foto_perfil']['tmp_name']);
+            if (!$info || !in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF])) {
+                throw new Exception("Arquivo não é uma imagem válida!");
+            }
+
             $foto_temp = $_FILES['foto_perfil']['tmp_name'];
-            $foto_perfil = file_get_contents($foto_temp);
-            
-            // Atualização da foto (usando o mesmo método que funciona no cadastro)
+            $foto_perfil_nova = file_get_contents($foto_temp);
+        }
+
+        // AGORA iniciar a transação após todas as validações
+        $pdo->beginTransaction();
+        $transacao_iniciada = true;
+        
+        // Atualiza os dados básicos na tabela Usuario
+        $sql = $pdo->prepare("UPDATE Usuario SET nome = :nome, telefone = :telefone, dataNascimento = :dataNascimento WHERE id_usuario = :id_usuario");
+        $sql->bindValue(":nome", $nome_novo, PDO::PARAM_STR);
+        $sql->bindValue(":telefone", $telefone_novo, PDO::PARAM_STR);
+        $sql->bindValue(":dataNascimento", $dataNascimento_novo, PDO::PARAM_STR);
+        $sql->bindValue(":id_usuario", $id_usuario, PDO::PARAM_INT);
+        $sql->execute();
+        
+        // Processamento da foto de perfil
+        if (isset($foto_perfil_nova)) {
             $sql_foto = $pdo->prepare("UPDATE Usuario SET foto_perfil = CONVERT(VARBINARY(MAX), :foto) WHERE id_usuario = :id");
-            $sql_foto->bindParam(":foto", $foto_perfil, PDO::PARAM_LOB, 0, PDO::SQLSRV_ENCODING_BINARY);
+            $sql_foto->bindParam(":foto", $foto_perfil_nova, PDO::PARAM_LOB, 0, PDO::SQLSRV_ENCODING_BINARY);
             $sql_foto->bindValue(":id", $id_usuario, PDO::PARAM_INT);
             $sql_foto->execute();
         }
@@ -79,7 +275,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $existe_perfil = $sql->fetchColumn();
         
         if ($existe_perfil > 0) {
-            // Atualiza o perfil existente
             $sql = $pdo->prepare("
                 UPDATE Perfil SET 
                     idade = :idade,
@@ -92,7 +287,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 WHERE id_usuario = :id_usuario
             ");
         } else {
-            // Insere um novo perfil
             $sql = $pdo->prepare("
                 INSERT INTO Perfil (
                     id_usuario, idade, endereco, formacao, 
@@ -108,60 +302,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Vincula os parâmetros do perfil
         $sql->bindValue(":id_usuario", $id_usuario, PDO::PARAM_INT);
-        $sql->bindValue(":idade", $idade, PDO::PARAM_INT);
-        $sql->bindValue(":endereco", $endereco, PDO::PARAM_STR);
-        $sql->bindValue(":formacao", $formacao, PDO::PARAM_STR);
-        $sql->bindValue(":experiencia_profissional", $experiencia_profissional, PDO::PARAM_STR);
-        $sql->bindValue(":interesses", $interesses, PDO::PARAM_STR);
-        $sql->bindValue(":projetos_especializacoes", $projetos_especializacoes, PDO::PARAM_STR);
-        $sql->bindValue(":habilidades", $habilidades, PDO::PARAM_STR);
+        $sql->bindValue(":idade", $idade_nova, PDO::PARAM_INT);
+        $sql->bindValue(":endereco", $endereco_novo, PDO::PARAM_STR);
+        $sql->bindValue(":formacao", $formacao_nova, PDO::PARAM_STR);
+        $sql->bindValue(":experiencia_profissional", $experiencia_profissional_nova, PDO::PARAM_STR);
+        $sql->bindValue(":interesses", $interesses_novos, PDO::PARAM_STR);
+        $sql->bindValue(":projetos_especializacoes", $projetos_especializacoes_novos, PDO::PARAM_STR);
+        $sql->bindValue(":habilidades", $habilidades_novas, PDO::PARAM_STR);
         $sql->execute();
         
         $pdo->commit();
+        $transacao_iniciada = false; // Transação foi finalizada com sucesso
         $mensagem = "Perfil atualizado com sucesso!";
         
+        // Recarregar os dados do usuário após a atualização
+        $usuario['nome'] = $nome_novo;
+        $usuario['telefone'] = $telefone_novo;
+        $usuario['dataNascimento'] = $dataNascimento_novo;
+        $usuario['idade'] = $idade_nova;
+        $usuario['endereco'] = $endereco_novo;
+        $usuario['formacao'] = $formacao_nova;
+        $usuario['experiencia_profissional'] = $experiencia_profissional_nova;
+        $usuario['interesses'] = $interesses_novos;
+        $usuario['projetos_especializacoes'] = $projetos_especializacoes_novos;
+        $usuario['habilidades'] = $habilidades_novas;
+        
+        $nome = $nome_novo; // Atualizar variável global
+        
+        if (isset($foto_perfil_nova)) {
+            $foto_perfil = 'data:image/jpeg;base64,' . base64_encode($foto_perfil_nova);
+        }
+        
     } catch (Exception $erro) {
-        $pdo->rollBack();
-        $mensagem = "Erro ao atualizar perfil: " . $erro->getMessage();
+        // Só faz rollback se a transação foi realmente iniciada
+        if ($pdo && $transacao_iniciada) {
+            try {
+                $pdo->rollBack();
+            } catch (PDOException $rollback_erro) {
+                // Se houver erro no rollback, adiciona à mensagem
+                $mensagem = "Erro ao atualizar perfil: " . $erro->getMessage() . " (Erro adicional no rollback: " . $rollback_erro->getMessage() . ")";
+            }
+        }
+        
+        if (empty($mensagem)) {
+            $mensagem = "Erro ao atualizar perfil: " . $erro->getMessage();
+        }
     }
-}
-try {
-    $pdo = conectar();
-
-    // Busca os dados básicos do usuário incluindo a foto
-    $sql = $pdo->prepare("SELECT nome, foto_perfil, email, telefone, dataNascimento FROM Usuario WHERE id_usuario = :id_usuario");
-    $sql->bindValue(":id_usuario", $id_usuario);
-    $sql->execute();
-    $usuario_basico = $sql->fetch(PDO::FETCH_ASSOC);
-    $nome = $usuario_basico ? $usuario_basico['nome'] : "Usuário";
-
-    // Verifica se há foto de perfil
-    $foto_perfil = null;
-    if (!empty($usuario_basico['foto_perfil'])) {
-        // Se a foto estiver em formato binário no banco
-        $foto_perfil = 'data:image/jpeg;base64,' . base64_encode($usuario_basico['foto_perfil']);
-    }
-
-    // Busca os dados completos do perfil
-    $sql = $pdo->prepare("
-        SELECT u.nome, u.email, u.dataNascimento, u.telefone, 
-               COALESCE(p.idade, NULL) as idade, 
-               COALESCE(p.endereco, 'Não informado') as endereco, 
-               COALESCE(p.formacao, 'Não informado') as formacao, 
-               COALESCE(p.experiencia_profissional, 'Nenhuma informação') as experiencia_profissional, 
-               COALESCE(p.interesses, 'Nenhuma informação') as interesses, 
-               COALESCE(p.projetos_especializacoes, 'Nenhuma informação') as projetos_especializacoes, 
-               COALESCE(p.habilidades, 'Nenhuma informação') as habilidades
-        FROM Usuario u
-        LEFT JOIN Perfil p ON u.id_usuario = p.id_usuario
-        WHERE u.id_usuario = :id_usuario
-    ");
-    $sql->bindValue(":id_usuario", $id_usuario);
-    $sql->execute();
-    $usuario = $sql->fetch(PDO::FETCH_ASSOC);
-} catch (Exception $erro) {
-    echo "Erro ao carregar perfil: " . $erro->getMessage();
-    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -828,7 +1014,7 @@ try {
 
     <?php if (!empty($mensagem)): ?>
         <div class="mensagem <?php echo strpos($mensagem, 'sucesso') !== false ? 'sucesso' : 'erro'; ?>">
-            <?php echo $mensagem; ?>
+            <?php echo htmlspecialchars($mensagem); ?>
         </div>
     <?php endif; ?>
 
@@ -966,82 +1152,352 @@ try {
     </footer>
 
     <script>
-        // Funções para controlar o modal
-        function abrirModal() {
-            document.getElementById('modalEditar').style.display = 'block';
-        }
-
-        function fecharModal() {
-            document.getElementById('modalEditar').style.display = 'none';
-        }
-
-        // Fechar o modal se clicar fora dele
-        window.onclick = function(event) {
-            const modal = document.getElementById('modalEditar');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        // Gerar PDF
-        function gerarPDF() {
-            // Mostra um alerta enquanto processa
-            alert("Gerando PDF... Isso pode levar alguns instantes.");
-            
-            // Envia uma requisição para o servidor gerar o PDF
-            window.location.href = "../php/gerar_pdf.php";
-        }
+    
+    function protegerInputsModal() {
         
-        // Função de logout
-        function logout() {
-            if(confirm('Tem certeza que deseja sair?')) {
-                window.location.href = '../php/logout.php';
-            }
-        }
+        const inputsModal = {
+            'nome': 'text',
+            'telefone': 'text',
+            'dataNascimento': 'date',
+            'idade': 'number',
+            'endereco': 'text',
+            'formacao': 'text',
+            'experiencia_profissional': 'text',
+            'interesses': 'text',
+            'projetos_especializacoes': 'text',
+            'habilidades': 'text',
+            'foto_perfil': 'file'
+        };
         
-        // Função para alternar o menu móvel
-        function toggleMobileMenu() {
-            const mobileMenu = document.querySelector('.mobile-menu');
-            const hamburger = document.querySelector('.hamburger-menu');
+        // Função para proteger um input específico
+        function protegerInput(inputElement, tipoOriginal, nomeInput) {
+            if (!inputElement) return;
             
-            // Alterna a classe 'active' no menu mobile
-            mobileMenu.classList.toggle('active');
+            // Armazenar atributos originais
+            const attributosOriginais = {
+                type: tipoOriginal,
+                name: inputElement.name,
+                id: inputElement.id,
+                required: inputElement.required,
+                maxLength: inputElement.maxLength
+            };
             
-            // Transforma o ícone do hambúrguer em X quando o menu está aberto
-            if (mobileMenu.classList.contains('active')) {
-                hamburger.children[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
-                hamburger.children[1].style.opacity = '0';
-                hamburger.children[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
-            } else {
-                hamburger.children[0].style.transform = 'rotate(0) translate(0)';
-                hamburger.children[1].style.opacity = '1';
-                hamburger.children[2].style.transform = 'rotate(0) translate(0)';
-            }
-        }
-
-        // Fechar o menu ao clicar em um link
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.mobile-menu a').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    // Se não for o link de logout, fecha o menu automaticamente
-                    if (!link.classList.contains('btn-logout')) {
-                        toggleMobileMenu();
+            // Monitorar mudanças nos atributos usando MutationObserver
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes') {
+                        const attrName = mutation.attributeName;
+                        
+                        // Verificar se atributos críticos foram alterados
+                        if (['type', 'name', 'id'].includes(attrName)) {
+                            const valorAtual = inputElement.getAttribute(attrName);
+                            const valorOriginal = attributosOriginais[attrName];
+                            
+                            if (valorAtual !== valorOriginal?.toString()) {
+                                console.warn(`Tentativa de manipulação detectada no campo ${nomeInput}, atributo:`, attrName);
+                                inputElement.setAttribute(attrName, valorOriginal);
+                                
+                                // Limpar o valor se houve tentativa de manipulação
+                                if (tipoOriginal !== 'file') {
+                                    inputElement.value = '';
+                                }
+                                
+                                // Mostrar aviso visual
+                                mostrarAvisoSegurancaModal(nomeInput);
+                            }
+                        }
                     }
                 });
             });
             
-            // Fechar o menu ao clicar fora dele
-            document.addEventListener('click', (event) => {
-                const mobileMenu = document.querySelector('.mobile-menu');
-                const hamburger = document.querySelector('.hamburger-menu');
+            // Observar mudanças nos atributos críticos
+            observer.observe(inputElement, {
+                attributes: true,
+                attributeFilter: ['type', 'name', 'id', 'required', 'maxlength']
+            });
+            
+            // Proteção contra alteração via JavaScript console
+            try {
+                Object.defineProperty(inputElement, 'type', {
+                    get: function() { return tipoOriginal; },
+                    set: function(value) {
+                        if (value !== tipoOriginal) {
+                            console.warn(`Tentativa de alteração de tipo bloqueada no campo ${nomeInput}`);
+                            mostrarAvisoSegurancaModal(nomeInput);
+                            return tipoOriginal;
+                        }
+                        return tipoOriginal;
+                    },
+                    configurable: false
+                });
+            } catch (e) {
+                // Fallback se não conseguir definir a propriedade
+                console.warn('Não foi possível proteger a propriedade type via Object.defineProperty');
+            }
+            
+            // Validação adicional no evento de input
+            inputElement.addEventListener('input', function(e) {
+                // Verificar se o tipo foi alterado
+                if (this.type !== tipoOriginal) {
+                    this.type = tipoOriginal;
+                    if (tipoOriginal !== 'file') {
+                        this.value = '';
+                    }
+                    mostrarAvisoSegurancaModal(nomeInput);
+                    e.preventDefault();
+                    return false;
+                }
                 
-                if (mobileMenu.classList.contains('active') && 
-                    !mobileMenu.contains(event.target) && 
-                    !hamburger.contains(event.target)) {
+                // Validação do conteúdo baseado no tipo
+                validarConteudoPorTipoModal(this, tipoOriginal);
+            });
+            
+            // Verificação periódica adicional (backup)
+            setInterval(function() {
+                if (inputElement.type !== tipoOriginal) {
+                    inputElement.type = tipoOriginal;
+                    if (tipoOriginal !== 'file') {
+                        inputElement.value = '';
+                    }
+                    mostrarAvisoSegurancaModal(nomeInput);
+                }
+            }, 2000);
+        }
+        
+        // Aplicar proteção a todos os inputs do modal
+        Object.keys(inputsModal).forEach(nomeInput => {
+            const inputElement = document.querySelector(`#modalEditar input[name="${nomeInput}"], #modalEditar textarea[name="${nomeInput}"]`);
+            if (inputElement) {
+                protegerInput(inputElement, inputsModal[nomeInput], nomeInput);
+            }
+        });
+        
+        // Proteção adicional no formulário de edição
+        const formModal = document.querySelector('#modalEditar form');
+        if (formModal) {
+            formModal.addEventListener('submit', function(e) {
+                let manipulacaoDetectada = false;
+                
+                Object.keys(inputsModal).forEach(nomeInput => {
+                    const inputElement = document.querySelector(`#modalEditar input[name="${nomeInput}"], #modalEditar textarea[name="${nomeInput}"]`);
+                    if (inputElement && inputElement.type !== inputsModal[nomeInput]) {
+                        console.warn(`Tipo de input manipulado detectado no envio: ${nomeInput}`);
+                        inputElement.type = inputsModal[nomeInput];
+                        if (inputsModal[nomeInput] !== 'file') {
+                            inputElement.value = '';
+                        }
+                        manipulacaoDetectada = true;
+                    }
+                });
+                
+                if (manipulacaoDetectada) {
+                    e.preventDefault();
+                    mostrarAvisoSegurancaModal('formulário');
+                    return false;
+                }
+            });
+        }
+    }
+    
+    // Função para validar conteúdo baseado no tipo esperado do modal
+    function validarConteudoPorTipoModal(input, tipoEsperado) {
+        const valor = input.value;
+        
+        switch (tipoEsperado) {
+            case 'text':
+                // Para campos de texto, permitir caracteres seguros
+                const regexTexto = /^[\w\sáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\-.,;:!?@#%&*()+=\/\\]*$/;
+                if (!regexTexto.test(valor)) {
+                    input.value = valor.replace(/[^\w\sáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\-.,;:!?@#%&*()+=\/\\]/g, '');
+                }
+                break;
+                
+            case 'text':
+                // Para telefone, permitir apenas números, parênteses, hífen, espaço e +
+                const regexTel = /^[\d()\-\s+]*$/;
+                if (!regexTel.test(valor)) {
+                    input.value = valor.replace(/[^\d()\-\s+]/g, '');
+                }
+                break;
+                
+            case 'number':
+                // Para idade, permitir apenas números
+                if (!/^\d*$/.test(valor)) {
+                    input.value = valor.replace(/[^\d]/g, '');
+                }
+                break;
+                
+            case 'date':
+                // Para data, o navegador já faz a validação básica
+                break;
+                
+            case 'file':
+                // Para arquivo, não há validação de conteúdo do valor
+                break;
+        }
+        
+        // Limitar tamanho máximo para campos de texto
+        if (['text', 'text'].includes(tipoEsperado) && valor.length > 500) {
+            input.value = valor.substring(0, 500);
+        }
+    }
+    
+    // Função para mostrar aviso de segurança específico do modal
+    function mostrarAvisoSegurancaModal(campo) {
+        // Remove avisos anteriores
+        const avisoAnterior = document.querySelector('.security-warning-modal');
+        if (avisoAnterior) {
+            avisoAnterior.remove();
+        }
+        
+        // Criar elemento de aviso
+        const aviso = document.createElement('div');
+        aviso.className = 'security-warning-modal';
+        aviso.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ff4444;
+            color: white;
+            padding: 20px 25px;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            z-index: 20000;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            max-width: 400px;
+            text-align: center;
+            animation: modalWarningShow 0.3s ease-out;
+        `;
+        
+        aviso.innerHTML = `
+            <strong>🔒 Alerta de Segurança</strong><br><br>
+            Tentativa de manipulação detectada no campo: <strong>${campo}</strong><br>
+            O formulário foi resetado por segurança.<br><br>
+            <button onclick="this.parentElement.remove()" style="
+                background: white;
+                color: #ff4444;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+                margin-top: 10px;
+            ">OK</button>
+        `;
+        
+        // Adicionar CSS da animação se não existir
+        if (!document.querySelector('#modal-security-warning-styles')) {
+            const style = document.createElement('style');
+            style.id = 'modal-security-warning-styles';
+            style.textContent = `
+                @keyframes modalWarningShow {
+                    from { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
+                    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(aviso);
+        
+        // Remover aviso automaticamente após 8 segundos
+        setTimeout(() => {
+            if (aviso.parentNode) {
+                aviso.style.animation = 'modalWarningShow 0.3s ease-out reverse';
+                setTimeout(() => aviso.remove(), 300);
+            }
+        }, 8000);
+    }
+
+    // ===== FUNÇÕES ORIGINAIS DO MODAL =====
+    // Funções para controlar o modal
+    function abrirModal() {
+        document.getElementById('modalEditar').style.display = 'block';
+        // Inicializar a proteção dos inputs quando o modal for aberto
+        setTimeout(protegerInputsModal, 100);
+    }
+
+    function fecharModal() {
+        document.getElementById('modalEditar').style.display = 'none';
+    }
+
+    // Fechar o modal se clicar fora dele
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalEditar');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Gerar PDF
+    function gerarPDF() {
+        // Mostra um alerta enquanto processa
+        alert("Gerando PDF... Isso pode levar alguns instantes.");
+        
+        // Envia uma requisição para o servidor gerar o PDF
+        window.location.href = "../php/gerar_pdf.php";
+    }
+
+    // Função de logout
+    function logout() {
+        if(confirm('Tem certeza que deseja sair?')) {
+            window.location.href = '../php/logout.php';
+        }
+    }
+
+    // Função para alternar o menu móvel
+    function toggleMobileMenu() {
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const hamburger = document.querySelector('.hamburger-menu');
+        
+        // Alterna a classe 'active' no menu mobile
+        mobileMenu.classList.toggle('active');
+        
+        // Transforma o ícone do hambúrguer em X quando o menu está aberto
+        if (mobileMenu.classList.contains('active')) {
+            hamburger.children[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+            hamburger.children[1].style.opacity = '0';
+            hamburger.children[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+        } else {
+            hamburger.children[0].style.transform = 'rotate(0) translate(0)';
+            hamburger.children[1].style.opacity = '1';
+            hamburger.children[2].style.transform = 'rotate(0) translate(0)';
+        }
+    }
+
+    // Inicialização quando o DOM estiver carregado
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fechar o menu ao clicar em um link
+        document.querySelectorAll('.mobile-menu a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                // Se não for o link de logout, fecha o menu automaticamente
+                if (!link.classList.contains('btn-logout')) {
                     toggleMobileMenu();
                 }
             });
         });
-    </script>
+        
+        // Fechar o menu ao clicar fora dele
+        document.addEventListener('click', (event) => {
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const hamburger = document.querySelector('.hamburger-menu');
+            
+            if (mobileMenu.classList.contains('active') &&
+                !mobileMenu.contains(event.target) &&
+                !hamburger.contains(event.target)) {
+                toggleMobileMenu();
+            }
+        });
+        
+        // Inicializar proteção dos inputs do modal se o modal já estiver presente
+        const modal = document.getElementById('modalEditar');
+        if (modal) {
+            // Aguardar um pouco para garantir que todos os elementos foram carregados
+            setTimeout(protegerInputsModal, 500);
+        }
+    });
+</script>
 </body>
 </html>
