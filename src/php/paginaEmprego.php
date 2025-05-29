@@ -13,7 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['aj
         exit;         
     }          
     
-    $id_vaga = $_POST['id_vaga'];         
+    // Sanitizar e validar id_vaga
+    $id_vaga = filter_var($_POST['id_vaga'], FILTER_VALIDATE_INT);
+    if ($id_vaga === false || $id_vaga <= 0) {
+        echo json_encode(['success' => false, 'message' => 'ID da vaga inválido.']);
+        exit;
+    }
+    
     $id_usuario = $_SESSION['id_usuario'];          
     
     try {             
@@ -45,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['aj
         echo json_encode(['success' => true, 'message' => 'Candidatura realizada com sucesso!']);             
         exit;         
     } catch (PDOException $e) {             
-        echo json_encode(['success' => false, 'message' => 'Erro ao processar candidatura: ' . $e->getMessage()]);             
+        echo json_encode(['success' => false, 'message' => 'Erro ao processar candidatura.']);             
         exit;         
     }     
 }  
@@ -59,7 +65,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
         exit;
     }
     
-    $id_vaga = $_GET['id_vaga'];
+    // Sanitizar e validar id_vaga
+    $id_vaga = filter_var($_GET['id_vaga'], FILTER_VALIDATE_INT);
+    if ($id_vaga === false || $id_vaga <= 0) {
+        echo json_encode(['success' => false, 'message' => 'ID da vaga inválido.']);
+        exit;
+    }
     
     try {
         $stmt = $pdo->prepare("
@@ -72,6 +83,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
         $vaga = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($vaga) {
+            // Sanitizar dados da vaga antes de retornar
+            $vaga['titulo_vaga'] = htmlspecialchars($vaga['titulo_vaga'], ENT_QUOTES, 'UTF-8');
+            $vaga['empresa'] = htmlspecialchars($vaga['empresa'], ENT_QUOTES, 'UTF-8');
+            $vaga['descricao'] = htmlspecialchars($vaga['descricao'], ENT_QUOTES, 'UTF-8');
+            $vaga['requisitos'] = htmlspecialchars($vaga['requisitos'], ENT_QUOTES, 'UTF-8');
+            $vaga['beneficios'] = htmlspecialchars($vaga['beneficios'], ENT_QUOTES, 'UTF-8');
+            $vaga['localizacao'] = htmlspecialchars($vaga['localizacao'], ENT_QUOTES, 'UTF-8');
+            $vaga['tipo_emprego'] = htmlspecialchars($vaga['tipo_emprego'], ENT_QUOTES, 'UTF-8');
+            $vaga['nome_area'] = htmlspecialchars($vaga['nome_area'], ENT_QUOTES, 'UTF-8');
+            
             // Formatar o salário se existir
             if ($vaga['salario']) {
                 $vaga['salario_formatado'] = 'R$ ' . number_format($vaga['salario'], 2, ',', '.');
@@ -88,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
         }
         exit;
     } catch (PDOException $e) {
-        echo json_encode(['success' => false, 'message' => 'Erro ao buscar vaga: ' . $e->getMessage()]);
+        echo json_encode(['success' => false, 'message' => 'Erro ao buscar vaga.']);
         exit;
     }
 }
@@ -120,6 +141,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
         $stmt->execute([$_SESSION['id_usuario']]);
         $atualizacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
+        // Sanitizar dados das atualizações
+        foreach ($atualizacoes as &$atualizacao) {
+            $atualizacao['status'] = htmlspecialchars($atualizacao['status'], ENT_QUOTES, 'UTF-8');
+            $atualizacao['titulo_vaga'] = htmlspecialchars($atualizacao['titulo_vaga'], ENT_QUOTES, 'UTF-8');
+        }
+        
         echo json_encode([
             'success' => true,
             'atualizacoes' => $atualizacoes
@@ -133,7 +160,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
 }
 
 // Buscar vagas com base no termo de pesquisa 
-$termoBusca = isset($_GET['search']) ? trim($_GET['search']) : ''; 
+$termoBusca = '';
+if (isset($_GET['search'])) {
+    $termoBusca = filter_var($_GET['search'], FILTER_SANITIZE_SPECIAL_CHARS);
+    $termoBusca = trim($termoBusca);
+    
+    // Validar se não está vazio após sanitização
+    if (empty($termoBusca)) {
+        $termoBusca = '';
+    }
+}
+
 $vagas = [];  
 
 try {     
@@ -155,7 +192,7 @@ try {
     
     $vagas = $stmt->fetchAll(PDO::FETCH_ASSOC); 
 } catch (PDOException $e) {     
-    echo "<script>alert('Erro ao buscar vagas: " . addslashes($e->getMessage()) . "');</script>"; 
+    echo "<script>alert('Erro ao buscar vagas.');</script>"; 
 }  
 
 // Buscar candidaturas ATIVAS do usuário logado 
@@ -177,7 +214,10 @@ if (isset($_SESSION['id_usuario'])) {
     } catch (PDOException $e) {         
           
     } 
-} 
+}
+
+// Sanitizar termo de busca para exibição
+$termoBuscaDisplay = htmlspecialchars($termoBusca, ENT_QUOTES, 'UTF-8');
 ?>
 
 
@@ -965,23 +1005,32 @@ if (isset($_SESSION['id_usuario'])) {
                         <div class="saved-jobs-list">
                             <?php foreach ($minhas_candidaturas as $candidatura): 
                                 $classes = ['saved-job-card', 'status-' . strtolower($candidatura['status'])];
+                                
+                                // Sanitizar dados da candidatura
+                                $titulo_vaga = htmlspecialchars($candidatura['titulo_vaga'], ENT_QUOTES, 'UTF-8');
+                                $empresa = htmlspecialchars($candidatura['empresa'], ENT_QUOTES, 'UTF-8');
+                                $nome_area = htmlspecialchars($candidatura['nome_area'] ?? 'Área não especificada', ENT_QUOTES, 'UTF-8');
+                                $tipo_emprego = htmlspecialchars($candidatura['tipo_emprego'], ENT_QUOTES, 'UTF-8');
+                                $localizacao = htmlspecialchars($candidatura['localizacao'] ?? 'Local não especificado', ENT_QUOTES, 'UTF-8');
+                                $status = htmlspecialchars($candidatura['status'], ENT_QUOTES, 'UTF-8');
+                                $id_candidatura = filter_var($candidatura['id_candidatura'], FILTER_VALIDATE_INT);
                             ?>
                                 <div class="<?= implode(' ', $classes) ?>" 
-                                     data-candidatura-id="<?= $candidatura['id_candidatura'] ?>">
+                                     data-candidatura-id="<?= $id_candidatura ?>">
                                     <h4>
-                                        <?= htmlspecialchars($candidatura['titulo_vaga']) ?>
+                                        <?= $titulo_vaga ?>
                                         <?php if ($candidatura['status'] !== 'Pendente'): ?>
                                             <span class="status-badge <?= strtolower($candidatura['status']) ?>">
-                                                <?= $candidatura['status'] ?>
+                                                <?= $status ?>
                                             </span>
                                         <?php endif; ?>
                                     </h4>
-                                    <p><strong>Empresa:</strong> <?= htmlspecialchars($candidatura['empresa']) ?></p>
-                                    <p><?= htmlspecialchars($candidatura['nome_area'] ?? 'Área não especificada') ?></p>
-                                    <p><?= htmlspecialchars($candidatura['tipo_emprego']) ?> - <?= htmlspecialchars($candidatura['localizacao'] ?? 'Local não especificado') ?></p>
+                                    <p><strong>Empresa:</strong> <?= $empresa ?></p>
+                                    <p><?= $nome_area ?></p>
+                                    <p><?= $tipo_emprego ?> - <?= $localizacao ?></p>
                                     
                                     <span class="saved-job-status status-<?= strtolower($candidatura['status']) ?>">
-                                        <?= htmlspecialchars($candidatura['status']) ?>
+                                        <?= $status ?>
                                     </span>
                                 </div>
                             <?php endforeach; ?>
@@ -1008,7 +1057,7 @@ if (isset($_SESSION['id_usuario'])) {
             <div class="search-filter-container">
                 <input type="text" name="search" id="searchInput" class="search-bar"
                     placeholder="Pesquisar por título da vaga ou área de atuação..."
-                    value="<?= htmlspecialchars($termoBusca) ?>">
+                    value="<?= $termoBuscaDisplay ?>">
                 <button type="submit" class="search-btn">Procurar</button>
             </div>
         </form>
@@ -1018,13 +1067,21 @@ if (isset($_SESSION['id_usuario'])) {
             <?php if (empty($vagas)): ?>
                 <p>Nenhuma vaga encontrada.</p>
             <?php else: ?>
-                <?php foreach ($vagas as $vaga): ?>
+                <?php foreach ($vagas as $vaga): 
+                    // Sanitizar dados da vaga
+                    $titulo_vaga = htmlspecialchars($vaga['titulo_vaga'], ENT_QUOTES, 'UTF-8');
+                    $empresa = htmlspecialchars($vaga['empresa'], ENT_QUOTES, 'UTF-8');
+                    $nome_area = htmlspecialchars($vaga['nome_area'] ?? 'Área não especificada', ENT_QUOTES, 'UTF-8');
+                    $tipo_emprego = htmlspecialchars($vaga['tipo_emprego'], ENT_QUOTES, 'UTF-8');
+                    $localizacao = htmlspecialchars($vaga['localizacao'] ?? 'Não especificado', ENT_QUOTES, 'UTF-8');
+                    $id_vaga = filter_var($vaga['id_vaga'], FILTER_VALIDATE_INT);
+                ?>
                     <div class="job-card">
-                        <h3><?= htmlspecialchars($vaga['titulo_vaga']) ?></h3>
-                        <p><strong>Empresa:</strong> <?= htmlspecialchars($vaga['empresa']) ?></p>
-                        <p><?= htmlspecialchars($vaga['nome_area'] ?? 'Área não especificada') ?></p>
-                        <p>Tipo: <?= htmlspecialchars($vaga['tipo_emprego']) ?></p>
-                        <p>Localização: <?= htmlspecialchars($vaga['localizacao'] ?? 'Não especificado') ?></p>
+                        <h3><?= $titulo_vaga ?></h3>
+                        <p><strong>Empresa:</strong> <?= $empresa ?></p>
+                        <p><?= $nome_area ?></p>
+                        <p>Tipo: <?= $tipo_emprego ?></p>
+                        <p>Localização: <?= $localizacao ?></p>
                         <?php if ($vaga['salario']): ?>
                             <p><strong>Salário:</strong> R$ <?= number_format($vaga['salario'], 2, ',', '.') ?></p>
                         <?php endif; ?>
@@ -1033,7 +1090,7 @@ if (isset($_SESSION['id_usuario'])) {
                             <?php if (in_array($vaga['id_vaga'], $candidaturas_usuario)): ?>
                                 <button class="already-applied" disabled>Candidatura Enviada</button>
                             <?php else: ?>
-                                <button class="more-info-btn" data-vaga-id="<?= $vaga['id_vaga'] ?>">Saiba Mais</button>
+                                <button class="more-info-btn" data-vaga-id="<?= $id_vaga ?>">Saiba Mais</button>
                             <?php endif; ?>
                         <?php else: ?>
                             <p><a href="../pages/login.html" class="job-link">Faça login para se candidatar</a></p>
@@ -1122,6 +1179,260 @@ if (isset($_SESSION['id_usuario'])) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../assets/js/script.js"></script>
     <script>
+
+$(document).ready(function() {
+    // ===== PROTEÇÃO CONTRA MANIPULAÇÃO DE INPUTS (Adicionado do primeiro código) =====
+    function protegerInputs() {
+        const searchInput = document.getElementById('searchInput');
+        
+        if (!searchInput) return;
+        
+        // Armazenar o tipo original
+        const tipoOriginal = searchInput.type;
+        const attributosOriginais = {
+            type: searchInput.type,
+            name: searchInput.name,
+            id: searchInput.id,
+            required: searchInput.required,
+            maxLength: searchInput.maxLength || 100
+        };
+        
+        // Monitorar mudanças nos atributos usando MutationObserver
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes') {
+                    const attrName = mutation.attributeName;
+                    
+                    // Verificar se atributos críticos foram alterados
+                    if (['type', 'name', 'id'].includes(attrName)) {
+                        const valorAtual = searchInput.getAttribute(attrName);
+                        const valorOriginal = attributosOriginais[attrName];
+                        
+                        if (valorAtual !== valorOriginal.toString()) {
+                            console.warn('Tentativa de manipulação detectada no atributo:', attrName);
+                            searchInput.setAttribute(attrName, valorOriginal);
+                            
+                            // Limpar o valor se houve tentativa de manipulação
+                            searchInput.value = '';
+                            
+                            // Mostrar aviso visual
+                            mostrarAvisoSeguranca();
+                        }
+                    }
+                }
+            });
+        });
+        
+        // Observar mudanças nos atributos
+        observer.observe(searchInput, {
+            attributes: true,
+            attributeFilter: ['type', 'name', 'id', 'required', 'maxlength']
+        });
+        
+        // Verificação periódica adicional (backup)
+        setInterval(function() {
+            if (searchInput.type !== tipoOriginal) {
+                searchInput.type = tipoOriginal;
+                searchInput.value = '';
+                mostrarAvisoSeguranca();
+            }
+        }, 1000);
+        
+        // Proteção contra alteração via JavaScript console
+        Object.defineProperty(searchInput, 'type', {
+            get: function() { return tipoOriginal; },
+            set: function(value) {
+                if (value !== tipoOriginal) {
+                    console.warn('Tentativa de alteração de tipo bloqueada');
+                    mostrarAvisoSeguranca();
+                    return tipoOriginal;
+                }
+                return tipoOriginal;
+            },
+            configurable: false
+        });
+        
+        // Validação adicional no evento de input
+        searchInput.addEventListener('input', function(e) {
+            // Verificar se o tipo foi alterado
+            if (this.type !== tipoOriginal) {
+                this.type = tipoOriginal;
+                this.value = '';
+                mostrarAvisoSeguranca();
+                e.preventDefault();
+                return false;
+            }
+            
+            // Validação do conteúdo
+            validarConteudoPorTipo(this, tipoOriginal);
+        });
+        
+        // Validação no submit
+        if (searchInput.closest('form')) {
+            searchInput.closest('form').addEventListener('submit', function(e) {
+                if (searchInput.type !== tipoOriginal) {
+                    e.preventDefault();
+                    searchInput.type = tipoOriginal;
+                    searchInput.value = '';
+                    mostrarAvisoSeguranca();
+                    return false;
+                }
+            });
+        }
+    }
+    
+    // Função para validar conteúdo baseado no tipo esperado
+    function validarConteudoPorTipo(input, tipoEsperado) {
+        const valor = input.value;
+        
+        // Para campo de busca, permitir apenas caracteres seguros
+        const regexTexto = /^[\w\sáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\-.,;:!?@#%&*()+=]*$/;
+        if (!regexTexto.test(valor)) {
+            input.value = valor.replace(/[^\w\sáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\-.,;:!?@#%&*()+=]/g, '');
+        }
+        
+        // Limitar tamanho máximo
+        if (valor.length > 100) {
+            input.value = valor.substring(0, 100);
+        }
+    }
+    
+    // Função para mostrar aviso de segurança
+    function mostrarAvisoSeguranca() {
+        // Remove avisos anteriores
+        const avisoAnterior = document.querySelector('.security-warning');
+        if (avisoAnterior) {
+            avisoAnterior.remove();
+        }
+        
+        // Criar elemento de aviso
+        const aviso = document.createElement('div');
+        aviso.className = 'security-warning';
+        aviso.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #ff4444;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 10000;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            max-width: 300px;
+            animation: slideIn 0.3s ease-out;
+        `;
+        
+        aviso.innerHTML = `
+            <strong>⚠️ Aviso de Segurança</strong><br>
+            Tentativa de manipulação detectada. O formulário foi resetado por segurança.
+        `;
+        
+        // Adicionar CSS da animação se não existir
+        if (!document.querySelector('#security-warning-styles')) {
+            const style = document.createElement('style');
+            style.id = 'security-warning-styles';
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(aviso);
+        
+        // Remover aviso após 5 segundos
+        setTimeout(() => {
+            if (aviso.parentNode) {
+                aviso.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => aviso.remove(), 300);
+            }
+        }, 5000);
+    }
+    
+    // Inicializar proteções
+    protegerInputs();
+
+    // ===== CÓDIGO ORIGINAL CONTINUA AQUI =====
+    // Verificar mudanças de status periodicamente (apenas para notificações)
+    checkStatusUpdates();
+    setInterval(checkStatusUpdates, 30000); // Verifica a cada 30 segundos
+
+    // Modal de detalhes da vaga
+    $('.more-info-btn').on('click', function() {
+        const vagaId = $(this).data('vaga-id');
+
+        $.ajax({
+            type: 'GET',
+            url: window.location.href,
+            data: {
+                ajax: 'buscar_vaga',
+                id_vaga: vagaId
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    const vaga = response.vaga;
+                    
+                    $('#modal-title').text(vaga.titulo_vaga);
+                    $('#modal-empresa').text(vaga.empresa);
+                    $('#modal-area').text(vaga.nome_area || 'Área não especificada');
+                    $('#modal-tipo').text(vaga.tipo_emprego);
+                    $('#modal-localizacao').text(vaga.localizacao || 'Localização não especificada');
+                    $('#modal-descricao').html(vaga.descricao ? vaga.descricao.replace(/\n/g, '<br>') : 'Sem descrição detalhada.');
+
+                    if (vaga.salario_formatado) {
+                        $('#modal-salario').text(vaga.salario_formatado);
+                        $('#modal-salario-container').show();
+                    } else {
+                        $('#modal-salario').text('Não informado');
+                        $('#modal-salario-container').show();
+                    }
+
+                    if (vaga.data_encerramento_formatada) {
+                        $('#modal-encerramento').text(vaga.data_encerramento_formatada);
+                        $('#modal-encerramento-container').show();
+                    } else {
+                        $('#modal-encerramento').text('Não informado');
+                        $('#modal-encerramento-container').show();
+                    }
+
+                    if (vaga.requisitos) {
+                        $('#modal-requisitos').html(vaga.requisitos.replace(/\n/g, '<br>'));
+                        $('#modal-requisitos-section').show();
+                    } else {
+                        $('#modal-requisitos-section').hide();
+                    }
+
+                    if (vaga.beneficios) {
+                        $('#modal-beneficios').html(vaga.beneficios.replace(/\n/g, '<br>'));
+                        $('#modal-beneficios-section').show();
+                    } else {
+                        $('#modal-beneficios-section').hide();
+                    }
+
+                    $('#modal-apply-btn').data('vaga-id', vagaId);
+                    $('#job-modal').addClass('active');
+                } else {
+                    alert(response.message || 'Erro ao carregar detalhes da vaga.');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Erro AJAX:', error);
+                alert('Erro de conexão ao carregar detalhes da vaga.');
+            }
+        });
+    });
+
+    // Restante do código original permanece inalterado...
+    // [Todo o restante do código original permanece exatamente igual]
+});
+
+// As funções existentes checkStatusUpdates(), showStatusNotification() e closeNotification() 
+// permanecem exatamente iguais e são mantidas sem alterações
 
 $(document).ready(function() {
     // Verificar mudanças de status periodicamente (apenas para notificações)
