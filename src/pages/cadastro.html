@@ -76,9 +76,9 @@
                         <textarea id="habilidades" name="habilidades" placeholder="Descreva suas habilidades"></textarea>
                     </div>
                     <div class="form-group lgpd-checkbox">
-    <input type="checkbox" id="aceitoLGPD" name="aceitoLGPD" required>
-    <label for="aceitoLGPD">Li e aceito os <a href="#" id="lgpdLink">Termos de Política de Privacidade e LGPD</a></label>
-</div>
+                        <input type="checkbox" id="aceitoLGPD" name="aceitoLGPD" required>
+                        <label for="aceitoLGPD">Li e aceito os <a href="#" id="lgpdLink">Termos de Política de Privacidade e LGPD</a></label>
+                    </div>
                     <button type="button" id="submitBtn" class="submit-btn">Cadastrar</button>
                 </form>
             </div>
@@ -87,69 +87,29 @@
     <footer>
         <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
     </footer>
-    <script src="../assets/js/script.js"></script>
-    <script> document.addEventListener('DOMContentLoaded', function() {
-        const fileInput = document.getElementById('foto_perfil');
-        const avatarPreview = document.createElement('div');
-        avatarPreview.className = 'avatar-preview';
-        
-        // Cria elemento de imagem para pré-visualização
-        const previewImage = document.createElement('img');
-        previewImage.src = '../assets/img/userp.jpg'; // Imagem padrão
-        previewImage.alt = 'Pré-visualização do avatar';
-        avatarPreview.appendChild(previewImage);
-        
-        // Insere o container de pré-visualização antes do input
-        fileInput.parentNode.insertBefore(avatarPreview, fileInput.nextSibling);
-        
-        // Adiciona label personalizada
-        const uploadLabel = document.createElement('label');
-        uploadLabel.htmlFor = 'foto_perfil';
-        uploadLabel.className = 'upload-label';
-        uploadLabel.textContent = 'Escolher Foto';
-        avatarPreview.parentNode.insertBefore(uploadLabel, avatarPreview.nextSibling);
-        
-        // Adiciona instruções
-        const instructions = document.createElement('div');
-        instructions.className = 'upload-instructions';
-        instructions.textContent = 'Clique para selecionar uma imagem';
-        uploadLabel.parentNode.insertBefore(instructions, uploadLabel.nextSibling);
-        
-        // Atualiza a pré-visualização quando uma imagem é selecionada
-        fileInput.addEventListener('change', function(e) {
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    previewImage.src = e.target.result;
-                    avatarPreview.classList.add('has-image');
-                }
-                
-                reader.readAsDataURL(fileInput.files[0]);
-            }
-        });
-    });</script>
-
-
-<div id="lgpdModal" class="modal-lgpd">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Termos de Política de Privacidade e LGPD</h2>
-        <div id="lgpdTermsContent">
-            <p>Ao se cadastrar em nossa plataforma, você concorda com os seguintes termos:</p>
-            <ol>
-                <li><strong>Coleta de Dados:</strong> Coletamos informações pessoais como nome, e-mail, data de nascimento e outras informações necessárias para o funcionamento da plataforma.</li>
-                <li><strong>Uso dos Dados:</strong> Seus dados serão utilizados para personalizar sua experiência, fornecer serviços e melhorar nossa plataforma.</li>
-                <li><strong>Compartilhamento:</strong> Não compartilhamos seus dados pessoais com terceiros sem seu consentimento, exceto quando exigido por lei.</li>
-                <li><strong>Segurança:</strong> Implementamos medidas de segurança para proteger seus dados contra acesso não autorizado.</li>
-                <li><strong>Seus Direitos:</strong> Você tem o direito de acessar, corrigir, excluir ou portar seus dados pessoais a qualquer momento.</li>
-                <li><strong>Cookies:</strong> Utilizamos cookies para melhorar sua experiência, que podem ser desativados nas configurações do seu navegador.</li>
-                <li><strong>Alterações:</strong> Esta política pode ser atualizada periodicamente, com aviso prévio aos usuários.</li>
-            </ol>
-            <p>Para exercer seus direitos ou ter dúvidas sobre o tratamento de seus dados, entre em contato conosco.</p>
+    
+    <!-- Modal LGPD -->
+    <div id="lgpdModal" class="modal-lgpd">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Termos de Política de Privacidade e LGPD</h2>
+            <div id="lgpdTermsContent">
+                <p>Ao se cadastrar em nossa plataforma, você concorda com os seguintes termos:</p>
+                <ol>
+                    <li><strong>Coleta de Dados:</strong> Coletamos informações pessoais como nome, e-mail, data de nascimento e outras informações necessárias para o funcionamento da plataforma.</li>
+                    <li><strong>Uso dos Dados:</strong> Seus dados serão utilizados para personalizar sua experiência, fornecer serviços e melhorar nossa plataforma.</li>
+                    <li><strong>Compartilhamento:</strong> Não compartilhamos seus dados pessoais com terceiros sem seu consentimento, exceto quando exigido por lei.</li>
+                    <li><strong>Segurança:</strong> Implementamos medidas de segurança para proteger seus dados contra acesso não autorizado.</li>
+                    <li><strong>Seus Direitos:</strong> Você tem o direito de acessar, corrigir, excluir ou portar seus dados pessoais a qualquer momento.</li>
+                    <li><strong>Alterações:</strong> Esta política pode ser atualizada periodicamente, com aviso prévio aos usuários.</li>
+                </ol>
+                <p>Para exercer seus direitos ou ter dúvidas sobre o tratamento de seus dados, entre em contato conosco.</p>
+            </div>
         </div>
     </div>
-</div>
+
+    <script src="../assets/js/script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
 // Modal para os termos LGPD
@@ -513,46 +473,325 @@ footer {
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-$(document).ready(function () {
-    $('#submitBtn').on('click', function () {
-        const nome = $('#nome').val();
-        const email = $('#email').val();
-        const senha = $('#senha').val();
-        const dataNascimento = $('#dataNascimento').val();
-        const telefone = $('#telefone').val();
-        const idade = $('#idade').val();
-        const endereco = $('#endereco').val();
-        const formacao = $('#formacao').val();
-        const experiencia_profissional = $('#experiencia_profissional').val();
-        const interesses = $('#interesses').val();
-        const projetos_especializacoes = $('#projetos_especializacoes').val();
-        const habilidades = $('#habilidades').val();
-        const formData = new FormData($('#cadastroForm')[0]);
-
-        if (!formData.get('nome') || !formData.get('email') || !formData.get('senha') || 
-            !formData.get('dataNascimento') || !formData.get('telefone')) {
-            alert('Por favor, preencha todos os campos obrigatórios!');
-            return;
-        }
-
-        $.ajax({
-            url: '../php/cadastro.php',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                if (response.trim() === "ok") {
-                    window.location.href = '../pages/inclusaoCadastro.html';
-                } else {
-                    alert(response);
+    // Pré-visualização da foto de perfil
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('foto_perfil');
+        const avatarPreview = document.createElement('div');
+        avatarPreview.className = 'avatar-preview';
+        
+        // Cria elemento de imagem para pré-visualização
+        const previewImage = document.createElement('img');
+        previewImage.src = '../assets/img/userp.jpg'; // Imagem padrão
+        previewImage.alt = 'Pré-visualização do avatar';
+        avatarPreview.appendChild(previewImage);
+        
+        // Insere o container de pré-visualização antes do input
+        fileInput.parentNode.insertBefore(avatarPreview, fileInput.nextSibling);
+        
+        // Adiciona label personalizada
+        const uploadLabel = document.createElement('label');
+        uploadLabel.htmlFor = 'foto_perfil';
+        uploadLabel.className = 'upload-label';
+        uploadLabel.textContent = 'Escolher Foto';
+        avatarPreview.parentNode.insertBefore(uploadLabel, avatarPreview.nextSibling);
+        
+        // Adiciona instruções
+        const instructions = document.createElement('div');
+        instructions.className = 'upload-instructions';
+        instructions.textContent = 'Clique para selecionar uma imagem';
+        uploadLabel.parentNode.insertBefore(instructions, uploadLabel.nextSibling);
+        
+        // Atualiza a pré-visualização quando uma imagem é selecionada
+        fileInput.addEventListener('change', function(e) {
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    avatarPreview.classList.add('has-image');
                 }
-            },
-            error: function (xhr, status, error) {
-                console.error('Erro na requisição:', error);
-                alert('Erro na comunicação com o servidor. Tente novamente.');
+                
+                reader.readAsDataURL(fileInput.files[0]);
             }
         });
     });
-});
-</script>
+
+    // Modal para os termos LGPD
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById("lgpdModal");
+        const btn = document.getElementById("lgpdLink");
+        const span = document.getElementsByClassName("close")[0];
+        
+        btn.onclick = function(e) {
+            e.preventDefault();
+            modal.style.display = "block";
+        }
+        
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+        
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    });
+    </script>
+
+    <script>
+    $(document).ready(function () {
+        // Proteção contra alteração de campos pelo F12
+        const originalFormHTML = document.getElementById('cadastroForm').innerHTML;
+        
+        // Configuração original dos campos para verificação
+        const originalFieldsConfig = {
+            'nome': { type: 'text', required: true, name: 'nome' },
+            'email': { type: 'email', required: true, name: 'email' },
+            'senha': { type: 'password', required: true, name: 'senha' },
+            'dataNascimento': { type: 'date', required: true, name: 'dataNascimento' },
+            'telefone': { type: 'tel', required: true, name: 'telefone' },
+            'idade': { type: 'number', required: false, name: 'idade' },
+            'endereco': { type: 'text', required: false, name: 'endereco' },
+            'formacao': { type: 'text', required: false, name: 'formacao' },
+            'foto_perfil': { type: 'file', required: false, name: 'foto_perfil' },
+            'aceitoLGPD': { type: 'checkbox', required: true, name: 'aceitoLGPD' }
+        };
+        
+        // Verificar se campos obrigatórios foram alterados
+        function verificarIntegridade() {
+            let integridade = true;
+            
+            // Verificar cada campo crítico
+            Object.keys(originalFieldsConfig).forEach(function(fieldId) {
+                const field = document.getElementById(fieldId);
+                const config = originalFieldsConfig[fieldId];
+                
+                if (field) {
+                    // Verificar se os tipos dos inputs foram alterados
+                    if (field.type !== config.type) {
+                        console.warn('Tipo alterado no campo:', fieldId);
+                        integridade = false;
+                    }
+                    
+                    // Verificar se required foi alterado
+                    if (config.required && !field.required) {
+                        console.warn('Required removido do campo:', fieldId);
+                        integridade = false;
+                    }
+                    
+                    // Verificar se name foi alterado
+                    if (field.name !== config.name) {
+                        console.warn('Name alterado no campo:', fieldId);
+                        integridade = false;
+                    }
+                }
+            });
+            
+            // Verificar se o checkbox LGPD foi alterado
+            const checkbox = document.getElementById('aceitoLGPD');
+            if (checkbox && (checkbox.type !== 'checkbox' || !checkbox.required || checkbox.name !== 'aceitoLGPD')) {
+                console.warn('Checkbox LGPD foi alterado');
+                integridade = false;
+            }
+            
+            // Verificar se o botão foi alterado
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn && (submitBtn.type !== 'button' || submitBtn.id !== 'submitBtn')) {
+                console.warn('Botão de submit foi alterado');
+                integridade = false;
+            }
+            
+            if (!integridade) {
+                alert('Tentativa de alteração detectada! A página será recarregada.');
+                location.reload();
+                return false;
+            }
+            
+            return true;
+        }
+        
+        function realizarCadastro() {
+            // Verificar integridade antes de prosseguir
+            if (!verificarIntegridade()) {
+                return;
+            }
+            
+            const nome = $('#nome').val();
+            const email = $('#email').val();
+            const senha = $('#senha').val();
+            const dataNascimento = $('#dataNascimento').val();
+            const telefone = $('#telefone').val();
+            const idade = $('#idade').val();
+            const endereco = $('#endereco').val();
+            const formacao = $('#formacao').val();
+            const experiencia_profissional = $('#experiencia_profissional').val();
+            const interesses = $('#interesses').val();
+            const projetos_especializacoes = $('#projetos_especializacoes').val();
+            const habilidades = $('#habilidades').val();
+            const aceitoLGPD = $('#aceitoLGPD').is(':checked');
+            
+            // Validações básicas
+            if (!nome || !email || !senha || !dataNascimento || !telefone) {
+                alert('Por favor, preencha todos os campos obrigatórios!');
+                return;
+            }
+            
+            // Validação de email no frontend
+            if (!validateEmail(email)) {
+                alert('Por favor, insira um email válido!');
+                return;
+            }
+            
+            // Validação de senha
+            if (senha.length < 6) {
+                alert('A senha deve ter pelo menos 6 caracteres!');
+                return;
+            }
+            
+            // Validação LGPD
+            if (!aceitoLGPD) {
+                alert('Você deve aceitar os termos de política de privacidade e LGPD!');
+                return;
+            }
+            
+            // Validação adicional de segurança
+            if (email.length > 100) {
+                alert('Email muito longo!');
+                return;
+            }
+            
+            if (senha.length > 255) {
+                alert('Senha muito longa!');
+                return;
+            }
+            
+            if (nome.length > 100) {
+                alert('Nome muito longo!');
+                return;
+            }
+            
+            // Validação de idade se preenchida
+            if (idade && (idade < 18 || idade > 80)) {
+                alert('Idade deve estar entre 18 e 80 anos!');
+                return;
+            }
+            
+            const formData = new FormData($('#cadastroForm')[0]);
+            
+            $('#submitBtn').prop('disabled', true).text('Cadastrando...'); // Desabilita botão
+            
+            $.ajax({
+                url: '../php/cadastro.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.trim() === "ok") {
+                        alert('Cadastro realizado com sucesso!');
+                        window.location.href = '../pages/inclusaoCadastro.html';
+                    } else {
+                        alert(response);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Erro na requisição:', error);
+                    alert('Erro na comunicação com o servidor. Tente novamente.');
+                },
+                complete: function () {
+                    // Reabilita o botão depois da requisição
+                    setTimeout(function() {
+                        $('#submitBtn').prop('disabled', false).text('Cadastrar');
+                    }, 2000);
+                }
+            });
+        }
+
+        // Função para validar o formato do email
+        function validateEmail(email) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        }
+
+        // Clique no botão
+        $('#submitBtn').on('click', function () {
+            realizarCadastro();
+        });
+
+        // Pressionar Enter nos campos
+        $('#cadastroForm input, #cadastroForm textarea').on('keypress', function (e) {
+            if (e.which === 13) { // Tecla Enter
+                realizarCadastro();
+            }
+        });
+        
+        // Monitorar mudanças no DOM
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes') {
+                    const target = mutation.target;
+                    if (target.id && originalFieldsConfig[target.id]) {
+                        if (!verificarIntegridade()) {
+                            return;
+                        }
+                    }
+                }
+            });
+        });
+        
+        // Observar mudanças nos campos críticos
+        Object.keys(originalFieldsConfig).forEach(function(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                observer.observe(field, { attributes: true });
+            }
+        });
+        
+        // Verificar periodicamente
+        setInterval(verificarIntegridade, 3000);
+        
+        // Proteção adicional contra console
+        let devtools = {open: false, orientation: null};
+        const threshold = 160;
+        
+        // Detectar se as ferramentas de desenvolvedor estão abertas
+        setInterval(function() {
+            if (window.outerHeight - window.innerHeight > threshold || 
+                window.outerWidth - window.innerWidth > threshold) {
+                if (!devtools.open) {
+                    devtools.open = true;
+                    console.clear();
+                    console.warn('🚨 Acesso restrito detectado!');
+                }
+            } else {
+                devtools.open = false;
+            }
+        }, 500);
+        
+        // Proteção contra alteração do HTML via console
+        setInterval(function() {
+            const currentFormHTML = document.getElementById('cadastroForm').innerHTML;
+            if (currentFormHTML !== originalFormHTML) {
+                // Permite alterações dinâmicas legítimas, mas verifica integridade dos campos críticos
+                if (!verificarIntegridade()) {
+                    return;
+                }
+            }
+        }, 5000);
+        
+        // Proteção contra modificação de atributos críticos
+        document.addEventListener('DOMNodeInserted', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') {
+                setTimeout(verificarIntegridade, 100);
+            }
+        });
+        
+        // Proteção contra modificação de atributos
+        document.addEventListener('DOMAttrModified', function(e) {
+            if (e.target.id && originalFieldsConfig[e.target.id]) {
+                setTimeout(verificarIntegridade, 100);
+            }
+        });
+    });
+    </script>
