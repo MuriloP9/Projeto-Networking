@@ -3,8 +3,11 @@
 session_start();
 include("../php/conexao.php"); 
 
-// Funções de busca (mantidas iguais)
+// Funções de busca (sanitizadas)
 function buscarPorNome($pdo, $searchQuery) {
+    // Sanitizar entrada
+    $searchQuery = filter_var($searchQuery, FILTER_SANITIZE_SPECIAL_CHARS);
+    
     $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
               FROM Perfil P
               INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
@@ -19,6 +22,9 @@ function buscarPorNome($pdo, $searchQuery) {
 }
 
 function buscarPorFormacao($pdo, $searchQuery) {
+    // Sanitizar entrada
+    $searchQuery = filter_var($searchQuery, FILTER_SANITIZE_SPECIAL_CHARS);
+    
     $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
               FROM Perfil P
               INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
@@ -33,6 +39,9 @@ function buscarPorFormacao($pdo, $searchQuery) {
 }
 
 function buscarPorHabilidades($pdo, $searchQuery) {
+    // Sanitizar entrada
+    $searchQuery = filter_var($searchQuery, FILTER_SANITIZE_SPECIAL_CHARS);
+    
     $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
               FROM Perfil P
               INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
@@ -46,8 +55,17 @@ function buscarPorHabilidades($pdo, $searchQuery) {
     return $sql->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Processar a pesquisa
-$searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
+// Processar a pesquisa com sanitização
+$searchQuery = '';
+if (isset($_GET['search'])) {
+    $searchQuery = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS);
+    $searchQuery = trim($searchQuery);
+    
+    // Validar se não está vazio após sanitização
+    if (empty($searchQuery)) {
+        $searchQuery = '';
+    }
+}
 
 // Inicializar variáveis para armazenar os resultados
 $resultadosHTML = '';
@@ -67,8 +85,9 @@ if ($searchQuery !== '') {
         $profissionaisUnicos = array();
         
         foreach ($profissionais as $profissional) {
-            $email = $profissional['email'];
-            if (!isset($profissionaisUnicos[$email])) {
+            // Sanitizar email antes de usar como chave
+            $email = filter_var($profissional['email'], FILTER_SANITIZE_EMAIL);
+            if (!isset($profissionaisUnicos[$email]) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $profissionaisUnicos[$email] = $profissional;
             }
         }
@@ -78,49 +97,64 @@ if ($searchQuery !== '') {
         
         // Construir HTML dos resultados
         if (empty($profissionaisUnicos)) {
-            $resultadosHTML = "<div class='professional-list'><p>Nenhum profissional encontrado para '$searchQuery'.</p></div>";
+            $searchQueryEscaped = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
+            $resultadosHTML = "<div class='professional-list'><p>Nenhum profissional encontrado para '$searchQueryEscaped'.</p></div>";
         } else {
             $resultadosHTML = "<div class='professional-list'>";
             foreach ($profissionaisUnicos as $profissional) {
+                // Sanitizar dados antes de exibir
+                $nome = htmlspecialchars($profissional['nome'], ENT_QUOTES, 'UTF-8');
+                $formacao = htmlspecialchars($profissional['formacao'], ENT_QUOTES, 'UTF-8');
+                $habilidades = htmlspecialchars($profissional['habilidades'], ENT_QUOTES, 'UTF-8');
+                $experiencia = htmlspecialchars($profissional['experiencia_profissional'], ENT_QUOTES, 'UTF-8');
+                $email = filter_var($profissional['email'], FILTER_SANITIZE_EMAIL);
+                
+                // Validar email
+                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    continue; // Pular este profissional se email inválido
+                }
+                
                 $fotoPerfil = !empty($profissional['foto_perfil']) 
                     ? "data:image/jpeg;base64," . base64_encode($profissional['foto_perfil'])
                     : "../assets/img/userp.jpg";
                 
                 $qrCodePath = !empty($profissional['qr_code']) ? 
-                    'get_qrcode.php?file=' . basename(htmlspecialchars($profissional['qr_code'])) : '';
+                    'get_qrcode.php?file=' . basename(htmlspecialchars($profissional['qr_code'], ENT_QUOTES, 'UTF-8')) : '';
                 
                 // Obter o valor do qr_code da tabela Usuario para este email
                 $stmt = $pdo->prepare("SELECT qr_code FROM Usuario WHERE email = :email");
-                $stmt->bindParam(':email', $profissional['email']);
+                $stmt->bindParam(':email', $email);
                 $stmt->execute();
                 $qrCodeValue = $stmt->fetchColumn();
+                $qrCodeValue = htmlspecialchars($qrCodeValue, ENT_QUOTES, 'UTF-8');
                 
                 $resultadosHTML .= "<div class='professional-item'>";
                 $resultadosHTML .= "<div class='profile-pic' style='background-image: url($fotoPerfil);'></div>";
                 $resultadosHTML .= "<div class='professional-info'>";
-                $resultadosHTML .= "<div class='professional-name'>" . htmlspecialchars($profissional['nome']) . "</div>";
+                $resultadosHTML .= "<div class='professional-name'>" . $nome . "</div>";
                 
-                if (!empty($profissional['formacao'])) {
-                    $resultadosHTML .= "<div class='professional-specialization'>" . htmlspecialchars($profissional['formacao']) . "</div>";
+                if (!empty($formacao)) {
+                    $resultadosHTML .= "<div class='professional-specialization'>" . $formacao . "</div>";
                 }
                 
-                if (!empty($profissional['habilidades'])) {
-                    $resultadosHTML .= "<p><strong>Habilidades:</strong> " . htmlspecialchars($profissional['habilidades']) . "</p>";
+                if (!empty($habilidades)) {
+                    $resultadosHTML .= "<p><strong>Habilidades:</strong> " . $habilidades . "</p>";
                 }
                 
-                if (!empty($profissional['experiencia_profissional'])) {
-                    $resultadosHTML .= "<p><strong>Experiência:</strong> " . nl2br(htmlspecialchars($profissional['experiencia_profissional'])) . "</p>";
+                if (!empty($experiencia)) {
+                    $resultadosHTML .= "<p><strong>Experiência:</strong> " . nl2br($experiencia) . "</p>";
                 }
                 
-                if (!empty($profissional['email'])) {
-                    $resultadosHTML .= "<p><strong>Email:</strong> " . htmlspecialchars($profissional['email']) . "</p>";
+                if (!empty($email)) {
+                    $resultadosHTML .= "<p><strong>Email:</strong> " . $email . "</p>";
                 }
                 
                 $resultadosHTML .= "</div>";
                 
                 if (!empty($qrCodePath)) {
                     if ($usuarioLogado) {
-                        $resultadosHTML .= "<button class='chat-btn show-qr' data-qrcode-path='$qrCodePath' data-email='" . htmlspecialchars($profissional['email']) . "' data-qrcode='" . htmlspecialchars($qrCodeValue) . "'>";
+                        $emailEscaped = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
+                        $resultadosHTML .= "<button class='chat-btn show-qr' data-qrcode-path='$qrCodePath' data-email='" . $emailEscaped . "' data-qrcode='" . $qrCodeValue . "'>";
                         $resultadosHTML .= "Contato App<img src='../assets/img/adicionar-usuarios.png' alt='qrcode' class='chat-icon'>";
                         $resultadosHTML .= "</button>";
                     } else {
@@ -157,11 +191,15 @@ if ($searchQuery !== '') {
             }
         }
     } catch (Exception $erro) {
-        $resultadosHTML = "<div class='professional-list'><p>Erro ao buscar profissionais: " . htmlspecialchars($erro->getMessage()) . "</p></div>";
+        $erroMessage = htmlspecialchars($erro->getMessage(), ENT_QUOTES, 'UTF-8');
+        $resultadosHTML = "<div class='professional-list'><p>Erro ao buscar profissionais: " . $erroMessage . "</p></div>";
     }
 } else {
     $resultadosHTML = "<div class='professional-list'><p>Por favor, forneça um termo de pesquisa.</p></div>";
 }
+
+// Sanitizar valor de busca para exibição no input
+$searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -620,7 +658,7 @@ if ($searchQuery !== '') {
 </head>
 <body>
 
-    <header>
+     <header>
         <nav class="navbar">
             <div class="logo-container">
                 <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
@@ -651,7 +689,7 @@ if ($searchQuery !== '') {
         <div class="search-container">
             <input type="text" name="search" id="searchInput" class="search-bar"
                 placeholder="Pesquisar por nome, formação ou habilidades..."
-                value="<?= htmlspecialchars($searchQuery) ?>">
+                value="<?= $searchQueryDisplay ?>">
             <button type="submit" class="search-btn">Procurar</button>
         </div>
     </form>
@@ -670,8 +708,183 @@ if ($searchQuery !== '') {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../assets/js/script.js"></script>
 
-    <script>
+  <script>
     $(document).ready(function() {
+        // ===== PROTEÇÃO CONTRA MANIPULAÇÃO DE INPUTS =====
+        function protegerInputs() {
+            const searchInput = document.getElementById('searchInput');
+            
+            if (!searchInput) return;
+            
+            // Armazenar o tipo original
+            const tipoOriginal = searchInput.type;
+            const attributosOriginais = {
+                type: searchInput.type,
+                name: searchInput.name,
+                id: searchInput.id,
+                required: searchInput.required,
+                maxLength: searchInput.maxLength || 100
+            };
+            
+            // Monitorar mudanças nos atributos usando MutationObserver
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes') {
+                        const attrName = mutation.attributeName;
+                        
+                        // Verificar se atributos críticos foram alterados
+                        if (['type', 'name', 'id'].includes(attrName)) {
+                            const valorAtual = searchInput.getAttribute(attrName);
+                            const valorOriginal = attributosOriginais[attrName];
+                            
+                            if (valorAtual !== valorOriginal.toString()) {
+                                console.warn('Tentativa de manipulação detectada no atributo:', attrName);
+                                searchInput.setAttribute(attrName, valorOriginal);
+                                
+                                // Limpar o valor se houve tentativa de manipulação
+                                searchInput.value = '';
+                                
+                                // Mostrar aviso visual
+                                mostrarAvisoSeguranca();
+                            }
+                        }
+                    }
+                });
+            });
+            
+            // Observar mudanças nos atributos
+            observer.observe(searchInput, {
+                attributes: true,
+                attributeFilter: ['type', 'name', 'id', 'required', 'maxlength']
+            });
+            
+            // Verificação periódica adicional (backup)
+            setInterval(function() {
+                if (searchInput.type !== tipoOriginal) {
+                    searchInput.type = tipoOriginal;
+                    searchInput.value = '';
+                    mostrarAvisoSeguranca();
+                }
+            }, 1000);
+            
+            // Proteção contra alteração via JavaScript console
+            Object.defineProperty(searchInput, 'type', {
+                get: function() { return tipoOriginal; },
+                set: function(value) {
+                    if (value !== tipoOriginal) {
+                        console.warn('Tentativa de alteração de tipo bloqueada');
+                        mostrarAvisoSeguranca();
+                        return tipoOriginal;
+                    }
+                    return tipoOriginal;
+                },
+                configurable: false
+            });
+            
+            // Validação adicional no evento de input
+            searchInput.addEventListener('input', function(e) {
+                // Verificar se o tipo foi alterado
+                if (this.type !== tipoOriginal) {
+                    this.type = tipoOriginal;
+                    this.value = '';
+                    mostrarAvisoSeguranca();
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Validação do conteúdo
+                validarConteudoPorTipo(this, tipoOriginal);
+            });
+            
+            // Validação no submit
+            searchInput.closest('form').addEventListener('submit', function(e) {
+                if (searchInput.type !== tipoOriginal) {
+                    e.preventDefault();
+                    searchInput.type = tipoOriginal;
+                    searchInput.value = '';
+                    mostrarAvisoSeguranca();
+                    return false;
+                }
+            });
+        }
+        
+        // Função para validar conteúdo baseado no tipo esperado
+        function validarConteudoPorTipo(input, tipoEsperado) {
+            const valor = input.value;
+            
+            // Para campo de busca, permitir apenas caracteres seguros
+            const regexTexto = /^[\w\sáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\-.,;:!?@#%&*()+=]*$/;
+            if (!regexTexto.test(valor)) {
+                input.value = valor.replace(/[^\w\sáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\-.,;:!?@#%&*()+=]/g, '');
+            }
+            
+            // Limitar tamanho máximo
+            if (valor.length > 100) {
+                input.value = valor.substring(0, 100);
+            }
+        }
+        
+        // Função para mostrar aviso de segurança
+        function mostrarAvisoSeguranca() {
+            // Remove avisos anteriores
+            const avisoAnterior = document.querySelector('.security-warning');
+            if (avisoAnterior) {
+                avisoAnterior.remove();
+            }
+            
+            // Criar elemento de aviso
+            const aviso = document.createElement('div');
+            aviso.className = 'security-warning';
+            aviso.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: #ff4444;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 5px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 10000;
+                font-family: 'Montserrat', sans-serif;
+                font-size: 14px;
+                max-width: 300px;
+                animation: slideIn 0.3s ease-out;
+            `;
+            
+            aviso.innerHTML = `
+                <strong>⚠️ Aviso de Segurança</strong><br>
+                Tentativa de manipulação detectada. O formulário foi resetado por segurança.
+            `;
+            
+            // Adicionar CSS da animação se não existir
+            if (!document.querySelector('#security-warning-styles')) {
+                const style = document.createElement('style');
+                style.id = 'security-warning-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(aviso);
+            
+            // Remover aviso após 5 segundos
+            setTimeout(() => {
+                if (aviso.parentNode) {
+                    aviso.style.animation = 'slideIn 0.3s ease-out reverse';
+                    setTimeout(() => aviso.remove(), 300);
+                }
+            }, 5000);
+        }
+        
+        // Inicializar proteções
+        protegerInputs();
+        
+        // ===== SEU CÓDIGO EXISTENTE CONTINUA AQUI =====
+        
         // Mostrar modal com QR Code
         $('.show-qr').click(function() {
             const qrCodePath = $(this).data('qrcode-path');
@@ -789,6 +1002,52 @@ if ($searchQuery !== '') {
             }
         });
     });
-    </script>
-</body>
-</html>
+
+    // Função para buscar profissionais com validação de segurança (VERSÃO MELHORADA)
+    function buscarProfissionais() {
+        // Pega o valor do campo de busca
+        const inputElement = document.getElementById('searchInput');
+        
+        // Verificar se o input ainda existe e não foi manipulado
+        if (!inputElement || inputElement.type !== 'text') {
+            console.warn('Input de busca foi manipulado ou não existe');
+            mostrarAvisoSeguranca();
+            return false;
+        }
+        
+        let termoBusca = inputElement.value.trim();
+        
+        // Sanitização do lado do cliente (defesa em profundidade)
+        termoBusca = termoBusca.replace(/[\x00-\x1F\x7F]/g, ''); // Remove caracteres de controle
+        termoBusca = termoBusca.substring(0, 100); // Limita o tamanho
+        
+        // Verifica se o termo de busca é válido
+        if (!termoBusca || !/^[\w\sáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\-.,;:!?@#%&*()+=]{3,}$/.test(termoBusca)) {
+            // Mostra mensagem de erro acessível (melhor que alert)
+            const errorElement = document.createElement('div');
+            errorElement.className = 'search-error';
+            errorElement.textContent = 'Por favor, digite um termo válido (mínimo 3 caracteres).';
+            errorElement.setAttribute('role', 'alert');
+            errorElement.setAttribute('aria-live', 'assertive');
+            
+            // Remove mensagens anteriores
+            const oldError = document.querySelector('.search-error');
+            if (oldError) oldError.remove();
+            
+            // Insere a mensagem após a barra de pesquisa
+            inputElement.insertAdjacentElement('afterend', errorElement);
+            inputElement.focus();
+            return false;
+        }
+        
+        // Codifica o termo para URL (previne XSS e injection na URL)
+        const termoCodificado = encodeURIComponent(termoBusca)
+            .replace(/%20/g, '+') // Espaços como +
+            .replace(/[!'()*]/g, function(c) {
+                return '%' + c.charCodeAt(0).toString(16);
+            });
+        
+        console.log('Termo de busca validado:', termoCodificado);
+        return true;
+    }
+</script>
