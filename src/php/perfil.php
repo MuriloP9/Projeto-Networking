@@ -553,7 +553,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .detalhes h2,
         .projetos h2,
         .caixa-central h2 {
-            font-size: 1.6em;
+            font-size: 1.3em;
             margin-bottom: 1em;
             color: #3b6ebb;
             border-bottom: 2px solid #f0f0f0;
@@ -562,8 +562,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .detalhes div {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.5em;
+            flex-direction: column;
+            gap: 0.3em;
             margin-bottom: 1em;
             border-bottom: 1px solid #f5f5f5;
             padding-bottom: 0.8em;
@@ -808,6 +808,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 max-width: 90%;
             }
 
+            .detalhes div {
+                flex-direction: column;
+                gap: 0.3em;
+            }
+            
+    
+
+
             .info-usuario h1 {
                 font-size: 1.6em;
             }
@@ -821,6 +829,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .detalhes strong {
                 min-width: 180px;
             }
+
+
+              .detalhes div {
+                flex-direction: column;
+                gap: 0.3em;
+            }
+            
+    
             
             .imagem-projeto-perfil {
                 max-width: 150px;
