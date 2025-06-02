@@ -722,6 +722,17 @@ $termoBuscaDisplay = htmlspecialchars($termoBusca, ENT_QUOTES, 'UTF-8');
         transition: background-color 0.3s;
         }
 
+        .saved-job-card p strong {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .saved-job-card p[data-date] {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 8px;
+        }
+
         .cancel-application-btn:hover {
         background-color: #c82333;
         }
@@ -1062,39 +1073,43 @@ $termoBuscaDisplay = htmlspecialchars($termoBusca, ENT_QUOTES, 'UTF-8');
                     <?php else: ?>
                         <div class="saved-jobs-list">
                             <?php foreach ($minhas_candidaturas as $candidatura): 
-                                $classes = ['saved-job-card', 'status-' . strtolower($candidatura['status'])];
-                                
-                                // Sanitizar dados da candidatura
-                                $titulo_vaga = htmlspecialchars($candidatura['titulo_vaga'], ENT_QUOTES, 'UTF-8');
-                                $empresa = htmlspecialchars($candidatura['empresa'], ENT_QUOTES, 'UTF-8');
-                                $nome_area = htmlspecialchars($candidatura['nome_area'] ?? 'Área não especificada', ENT_QUOTES, 'UTF-8');
-                                $tipo_emprego = htmlspecialchars($candidatura['tipo_emprego'], ENT_QUOTES, 'UTF-8');
-                                $localizacao = htmlspecialchars($candidatura['localizacao'] ?? 'Local não especificado', ENT_QUOTES, 'UTF-8');
-                                $status = htmlspecialchars($candidatura['status'], ENT_QUOTES, 'UTF-8');
-                                $id_candidatura = filter_var($candidatura['id_candidatura'], FILTER_VALIDATE_INT);
-                            ?>
-                                <div class="<?= implode(' ', $classes) ?>" 
-                                     data-candidatura-id="<?= $id_candidatura ?>">
-                                    <h4>
-                                        <?= $titulo_vaga ?>
-                                        <?php if ($candidatura['status'] !== 'Pendente'): ?>
-                                            <span class="status-badge <?= strtolower($candidatura['status']) ?>">
-                                                <?= $status ?>
-                                            </span>
-                                        <?php endif; ?>
-                                    </h4>
-                                    <p><strong>Empresa:</strong> <?= $empresa ?></p>
-                                    <p><?= $nome_area ?></p>
-                                    <p><?= $tipo_emprego ?> - <?= $localizacao ?></p>
-                                    
-                                    <span class="saved-job-status status-<?= strtolower($candidatura['status']) ?>">
-                                        <?= $status ?>
-                                    </span>
-                                     <button class="cancel-application-btn" data-candidatura-id="<?= $id_candidatura ?>">
-                                     Apagar Registro
-                                     </button>
-                                </div>
-                            <?php endforeach; ?>
+                    $classes = ['saved-job-card', 'status-' . strtolower($candidatura['status'])];
+                    
+                    // Sanitizar dados da candidatura
+                    $titulo_vaga = htmlspecialchars($candidatura['titulo_vaga'], ENT_QUOTES, 'UTF-8');
+                    $empresa = htmlspecialchars($candidatura['empresa'], ENT_QUOTES, 'UTF-8');
+                    $nome_area = htmlspecialchars($candidatura['nome_area'] ?? 'Área não especificada', ENT_QUOTES, 'UTF-8');
+                    $tipo_emprego = htmlspecialchars($candidatura['tipo_emprego'], ENT_QUOTES, 'UTF-8');
+                    $localizacao = htmlspecialchars($candidatura['localizacao'] ?? 'Local não especificado', ENT_QUOTES, 'UTF-8');
+                    $status = htmlspecialchars($candidatura['status'], ENT_QUOTES, 'UTF-8');
+                    $id_candidatura = filter_var($candidatura['id_candidatura'], FILTER_VALIDATE_INT);
+                    
+                    // Formatando a data da candidatura
+                    $data_candidatura = date('d/m/Y', strtotime($candidatura['data_candidatura']));
+                ?>
+                    <div class="<?= implode(' ', $classes) ?>" 
+                        data-candidatura-id="<?= $id_candidatura ?>">
+                        <h4>
+                            <?= $titulo_vaga ?>
+                            <?php if ($candidatura['status'] !== 'Pendente'): ?>
+                                <span class="status-badge <?= strtolower($candidatura['status']) ?>">
+                                    <?= $status ?>
+                                </span>
+                            <?php endif; ?>
+                        </h4>
+                        <p><strong>Empresa:</strong> <?= $empresa ?></p>
+                        <p><?= $nome_area ?></p>
+                        <p><?= $tipo_emprego ?> - <?= $localizacao ?></p>
+                        <p><strong>Data da Candidatura:</strong> <?= $data_candidatura ?></p>
+                        
+                        <span class="saved-job-status status-<?= strtolower($candidatura['status']) ?>">
+                            <?= $status ?>
+                        </span>
+                        <button class="cancel-application-btn" data-candidatura-id="<?= $id_candidatura ?>">
+                            Apagar Registro
+                        </button>
+                    </div>
+                <?php endforeach; ?>
                         </div>
                 <?php endif;
                 } catch (PDOException $e) {
