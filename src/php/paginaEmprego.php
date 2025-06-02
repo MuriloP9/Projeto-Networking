@@ -158,6 +158,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
         exit;
     }
 }
+// Processar inativação de candidatura via AJAX
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['ajax'] === 'inativar_candidatura') {
+    header('Content-Type: application/json');
+    
+    if (!isset($_POST['id_candidatura'])) {
+        echo json_encode(['success' => false, 'message' => 'Candidatura não especificada.']);
+        exit;
+    }
+    
+    // Sanitizar e validar id_candidatura
+    $id_candidatura = filter_var($_POST['id_candidatura'], FILTER_VALIDATE_INT);
+    if ($id_candidatura === false || $id_candidatura <= 0) {
+        echo json_encode(['success' => false, 'message' => 'ID da candidatura inválido.']);
+        exit;
+    }
+    
+    try {
+        // Verificar se a candidatura pertence ao usuário logado
+        $stmt = $pdo->prepare("
+            SELECT c.id_candidatura 
+            FROM Candidatura c
+            JOIN Perfil p ON c.id_perfil = p.id_perfil
+            WHERE c.id_candidatura = ? AND p.id_usuario = ?
+        ");
+        $stmt->execute([$id_candidatura, $_SESSION['id_usuario']]);
+        
+        if ($stmt->rowCount() === 0) {
+            echo json_encode(['success' => false, 'message' => 'Candidatura não encontrada ou não pertence ao usuário.']);
+            exit;
+        }
+        
+        // Atualizar candidatura para inativa (ativo = 0)
+        $stmt = $pdo->prepare("UPDATE Candidatura SET ativo = 0 WHERE id_candidatura = ?");
+        $stmt->execute([$id_candidatura]);
+        
+        echo json_encode(['success' => true, 'message' => 'Candidatura cancelada com sucesso.']);
+        exit;
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Erro ao inativar candidatura.']);
+        exit;
+    }
+}
 
 // Buscar vagas com base no termo de pesquisa 
 $termoBusca = '';
@@ -668,6 +710,22 @@ $termoBuscaDisplay = htmlspecialchars($termoBusca, ENT_QUOTES, 'UTF-8');
             /* Rotacionar para formar um X */
         }
 
+        .cancel-application-btn {
+        padding: 6px 12px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 0.9em;
+        transition: background-color 0.3s;
+        }
+
+        .cancel-application-btn:hover {
+        background-color: #c82333;
+        }
+
         @media (max-width: 991px) {
             body {
                 font-size: 14px;
@@ -1032,6 +1090,9 @@ $termoBuscaDisplay = htmlspecialchars($termoBusca, ENT_QUOTES, 'UTF-8');
                                     <span class="saved-job-status status-<?= strtolower($candidatura['status']) ?>">
                                         <?= $status ?>
                                     </span>
+                                     <button class="cancel-application-btn" data-candidatura-id="<?= $id_candidatura ?>">
+                                     Apagar Registro
+                                     </button>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -1612,16 +1673,50 @@ function showStatusNotification(atualizacao) {
     
     notification.removeClass('aprovado reprovado').addClass(statusClass);
     notification.addClass('show');
-    
-    // Auto-remover após 10 segundos
-    setTimeout(function() {
-        notification.removeClass('show');
-    }, 10000);
 }
 
 // Função para fechar notificação
 function closeNotification() {
     $('#statusNotification').removeClass('show');
 }
+
+$(document).on('click', '.cancel-application-btn', function() {
+    const candidaturaId = $(this).data('candidatura-id');
+    const card = $(this).closest('.saved-job-card');
+    
+    if (confirm('Tem certeza que deseja apagar o registro dessa candidatura?')) {
+        $.ajax({
+            type: 'POST',
+            url: window.location.href,
+            data: {
+                ajax: 'inativar_candidatura',
+                id_candidatura: candidaturaId
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Adiciona animação de fade out e remove o card
+                    card.fadeOut(300, function() {
+                        $(this).remove();
+                        
+                        // Mostra mensagem se não houver mais candidaturas
+                        if ($('.saved-job-card').length === 0) {
+                            $('.saved-jobs-list').html('<p>Você não possui candidaturas ativas.</p>');
+                        }
+                    });
+                    
+                    // Mostra notificação de sucesso
+                    showCustomNotification('Registro apagado com sucesso!', 'success');
+                } else {
+                    showCustomNotification(response.message || 'Erro ao apagar registro da candidatura.', 'error');
+                }
+            },
+            error: function() {
+                showCustomNotification('Erro de conexão ao cancelar candidatura.', 'error');
+            }
+        });
+    }
+});
+
 </script>
 </body>
