@@ -36,13 +36,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax']) && $_POST['aj
         $id_perfil = $perfil['id_perfil'];              
         
         // Verificar se já existe candidatura ATIVA             
-        $stmt = $pdo->prepare("SELECT * FROM Candidatura WHERE id_vaga = ? AND id_perfil = ? AND ativo = 1");             
-        $stmt->execute([$id_vaga, $id_perfil]);              
-        
+       $stmt = $pdo->prepare("SELECT * FROM Candidatura WHERE id_vaga = ? AND id_perfil = ?");             
+       $stmt->execute([$id_vaga, $id_perfil]);              
+            
         if ($stmt->rowCount() > 0) {                 
-            echo json_encode(['success' => false, 'message' => 'Você já se candidatou a esta vaga.']);                 
-            exit;             
-        }              
+    // Se já existe uma candidatura (mesmo que inativa), atualiza para ativa
+    $stmt = $pdo->prepare("UPDATE Candidatura SET ativo = 1, status = 'Pendente', data_candidatura = GETDATE() WHERE id_vaga = ? AND id_perfil = ?");
+    $stmt->execute([$id_vaga, $id_perfil]);
+    
+    echo json_encode(['success' => true, 'message' => 'Candidatura reativada com sucesso!']);                 
+    exit;             
+}        
         
         // Inserir nova candidatura com ativo = 1             
         $stmt = $pdo->prepare("INSERT INTO Candidatura (id_vaga, id_perfil, data_candidatura, status, data_atualizacao_status, ativo) VALUES (?, ?, GETDATE(), 'Pendente', NULL, 1)");             
@@ -241,21 +245,21 @@ try {
 $candidaturas_usuario = []; 
 if (isset($_SESSION['id_usuario'])) {     
     try {         
-        $stmt = $pdo->prepare("             
-            SELECT c.id_vaga              
-            FROM Candidatura c             
-            JOIN Perfil p ON c.id_perfil = p.id_perfil             
-            WHERE p.id_usuario = ? AND c.ativo = 1         
-        ");         
-        $stmt->execute([$_SESSION['id_usuario']]);         
-        $candidaturas = $stmt->fetchAll(PDO::FETCH_ASSOC);          
-        
-        foreach ($candidaturas as $candidatura) {             
-            $candidaturas_usuario[] = $candidatura['id_vaga'];         
-        }     
-    } catch (PDOException $e) {         
-          
-    } 
+    $stmt = $pdo->prepare("             
+        SELECT c.id_vaga              
+        FROM Candidatura c             
+        JOIN Perfil p ON c.id_perfil = p.id_perfil             
+        WHERE p.id_usuario = ?         
+    ");         
+    $stmt->execute([$_SESSION['id_usuario']]);         
+    $candidaturas = $stmt->fetchAll(PDO::FETCH_ASSOC);          
+    
+    foreach ($candidaturas as $candidatura) {             
+        $candidaturas_usuario[] = $candidatura['id_vaga'];         
+    }     
+} catch (PDOException $e) {         
+    // Tratar erro se necessário
+}
 }
 
 // Sanitizar termo de busca para exibição
