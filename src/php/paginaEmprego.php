@@ -1017,6 +1017,7 @@ $termoBuscaDisplay = htmlspecialchars($termoBusca, ENT_QUOTES, 'UTF-8');
         .notification-close:hover {
             color: #333;
         }
+        
     </style>
 </head>
 <body>
@@ -1745,102 +1746,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ===== CSS ADICIONAL PARA CORRIGIR CONFLITOS =====
 // Adicionar estilos dinamicamente se necessário
-function addResponsiveMenuStyles() {
-    const existingStyles = document.getElementById('responsive-menu-styles');
-    if (existingStyles) return; // Já existe
-    
-    const style = document.createElement('style');
-    style.id = 'responsive-menu-styles';
-    style.textContent = `
-        /* Estilos corrigidos para menu responsivo */
-        .menu-toggle {
-            display: none;
-            cursor: pointer;
-            padding: 10px;
-            background: transparent;
-            border: none;
-            z-index: 1100;
-            position: relative;
-        }
-        
-        .menu-close-item {
-            display: none;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px;
-            background-color: rgba(14, 23, 104, 0.9);
-            border: none;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            z-index: 1500;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .menu-close-item:hover {
-            background-color: rgba(14, 23, 104, 1);
-            transform: scale(1.1);
-        }
-        
-        .menu-icon {
-            width: 24px;
-            height: 24px;
-            transition: transform 0.3s ease;
-        }
-        
-        .menu-close-item .menu-icon {
-            transform: rotate(45deg);
-        }
-        
-        @media (max-width: 991px) {
-            .menu-toggle {
-                display: block !important;
-            }
-            
-            /* Ajustar menu para mobile se necessário */
-            #menu.active {
-                display: block;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100vh;
-                background-color: rgba(14, 23, 104, 0.95);
-                z-index: 1200;
-                backdrop-filter: blur(5px);
-            }
-        }
-        
-        @media (min-width: 992px) {
-            .menu-toggle,
-            .menu-close-item {
-                display: none !important;
-            }
-            
-            #menu {
-                display: block !important;
-                position: relative !important;
-                width: auto !important;
-                height: auto !important;
-                background: transparent !important;
-            }
-        }
-    `;
-    
-    document.head.appendChild(style);
-}
 
-// Executar quando o DOM estiver carregado
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', addResponsiveMenuStyles);
-} else {
-    addResponsiveMenuStyles();
-}
 
 // ===== FUNÇÕES ORIGINAIS MANTIDAS =====
 // Função para verificar atualizações de status (apenas para mostrar notificações)
