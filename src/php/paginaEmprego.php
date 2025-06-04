@@ -1507,84 +1507,6 @@ $(document).ready(function() {
         });
     });
 
-    // Restante do código original permanece inalterado...
-    // [Todo o restante do código original permanece exatamente igual]
-});
-
-// As funções existentes checkStatusUpdates(), showStatusNotification() e closeNotification() 
-// permanecem exatamente iguais e são mantidas sem alterações
-
-$(document).ready(function() {
-    // Verificar mudanças de status periodicamente (apenas para notificações)
-    checkStatusUpdates();
-    setInterval(checkStatusUpdates, 30000); // Verifica a cada 30 segundos
-
-    // Modal de detalhes da vaga
-    $('.more-info-btn').on('click', function() {
-        const vagaId = $(this).data('vaga-id');
-
-        $.ajax({
-            type: 'GET',
-            url: window.location.href,
-            data: {
-                ajax: 'buscar_vaga',
-                id_vaga: vagaId
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    const vaga = response.vaga;
-                    
-                    $('#modal-title').text(vaga.titulo_vaga);
-                    $('#modal-empresa').text(vaga.empresa);
-                    $('#modal-area').text(vaga.nome_area || 'Área não especificada');
-                    $('#modal-tipo').text(vaga.tipo_emprego);
-                    $('#modal-localizacao').text(vaga.localizacao || 'Localização não especificada');
-                    $('#modal-descricao').html(vaga.descricao ? vaga.descricao.replace(/\n/g, '<br>') : 'Sem descrição detalhada.');
-
-                    if (vaga.salario_formatado) {
-                        $('#modal-salario').text(vaga.salario_formatado);
-                        $('#modal-salario-container').show();
-                    } else {
-                        $('#modal-salario').text('Não informado');
-                        $('#modal-salario-container').show();
-                    }
-
-                    if (vaga.data_encerramento_formatada) {
-                        $('#modal-encerramento').text(vaga.data_encerramento_formatada);
-                        $('#modal-encerramento-container').show();
-                    } else {
-                        $('#modal-encerramento').text('Não informado');
-                        $('#modal-encerramento-container').show();
-                    }
-
-                    if (vaga.requisitos) {
-                        $('#modal-requisitos').html(vaga.requisitos.replace(/\n/g, '<br>'));
-                        $('#modal-requisitos-section').show();
-                    } else {
-                        $('#modal-requisitos-section').hide();
-                    }
-
-                    if (vaga.beneficios) {
-                        $('#modal-beneficios').html(vaga.beneficios.replace(/\n/g, '<br>'));
-                        $('#modal-beneficios-section').show();
-                    } else {
-                        $('#modal-beneficios-section').hide();
-                    }
-
-                    $('#modal-apply-btn').data('vaga-id', vagaId);
-                    $('#job-modal').addClass('active');
-                } else {
-                    alert(response.message || 'Erro ao carregar detalhes da vaga.');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Erro AJAX:', error);
-                alert('Erro de conexão ao carregar detalhes da vaga.');
-            }
-        });
-    });
-
     // Fechar modal
     $('#modal-close, #modal-btn-cancel').on('click', function() {
         $('#job-modal').removeClass('active');
@@ -1647,8 +1569,280 @@ $(document).ready(function() {
             $('.modal-overlay.active').removeClass('active');
         }
     });
+
+    // Cancelar candidatura
+    $(document).on('click', '.cancel-application-btn', function() {
+        const candidaturaId = $(this).data('candidatura-id');
+        const card = $(this).closest('.saved-job-card');
+        
+        if (confirm('Tem certeza que deseja apagar o registro dessa candidatura?')) {
+            $.ajax({
+                type: 'POST',
+                url: window.location.href,
+                data: {
+                    ajax: 'inativar_candidatura',
+                    id_candidatura: candidaturaId
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        // Adiciona animação de fade out e remove o card
+                        card.fadeOut(300, function() {
+                            $(this).remove();
+                            
+                            // Mostra mensagem se não houver mais candidaturas
+                            if ($('.saved-job-card').length === 0) {
+                                $('.saved-jobs-list').html('<p>Você não possui candidaturas ativas.</p>');
+                            }
+                        });
+                        
+                        // Mostra notificação de sucesso
+                        showCustomNotification('Registro apagado com sucesso!', 'success');
+                    } else {
+                        showCustomNotification(response.message || 'Erro ao apagar registro da candidatura.', 'error');
+                    }
+                },
+                error: function() {
+                    showCustomNotification('Erro de conexão ao cancelar candidatura.', 'error');
+                }
+            });
+        }
+    });
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar se os elementos necessários existem
+    let navbar = document.querySelector('.navbar');
+    let menu = document.getElementById('menu');
+    let mobileMenuBtn = document.getElementById('mobile-menu');
+    let closeMenuBtn = document.getElementById('close-menu');
+    
+    // Se não existir navbar, tentar encontrar um container alternativo
+    if (!navbar) {
+        navbar = document.querySelector('nav') || document.querySelector('.nav-container');
+    }
+    
+    // Criar botão do menu mobile se não existir
+    if (navbar && !mobileMenuBtn) {
+        mobileMenuBtn = document.createElement('button');
+        mobileMenuBtn.id = 'mobile-menu';
+        mobileMenuBtn.className = 'menu-toggle';
+        mobileMenuBtn.innerHTML = '<img src="../assets/img/icons8-menu-48.png" alt="Menu" class="menu-icon">';
+        mobileMenuBtn.style.display = 'none'; // Inicialmente oculto
+        navbar.appendChild(mobileMenuBtn);
+    }
+    
+    // Criar botão de fechar se não existir
+    if (!closeMenuBtn && menu) {
+        closeMenuBtn = document.createElement('button');
+        closeMenuBtn.id = 'close-menu';
+        closeMenuBtn.className = 'menu-close-item';
+        closeMenuBtn.innerHTML = '<img src="../assets/img/icons8-menu-48.png" alt="Fechar Menu" class="menu-icon">';
+        closeMenuBtn.style.display = 'none';
+        document.body.appendChild(closeMenuBtn);
+    }
+    
+    // Função para mostrar/ocultar elementos baseado no tamanho da tela
+    function adjustMenuDisplay() {
+        const isMobile = window.innerWidth < 992;
+        
+        if (mobileMenuBtn) {
+            mobileMenuBtn.style.display = isMobile ? 'block' : 'none';
+        }
+        
+        if (menu) {
+            if (!isMobile) {
+                menu.classList.remove('active');
+                if (closeMenuBtn) {
+                    closeMenuBtn.style.display = 'none';
+                }
+            }
+        }
+    }
+    
+    // Event listener para abrir menu mobile
+    if (mobileMenuBtn && menu) {
+        mobileMenuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            menu.classList.add('active');
+            this.style.display = 'none';
+            
+            if (closeMenuBtn) {
+                closeMenuBtn.style.display = 'flex';
+            }
+        });
+    }
+    
+    // Event listener para fechar menu
+    if (closeMenuBtn && menu) {
+        closeMenuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            menu.classList.remove('active');
+            this.style.display = 'none';
+            
+            if (mobileMenuBtn && window.innerWidth < 992) {
+                mobileMenuBtn.style.display = 'block';
+            }
+        });
+    }
+    
+    // Fechar menu ao clicar em links (apenas em mobile)
+    if (menu) {
+        const menuLinks = menu.querySelectorAll('a');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth < 992) {
+                    menu.classList.remove('active');
+                    
+                    if (closeMenuBtn) {
+                        closeMenuBtn.style.display = 'none';
+                    }
+                    
+                    if (mobileMenuBtn) {
+                        mobileMenuBtn.style.display = 'block';
+                    }
+                }
+            });
+        });
+    }
+    
+    // Fechar menu ao clicar fora dele (apenas em mobile)
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth < 992 && menu && menu.classList.contains('active')) {
+            const isClickInsideMenu = menu.contains(e.target);
+            const isClickOnMenuButton = mobileMenuBtn && mobileMenuBtn.contains(e.target);
+            const isClickOnCloseButton = closeMenuBtn && closeMenuBtn.contains(e.target);
+            
+            if (!isClickInsideMenu && !isClickOnMenuButton && !isClickOnCloseButton) {
+                menu.classList.remove('active');
+                
+                if (closeMenuBtn) {
+                    closeMenuBtn.style.display = 'none';
+                }
+                
+                if (mobileMenuBtn) {
+                    mobileMenuBtn.style.display = 'block';
+                }
+            }
+        }
+    });
+    
+    // Event listener para redimensionamento da janela
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        // Usar debounce para evitar múltiplas execuções
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(adjustMenuDisplay, 100);
+    });
+    
+    // Inicialização
+    adjustMenuDisplay();
+});
+
+// ===== CSS ADICIONAL PARA CORRIGIR CONFLITOS =====
+// Adicionar estilos dinamicamente se necessário
+function addResponsiveMenuStyles() {
+    const existingStyles = document.getElementById('responsive-menu-styles');
+    if (existingStyles) return; // Já existe
+    
+    const style = document.createElement('style');
+    style.id = 'responsive-menu-styles';
+    style.textContent = `
+        /* Estilos corrigidos para menu responsivo */
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            z-index: 1100;
+            position: relative;
+        }
+        
+        .menu-close-item {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: rgba(14, 23, 104, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1500;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .menu-close-item:hover {
+            background-color: rgba(14, 23, 104, 1);
+            transform: scale(1.1);
+        }
+        
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease;
+        }
+        
+        .menu-close-item .menu-icon {
+            transform: rotate(45deg);
+        }
+        
+        @media (max-width: 991px) {
+            .menu-toggle {
+                display: block !important;
+            }
+            
+            /* Ajustar menu para mobile se necessário */
+            #menu.active {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                background-color: rgba(14, 23, 104, 0.95);
+                z-index: 1200;
+                backdrop-filter: blur(5px);
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .menu-toggle,
+            .menu-close-item {
+                display: none !important;
+            }
+            
+            #menu {
+                display: block !important;
+                position: relative !important;
+                width: auto !important;
+                height: auto !important;
+                background: transparent !important;
+            }
+        }
+    `;
+    
+    document.head.appendChild(style);
+}
+
+// Executar quando o DOM estiver carregado
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addResponsiveMenuStyles);
+} else {
+    addResponsiveMenuStyles();
+}
+
+// ===== FUNÇÕES ORIGINAIS MANTIDAS =====
 // Função para verificar atualizações de status (apenas para mostrar notificações)
 function checkStatusUpdates() {
     if (!window.location.href.includes('oportunidades.php')) return;
@@ -1698,44 +1892,6 @@ function showStatusNotification(atualizacao) {
 function closeNotification() {
     $('#statusNotification').removeClass('show');
 }
-
-$(document).on('click', '.cancel-application-btn', function() {
-    const candidaturaId = $(this).data('candidatura-id');
-    const card = $(this).closest('.saved-job-card');
-    
-    if (confirm('Tem certeza que deseja apagar o registro dessa candidatura?')) {
-        $.ajax({
-            type: 'POST',
-            url: window.location.href,
-            data: {
-                ajax: 'inativar_candidatura',
-                id_candidatura: candidaturaId
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    // Adiciona animação de fade out e remove o card
-                    card.fadeOut(300, function() {
-                        $(this).remove();
-                        
-                        // Mostra mensagem se não houver mais candidaturas
-                        if ($('.saved-job-card').length === 0) {
-                            $('.saved-jobs-list').html('<p>Você não possui candidaturas ativas.</p>');
-                        }
-                    });
-                    
-                    // Mostra notificação de sucesso
-                    showCustomNotification('Registro apagado com sucesso!', 'success');
-                } else {
-                    showCustomNotification(response.message || 'Erro ao apagar registro da candidatura.', 'error');
-                }
-            },
-            error: function() {
-                showCustomNotification('Erro de conexão ao cancelar candidatura.', 'error');
-            }
-        });
-    }
-});
 
 </script>
 </body>
