@@ -365,69 +365,6 @@ try {
         </form>
     </div>
 
-    <script>
-        // Proteção contra alteração de campos pelo F12
-        const originalFormHTML = document.getElementById('formRecupSenha').innerHTML;
-        
-        // Verificar se campos obrigatórios foram alterados
-        function verificarIntegridade() {
-            const senha = document.getElementById('senha');
-            const confirmaSenha = document.getElementById('confirmaSenha');
-            
-            // Verificar se os tipos dos inputs foram alterados
-            if (senha.type !== 'password' || confirmaSenha.type !== 'password') {
-                alert('Tentativa de alteração detectada! A página será recarregada.');
-                location.reload();
-                return false;
-            }
-            
-            // Verificar se maxlength foi alterado
-            if (senha.maxLength !== 15 || confirmaSenha.maxLength !== 15) {
-                alert('Tentativa de alteração detectada! A página será recarregada.');
-                location.reload();
-                return false;
-            }
-            
-            // Verificar se required foi removido
-            if (!senha.required || !confirmaSenha.required) {
-                alert('Tentativa de alteração detectada! A página será recarregada.');
-                location.reload();
-                return false;
-            }
-            
-            return true;
-        }
-        
-        // Verificar integridade antes do envio
-        document.getElementById('formRecupSenha').addEventListener('submit', function(e) {
-            if (!verificarIntegridade()) {
-                e.preventDefault();
-                return false;
-            }
-        });
-        
-        // Monitorar mudanças no DOM
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'attributes') {
-                    const target = mutation.target;
-                    if (target.id === 'senha' || target.id === 'confirmaSenha') {
-                        if (!verificarIntegridade()) {
-                            return;
-                        }
-                    }
-                }
-            });
-        });
-        
-        // Observar mudanças nos campos
-        observer.observe(document.getElementById('senha'), { attributes: true });
-        observer.observe(document.getElementById('confirmaSenha'), { attributes: true });
-        
-        // Verificar periodicamente
-        setInterval(verificarIntegridade, 2000);
-    </script>
-
     <?php
     // Verificação se é uma requisição POST válida
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -585,5 +522,200 @@ try {
         }
     }
     ?>
+
+<!-- Adicione este script antes do fechamento da tag </body> no seu arquivo PHP -->
+<script>
+(function() {
+    'use strict';
+    
+    // Configuração da proteção
+    const config = {
+        protectedInputs: ['senha', 'confirmaSenha', 'token'],
+        protectedAttributes: ['maxlength', 'required', 'type', 'name', 'id', 'placeholder'],
+        checkInterval: 300
+    };
+    
+    let originalStates = new Map();
+    let active = true;
+    
+    // Capturar estado original dos inputs
+    function captureStates() {
+        config.protectedInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                const state = {};
+                config.protectedAttributes.forEach(attr => {
+                    state[attr] = el.getAttribute(attr) || el[attr];
+                });
+                state.html = el.outerHTML;
+                originalStates.set(id, state);
+            }
+        });
+    }
+    
+    // Verificar integridade
+    function checkIntegrity() {
+        if (!active) return;
+        
+        let tampered = false;
+        
+        originalStates.forEach((original, id) => {
+            const el = document.getElementById(id);
+            
+            if (!el) {
+                console.warn('SEGURANÇA: Input removido -', id);
+                tampered = true;
+                return;
+            }
+            
+            // Verificar atributos
+            config.protectedAttributes.forEach(attr => {
+                const current = el.getAttribute(attr) || el[attr];
+                if (current !== original[attr]) {
+                    console.warn('SEGURANÇA: Atributo alterado -', attr, 'em', id);
+                    tampered = true;
+                }
+            });
+            
+            // Verificar HTML
+            if (el.outerHTML !== original.html) {
+                console.warn('SEGURANÇA: HTML alterado -', id);
+                tampered = true;
+            }
+        });
+        
+        if (tampered) {
+            alert('Tentativa de manipulação detectada! A página será recarregada por segurança.');
+            location.reload();
+        }
+    }
+    
+    // Observer para mudanças no DOM
+    function setupObserver() {
+        const observer = new MutationObserver(mutations => {
+            if (!active) return;
+            
+            mutations.forEach(mutation => {
+                if (mutation.type === 'attributes') {
+                    const target = mutation.target;
+                    if (target.id && config.protectedInputs.includes(target.id)) {
+                        if (config.protectedAttributes.includes(mutation.attributeName)) {
+                            console.warn('SEGURANÇA: Modificação detectada em', target.id);
+                            alert('Manipulação detectada! Página será recarregada.');
+                            location.reload();
+                        }
+                    }
+                }
+                
+                if (mutation.type === 'childList') {
+                    mutation.removedNodes.forEach(node => {
+                        if (node.nodeType === 1 && 
+                            node.id && 
+                            config.protectedInputs.includes(node.id)) {
+                            console.warn('SEGURANÇA: Input removido -', node.id);
+                            alert('Elemento protegido removido! Página será recarregada.');
+                            location.reload();
+                        }
+                    });
+                }
+            });
+        });
+        
+        observer.observe(document.body, {
+            attributes: true,
+            childList: true,
+            subtree: true
+        });
+    }
+    
+    // Bloquear teclas de desenvolvedor
+    function blockDevKeys() {
+        document.addEventListener('keydown', e => {
+            // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) ||
+                (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.warn('SEGURANÇA: Tentativa de abrir DevTools bloqueada');
+                return false;
+            }
+        });
+    }
+    
+    // Bloquear menu de contexto
+    function blockContextMenu() {
+        document.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            return false;
+        });
+    }
+    
+    // Detectar DevTools (método simples)
+    function detectDevTools() {
+        let devtools = false;
+        const img = new Image();
+        Object.defineProperty(img, 'id', {
+            get() {
+                devtools = true;
+                return 'detected';
+            }
+        });
+        console.log(img);
+        return devtools;
+    }
+    
+    // Inicialização
+    function init() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+            return;
+        }
+        
+        captureStates();
+        setupObserver();
+        blockDevKeys();
+        blockContextMenu();
+        
+        // Verificação periódica
+        setInterval(checkIntegrity, config.checkInterval);
+        
+        // Detectar DevTools periodicamente
+        setInterval(() => {
+            if (detectDevTools()) {
+                console.warn('SEGURANÇA: DevTools detectado');
+                // Opcional: descomente para recarregar quando DevTools for detectado
+                // location.reload();
+            }
+        }, 1000);
+        
+        console.log('SEGURANÇA: Proteção de inputs ativada');
+    }
+    
+    // Desativar proteção antes de sair da página
+    window.addEventListener('beforeunload', () => {
+        active = false;
+    });
+    
+    // Proteger variável de controle
+    Object.defineProperty(window, 'protectionActive', {
+        get: () => active,
+        set: (value) => {
+            if (value === false) {
+                console.warn('SEGURANÇA: Tentativa de desativar proteção');
+                alert('Tentativa de bypass detectada!');
+                location.reload();
+            }
+            return active;
+        },
+        configurable: false
+    });
+    
+    init();
+})();
+</script>
+
+
 </body>
 </html>
+

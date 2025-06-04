@@ -539,80 +539,241 @@ footer {
     });
     </script>
 
-    <script>
+   <script>
     $(document).ready(function () {
-        // Proteção contra alteração de campos pelo F12
-        const originalFormHTML = document.getElementById('cadastroForm').innerHTML;
-        
-        // Configuração original dos campos para verificação
-        const originalFieldsConfig = {
-            'nome': { type: 'text', required: true, name: 'nome' },
-            'email': { type: 'email', required: true, name: 'email' },
-            'senha': { type: 'password', required: true, name: 'senha' },
-            'dataNascimento': { type: 'date', required: true, name: 'dataNascimento' },
-            'telefone': { type: 'tel', required: true, name: 'telefone' },
-            'idade': { type: 'number', required: false, name: 'idade' },
-            'endereco': { type: 'text', required: false, name: 'endereco' },
-            'formacao': { type: 'text', required: false, name: 'formacao' },
-            'foto_perfil': { type: 'file', required: false, name: 'foto_perfil' },
-            'aceitoLGPD': { type: 'checkbox', required: true, name: 'aceitoLGPD' }
-        };
-        
-        // Verificar se campos obrigatórios foram alterados
-        function verificarIntegridade() {
-            let integridade = true;
+        // Configuração de proteção otimizada
+        const SECURITY_CONFIG = {
+            // Configuração original dos campos para verificação
+            originalFieldsConfig: {
+                'nome': { type: 'text', required: true, name: 'nome' },
+                'email': { type: 'email', required: true, name: 'email' },
+                'senha': { type: 'password', required: true, name: 'senha' },
+                'dataNascimento': { type: 'date', required: true, name: 'dataNascimento' },
+                'telefone': { type: 'tel', required: true, name: 'telefone' },
+                'idade': { type: 'number', required: false, name: 'idade' },
+                'endereco': { type: 'text', required: false, name: 'endereco' },
+                'formacao': { type: 'text', required: false, name: 'formacao' },
+                'foto_perfil': { type: 'file', required: false, name: 'foto_perfil' },
+                'aceitoLGPD': { type: 'checkbox', required: true, name: 'aceitoLGPD' }
+            },
             
-            // Verificar cada campo crítico
-            Object.keys(originalFieldsConfig).forEach(function(fieldId) {
+            // Estrutura original do formulário (apenas elementos críticos)
+            originalFormStructure: null,
+            
+            // Flags de controle
+            isReloading: false,
+            violationDetected: false,
+            devToolsOpen: false,
+            
+            // Configurações de detecção
+            checkInterval: 5000, // Verificação a cada 5 segundos (menos frequente)
+            devToolsThreshold: 160,
+            maxViolations: 2,
+            violationCount: 0
+        };
+
+        // Capturar estrutura original do formulário (apenas elementos críticos)
+        function captureOriginalStructure() {
+            const structure = {};
+            Object.keys(SECURITY_CONFIG.originalFieldsConfig).forEach(function(fieldId) {
                 const field = document.getElementById(fieldId);
-                const config = originalFieldsConfig[fieldId];
-                
                 if (field) {
-                    // Verificar se os tipos dos inputs foram alterados
-                    if (field.type !== config.type) {
-                        console.warn('Tipo alterado no campo:', fieldId);
-                        integridade = false;
-                    }
-                    
-                    // Verificar se required foi alterado
-                    if (config.required && !field.required) {
-                        console.warn('Required removido do campo:', fieldId);
-                        integridade = false;
-                    }
-                    
-                    // Verificar se name foi alterado
-                    if (field.name !== config.name) {
-                        console.warn('Name alterado no campo:', fieldId);
-                        integridade = false;
-                    }
+                    structure[fieldId] = {
+                        tagName: field.tagName,
+                        type: field.type,
+                        name: field.name,
+                        required: field.required,
+                        exists: true
+                    };
                 }
             });
             
-            // Verificar se o checkbox LGPD foi alterado
-            const checkbox = document.getElementById('aceitoLGPD');
-            if (checkbox && (checkbox.type !== 'checkbox' || !checkbox.required || checkbox.name !== 'aceitoLGPD')) {
-                console.warn('Checkbox LGPD foi alterado');
-                integridade = false;
-            }
-            
-            // Verificar se o botão foi alterado
+            // Capturar botão de submit
             const submitBtn = document.getElementById('submitBtn');
-            if (submitBtn && (submitBtn.type !== 'button' || submitBtn.id !== 'submitBtn')) {
-                console.warn('Botão de submit foi alterado');
-                integridade = false;
+            if (submitBtn) {
+                structure.submitBtn = {
+                    tagName: submitBtn.tagName,
+                    type: submitBtn.type,
+                    id: submitBtn.id,
+                    exists: true
+                };
             }
             
-            if (!integridade) {
-                alert('Tentativa de alteração detectada! A página será recarregada.');
-                location.reload();
-                return false;
-            }
-            
-            return true;
+            return structure;
         }
-        
+
+        SECURITY_CONFIG.originalFormStructure = captureOriginalStructure();
+
+        // Função otimizada de verificação de integridade
+        function verificarIntegridade() {
+            // Prevenir múltiplos reloads
+            if (SECURITY_CONFIG.isReloading || SECURITY_CONFIG.violationDetected) {
+                return true;
+            }
+
+            let currentViolations = 0;
+            const violations = [];
+
+            try {
+                // 1. Verificar apenas mudanças estruturais críticas nos campos
+                Object.keys(SECURITY_CONFIG.originalFieldsConfig).forEach(function(fieldId) {
+                    const field = document.getElementById(fieldId);
+                    const originalConfig = SECURITY_CONFIG.originalFieldsConfig[fieldId];
+                    const originalStructure = SECURITY_CONFIG.originalFormStructure[fieldId];
+                    
+                    if (!field) {
+                        violations.push(`Campo crítico removido: ${fieldId}`);
+                        currentViolations++;
+                        return;
+                    }
+
+                    // Verificar apenas mudanças estruturais críticas
+                    if (field.tagName !== originalStructure.tagName) {
+                        violations.push(`Tag alterada no campo: ${fieldId}`);
+                        currentViolations++;
+                    }
+                    
+                    if (field.type !== originalConfig.type) {
+                        violations.push(`Tipo alterado no campo: ${fieldId}`);
+                        currentViolations++;
+                    }
+                    
+                    if (field.name !== originalConfig.name) {
+                        violations.push(`Name alterado no campo: ${fieldId}`);
+                        currentViolations++;
+                    }
+
+                    // Verificar required apenas para campos obrigatórios
+                    if (originalConfig.required && !field.required) {
+                        violations.push(`Required removido do campo obrigatório: ${fieldId}`);
+                        currentViolations++;
+                    }
+                });
+
+                // 2. Verificar botão de submit
+                const submitBtn = document.getElementById('submitBtn');
+                if (!submitBtn) {
+                    violations.push('Botão de submit foi removido');
+                    currentViolations++;
+                } else if (submitBtn.tagName !== 'BUTTON' && submitBtn.tagName !== 'INPUT') {
+                    violations.push('Botão de submit foi alterado');
+                    currentViolations++;
+                }
+
+                // 3. Verificar elementos suspeitos apenas se DevTools estiver aberto
+                if (SECURITY_CONFIG.devToolsOpen) {
+                    const suspiciousElements = document.querySelectorAll(
+                        'input[type="hidden"][name]:not([name="foto_perfil"]), ' +
+                        'script[src*="inject"], ' +
+                        'iframe[style*="display:none"], ' +
+                        'form[action]:not([action*="cadastro.php"])'
+                    );
+                    
+                    if (suspiciousElements.length > 0) {
+                        violations.push('Elementos suspeitos detectados');
+                        currentViolations++;
+                    }
+                }
+
+                // 4. Verificar apenas se o formulário foi completamente substituído
+                const formElement = document.getElementById('cadastroForm');
+                if (!formElement || formElement.tagName !== 'FORM') {
+                    violations.push('Formulário foi removido ou substituído');
+                    currentViolations++;
+                }
+
+                // Só processar violações se houver violações críticas
+                if (currentViolations > 0) {
+                    SECURITY_CONFIG.violationCount += currentViolations;
+                    
+                    console.warn('⚠️ Violações detectadas:', violations);
+                    
+                    // Só recarregar após múltiplas violações ou violações críticas
+                    if (SECURITY_CONFIG.violationCount >= SECURITY_CONFIG.maxViolations || 
+                        violations.some(v => v.includes('removido') || v.includes('substituído'))) {
+                        
+                        SECURITY_CONFIG.violationDetected = true;
+                        reloadPageWithWarning(violations);
+                        return false;
+                    }
+                }
+
+                return true;
+
+            } catch (error) {
+                console.error('Erro na verificação de integridade:', error);
+                return true; // Não recarregar por erros de verificação
+            }
+        }
+
+        // Função para recarregar a página com aviso
+        function reloadPageWithWarning(violations) {
+            if (SECURITY_CONFIG.isReloading) return;
+            
+            SECURITY_CONFIG.isReloading = true;
+            
+            console.warn('🚨 TENTATIVA DE TAMPERING DETECTADA!');
+            console.warn('Violações:', violations);
+            
+            alert('⚠️ ALTERAÇÃO NÃO AUTORIZADA DETECTADA!\n\nPor motivos de segurança, a página será recarregada.\n\nEvite modificar os elementos do formulário.');
+            
+            // Limpar dados antes do reload
+            try {
+                $('#cadastroForm')[0].reset();
+                sessionStorage.clear();
+            } catch (e) {
+                console.warn('Erro ao limpar dados:', e);
+            }
+            
+            setTimeout(function() {
+                window.location.reload(true);
+            }, 1500);
+        }
+
+        // Detecção otimizada de ferramentas de desenvolvedor
+        function detectDevTools() {
+            let devToolsDetected = false;
+            
+            // Método 1: Verificar tamanho da janela
+            if (window.outerHeight - window.innerHeight > SECURITY_CONFIG.devToolsThreshold || 
+                window.outerWidth - window.innerWidth > SECURITY_CONFIG.devToolsThreshold) {
+                devToolsDetected = true;
+            }
+            
+            // Método 2: Verificar propriedades do console
+            try {
+                if (window.console && typeof window.console.clear === 'function') {
+                    const consoleCheck = window.console.clear.toString();
+                    if (consoleCheck.includes('[native code]') || consoleCheck.length < 100) {
+                        // Console nativo ainda presente, possível DevTools aberto
+                        devToolsDetected = true;
+                    }
+                }
+            } catch (e) {
+                // Erro ao acessar console pode indicar DevTools
+                devToolsDetected = true;
+            }
+            
+            // Método 3: Verificar orientação da tela (para detectar docking)
+            if (window.screen && window.screen.availHeight && window.screen.height) {
+                if (window.screen.availHeight < window.screen.height - 100) {
+                    devToolsDetected = true;
+                }
+            }
+            
+            if (devToolsDetected && !SECURITY_CONFIG.devToolsOpen) {
+                SECURITY_CONFIG.devToolsOpen = true;
+                console.warn('🚨 FERRAMENTAS DE DESENVOLVEDOR DETECTADAS!');
+                console.warn('⚠️ Modificações no formulário serão monitoradas!');
+            } else if (!devToolsDetected && SECURITY_CONFIG.devToolsOpen) {
+                SECURITY_CONFIG.devToolsOpen = false;
+                console.log('🛡️ Ferramentas de desenvolvedor fechadas');
+            }
+        }
+
+        // Função principal de cadastro (mantida igual)
         function realizarCadastro() {
-            // Verificar integridade antes de prosseguir
+            // Verificação final de integridade antes de enviar
             if (!verificarIntegridade()) {
                 return;
             }
@@ -637,41 +798,27 @@ footer {
                 return;
             }
             
-            // Validação de email no frontend
             if (!validateEmail(email)) {
                 alert('Por favor, insira um email válido!');
                 return;
             }
             
-            // Validação de senha
             if (senha.length < 6) {
                 alert('A senha deve ter pelo menos 6 caracteres!');
                 return;
             }
             
-            // Validação LGPD
             if (!aceitoLGPD) {
                 alert('Você deve aceitar os termos de política de privacidade e LGPD!');
                 return;
             }
             
-            // Validação adicional de segurança
-            if (email.length > 100) {
-                alert('Email muito longo!');
+            // Validações de tamanho
+            if (email.length > 100 || senha.length > 255 || nome.length > 100) {
+                alert('Um ou mais campos excedem o tamanho máximo permitido!');
                 return;
             }
             
-            if (senha.length > 255) {
-                alert('Senha muito longa!');
-                return;
-            }
-            
-            if (nome.length > 100) {
-                alert('Nome muito longo!');
-                return;
-            }
-            
-            // Validação de idade se preenchida
             if (idade && (idade < 18 || idade > 80)) {
                 alert('Idade deve estar entre 18 e 80 anos!');
                 return;
@@ -679,7 +826,7 @@ footer {
             
             const formData = new FormData($('#cadastroForm')[0]);
             
-            $('#submitBtn').prop('disabled', true).text('Cadastrando...'); // Desabilita botão
+            $('#submitBtn').prop('disabled', true).text('Cadastrando...');
             
             $.ajax({
                 url: '../php/cadastro.php',
@@ -700,7 +847,6 @@ footer {
                     alert('Erro na comunicação com o servidor. Tente novamente.');
                 },
                 complete: function () {
-                    // Reabilita o botão depois da requisição
                     setTimeout(function() {
                         $('#submitBtn').prop('disabled', false).text('Cadastrar');
                     }, 2000);
@@ -708,90 +854,107 @@ footer {
             });
         }
 
-        // Função para validar o formato do email
         function validateEmail(email) {
             const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return regex.test(email);
         }
 
-        // Clique no botão
+        // Event Listeners
         $('#submitBtn').on('click', function () {
             realizarCadastro();
         });
 
-        // Pressionar Enter nos campos
         $('#cadastroForm input, #cadastroForm textarea').on('keypress', function (e) {
-            if (e.which === 13) { // Tecla Enter
+            if (e.which === 13) {
                 realizarCadastro();
             }
         });
+
+        // Sistema de monitoramento otimizado
         
-        // Monitorar mudanças no DOM
+        // 1. Observer otimizado para mudanças críticas no DOM
         const observer = new MutationObserver(function(mutations) {
+            let shouldCheck = false;
+            
             mutations.forEach(function(mutation) {
-                if (mutation.type === 'attributes') {
-                    const target = mutation.target;
-                    if (target.id && originalFieldsConfig[target.id]) {
-                        if (!verificarIntegridade()) {
-                            return;
+                // Verificar apenas mudanças críticas
+                if (mutation.type === 'attributes' && mutation.target.id) {
+                    const fieldId = mutation.target.id;
+                    if (SECURITY_CONFIG.originalFieldsConfig[fieldId]) {
+                        // Verificar apenas mudanças em atributos críticos
+                        if (mutation.attributeName === 'type' || 
+                            mutation.attributeName === 'name' || 
+                            mutation.attributeName === 'required') {
+                            shouldCheck = true;
+                        }
+                    }
+                }
+                
+                // Verificar remoção de nós críticos
+                if (mutation.type === 'childList' && mutation.removedNodes.length > 0) {
+                    for (let i = 0; i < mutation.removedNodes.length; i++) {
+                        const node = mutation.removedNodes[i];
+                        if (node.nodeType === Node.ELEMENT_NODE && 
+                            (node.id === 'submitBtn' || SECURITY_CONFIG.originalFieldsConfig[node.id])) {
+                            shouldCheck = true;
+                            break;
                         }
                     }
                 }
             });
-        });
-        
-        // Observar mudanças nos campos críticos
-        Object.keys(originalFieldsConfig).forEach(function(fieldId) {
-            const field = document.getElementById(fieldId);
-            if (field) {
-                observer.observe(field, { attributes: true });
+            
+            if (shouldCheck) {
+                setTimeout(verificarIntegridade, 500);
             }
         });
         
-        // Verificar periodicamente
-        setInterval(verificarIntegridade, 3000);
-        
-        // Proteção adicional contra console
-        let devtools = {open: false, orientation: null};
-        const threshold = 160;
-        
-        // Detectar se as ferramentas de desenvolvedor estão abertas
+        // Observar apenas o formulário
+        const formElement = document.getElementById('cadastroForm');
+        if (formElement) {
+            observer.observe(formElement, {
+                attributes: true,
+                childList: true,
+                subtree: true,
+                attributeFilter: ['type', 'name', 'required', 'action', 'method']
+            });
+        }
+
+        // 2. Verificação periódica menos frequente
+        setInterval(verificarIntegridade, SECURITY_CONFIG.checkInterval);
+
+        // 3. Detecção de ferramentas de desenvolvedor
+        setInterval(detectDevTools, 2000);
+
+        // 4. Proteção contra eventos de teclado suspeitos
+        document.addEventListener('keydown', function(e) {
+            // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+            if (e.keyCode === 123 || 
+                (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) ||
+                (e.ctrlKey && e.keyCode === 85)) {
+                
+                e.preventDefault();
+                console.warn('🚨 Tentativa de acesso às ferramentas de desenvolvedor!');
+                return false;
+            }
+        });
+
+        // 5. Proteção contra clique direito
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // 6. Verificação inicial após carregamento
+        setTimeout(function() {
+            verificarIntegridade();
+            console.log('🛡️ Sistema de proteção anti-tampering ativado!');
+        }, 2000);
+
+        // 7. Reset do contador de violações periodicamente
         setInterval(function() {
-            if (window.outerHeight - window.innerHeight > threshold || 
-                window.outerWidth - window.innerWidth > threshold) {
-                if (!devtools.open) {
-                    devtools.open = true;
-                    console.clear();
-                    console.warn('🚨 Acesso restrito detectado!');
-                }
-            } else {
-                devtools.open = false;
+            if (SECURITY_CONFIG.violationCount > 0) {
+                SECURITY_CONFIG.violationCount = Math.max(0, SECURITY_CONFIG.violationCount - 1);
             }
-        }, 500);
-        
-        // Proteção contra alteração do HTML via console
-        setInterval(function() {
-            const currentFormHTML = document.getElementById('cadastroForm').innerHTML;
-            if (currentFormHTML !== originalFormHTML) {
-                // Permite alterações dinâmicas legítimas, mas verifica integridade dos campos críticos
-                if (!verificarIntegridade()) {
-                    return;
-                }
-            }
-        }, 5000);
-        
-        // Proteção contra modificação de atributos críticos
-        document.addEventListener('DOMNodeInserted', function(e) {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') {
-                setTimeout(verificarIntegridade, 100);
-            }
-        });
-        
-        // Proteção contra modificação de atributos
-        document.addEventListener('DOMAttrModified', function(e) {
-            if (e.target.id && originalFieldsConfig[e.target.id]) {
-                setTimeout(verificarIntegridade, 100);
-            }
-        });
+        }, 30000); // Reduzir violações a cada 30 segundos
     });
-    </script>
+</script>
