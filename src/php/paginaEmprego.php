@@ -491,6 +491,59 @@ $termoBuscaDisplay = htmlspecialchars($termoBusca, ENT_QUOTES, 'UTF-8');
             color: #721C24;
         }
 
+        .modal-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+        }
+
+        .modal-section h4 {
+            color: #000000;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            padding: 0;
+        }
+
+        .modal-description,
+        .modal-text {
+            color: #000000;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Estilos específicos para cada seção */
+        #modal-descricao {
+            color: #000000;
+        }
+
+        #modal-requisitos {
+            color: #000000;
+        }
+
+        #modal-beneficios {
+            color: #000000;
+        }
+
+        /* Garantir que elementos filhos também sejam pretos */
+        .modal-section * {
+            color: #000000 !important;
+        }
+
+        /* Alternativa mais específica se necessário */
+        .modal-section h4,
+        .modal-section .modal-description,
+        .modal-section .modal-text,
+        #modal-descricao,
+        #modal-requisitos,
+        #modal-beneficios {
+            color: #000000 !important;
+        }
+
         /* Modal Styles */
         .modal-overlay {
             position: fixed;
