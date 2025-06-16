@@ -103,7 +103,7 @@ try {
     // Log da tentativa de login
     error_log("Tentativa de login - Email: " . $email . " - IP: " . $ip_login);
     
-    $sql = $pdo->prepare("EXEC sp_ValidarLogin :email, :senha");
+    $sql = $pdo->prepare("EXEC sp_ValidarLogin2 :email, :senha");
     $sql->bindValue(":email", $email);
     $sql->bindValue(":senha", $senha);
     $sql->execute();
