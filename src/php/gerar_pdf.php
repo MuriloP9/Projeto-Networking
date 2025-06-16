@@ -95,7 +95,7 @@ try {
         </div>
         
         <div class="footer">
-            <p>Gerado em ' . date('d/m/Y H:i') . '</p>
+            <p>Gerado por Prolink em ' . date('d/m/Y H:i') . '</p>
         </div>
     </body>
     </html>';
