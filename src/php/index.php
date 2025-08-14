@@ -33,7 +33,7 @@ session_start();
             <li><a href="#job-opportunities">Oportunidades</a></li>
             <li><a href="#contato">Contato</a></li>
             <?php if (!isset($_SESSION['usuario_logado'])): ?>
-                <li><a href="../pages/login.html">Login</a></li>
+                
                 <?php if (!isset($_SESSION['cadastro_realizado'])): ?>
                     <li><a href="../pages/cadastro.html" class="signup-btn">Cadastre-se</a></li>
                 <?php endif; ?>
