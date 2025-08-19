@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-include("../php/conexao2.php"); 
+include("../php/conexao.php"); 
 
 function limpar($valor) {
     // Primeira camada: remove caracteres de controle
@@ -81,11 +81,15 @@ function get_client_ip() {
     return filter_var($ipaddress, FILTER_SANITIZE_STRING);
 }
 
-// Função para criptografar a senha (adaptada para MySQL)
+// Função para criptografar a senha usando a procedure do banco
 function criptografarSenha($pdo, $senhaTexto) {
     try {
-        // Método para MySQL usando AES_ENCRYPT
-        $sql = "SELECT AES_ENCRYPT(:senhaTexto, 'SENHA@123ProLink2024!') as senha_cripto";
+        // Método alternativo: executar SQL diretamente para criptografar
+        $sql = "
+        DECLARE @SenhaCriptografada VARBINARY(MAX);
+        EXEC sp_CriptografarSenha :senhaTexto, @SenhaCriptografada OUTPUT;
+        SELECT @SenhaCriptografada as senha_cripto;
+        ";
         
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':senhaTexto', $senhaTexto, PDO::PARAM_STR);
@@ -101,7 +105,41 @@ function criptografarSenha($pdo, $senhaTexto) {
         
     } catch (Exception $e) {
         error_log("Erro ao criptografar senha: " . $e->getMessage());
-        throw new Exception("Erro ao processar senha");
+        
+        // Fallback: usar criptografia direta no SQL
+        try {
+            $sql_fallback = "
+            DECLARE @GUID UNIQUEIDENTIFIER;
+            DECLARE @SenhaCriptografada VARBINARY(MAX);
+            
+            OPEN SYMMETRIC KEY ChaveSenhaUsuario
+            DECRYPTION BY CERTIFICATE CertificadoSenhaUsuario 
+            WITH PASSWORD = 'SENHA@123ProLink2024!';
+            
+            SET @GUID = (SELECT KEY_GUID('ChaveSenhaUsuario'));
+            SET @SenhaCriptografada = ENCRYPTBYKEY(@GUID, :senhaTexto);
+            
+            CLOSE SYMMETRIC KEY ChaveSenhaUsuario;
+            
+            SELECT @SenhaCriptografada as senha_cripto;
+            ";
+            
+            $stmt_fallback = $pdo->prepare($sql_fallback);
+            $stmt_fallback->bindParam(':senhaTexto', $senhaTexto, PDO::PARAM_STR);
+            $stmt_fallback->execute();
+            
+            $resultado_fallback = $stmt_fallback->fetch(PDO::FETCH_ASSOC);
+            
+            if ($resultado_fallback && isset($resultado_fallback['senha_cripto'])) {
+                return $resultado_fallback['senha_cripto'];
+            } else {
+                throw new Exception("Falha no método alternativo de criptografia");
+            }
+            
+        } catch (Exception $e2) {
+            error_log("Erro no fallback de criptografia: " . $e2->getMessage());
+            throw new Exception("Erro ao processar senha - todos os métodos falharam");
+        }
     }
 }
 
@@ -253,11 +291,11 @@ try {
     // INSERT com PREPARED STATEMENT (proteção total contra SQL Injection)
     $sql = $pdo->prepare("INSERT INTO Usuario 
                 (nome, email, senha, dataNascimento, telefone, qr_code, data_geracao_qr, statusLGPD, IP_registro, ultimo_acesso) 
-                VALUES (:nome, :email, :senha, :dataNascimento, :telefone, :qr_code, NOW(), :statusLGPD, :IP_registro, NOW())");
+                VALUES (:nome, :email, :senha, :dataNascimento, :telefone, :qr_code, GETDATE(), :statusLGPD, :IP_registro, GETDATE())");
 
     $sql->bindValue(":nome", $nome, PDO::PARAM_STR);
     $sql->bindValue(":email", $email, PDO::PARAM_STR);
-    $sql->bindParam(":senha", $senhaCriptografada, PDO::PARAM_LOB);
+    $sql->bindParam(":senha", $senhaCriptografada, PDO::PARAM_LOB, 0, PDO::SQLSRV_ENCODING_BINARY);
     $sql->bindValue(":dataNascimento", $dataNascimento, PDO::PARAM_STR);
     $sql->bindValue(":telefone", $telefone, PDO::PARAM_STR);
     $sql->bindValue(":qr_code", $qr_code_path, PDO::PARAM_STR);
@@ -269,8 +307,8 @@ try {
 
     // UPDATE da foto com PREPARED STATEMENT
     if ($foto_perfil) {
-        $sql_foto = $pdo->prepare("UPDATE Usuario SET foto_perfil = :foto WHERE id_usuario = :id");
-        $sql_foto->bindParam(":foto", $foto_perfil, PDO::PARAM_LOB);
+        $sql_foto = $pdo->prepare("UPDATE Usuario SET foto_perfil = CONVERT(VARBINARY(MAX), :foto) WHERE id_usuario = :id");
+        $sql_foto->bindParam(":foto", $foto_perfil, PDO::PARAM_LOB, 0, PDO::SQLSRV_ENCODING_BINARY);
         $sql_foto->bindValue(":id", $id_usuario, PDO::PARAM_INT);
         $sql_foto->execute();
     }
@@ -309,9 +347,7 @@ try {
     exit;
     
 } catch (Exception $erro) {
-    if (isset($pdo)) {
-        $pdo->rollBack();
-    }
+    $pdo->rollBack();
     
     // Limpeza em caso de erro
     if (isset($qr_file) && file_exists($qr_file)) {

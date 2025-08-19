@@ -1084,9 +1084,6 @@ $termoBuscaDisplay = htmlspecialchars($termoBusca, ENT_QUOTES, 'UTF-8');
                 <li><a href="../php/index.php">Home</a></li>
                 <li><a href="../php/pagina_webinar.php">Webinars</a></li>
                 <li><a href="#contato">Contato</a></li>
-                <?php if (!isset($_SESSION['usuario_logado'])): ?>
-                    <li><a href="../pages/login.html">Login</a></li>
-                <?php endif; ?>
             </ul>
             <div class="profile">
             </div>

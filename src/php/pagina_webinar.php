@@ -374,9 +374,6 @@ try {
                 <li><a href="../php/index.php">Home</a></li>
                 <li><a href="../php/paginaEmprego.php">Oportunidades</a></li>
                 <li><a href="#contato">Contato</a></li>
-                <?php if (!isset($_SESSION['usuario_logado'])): ?>
-                    <li><a href="../pages/login.html">Login</a></li>
-                <?php endif; ?>
             </ul>
             <div class="profile">
                 <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
