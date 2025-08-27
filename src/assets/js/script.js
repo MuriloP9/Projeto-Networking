@@ -4,8 +4,6 @@ $(document).ready(function() {
     const itens = $('.carousel-item');
     const totalItens = itens.length;
     
-    console.log('Total de itens encontrados:', totalItens); // Debug
-    
     // Garante que o carrossel seja inicializado corretamente
     if (totalItens > 0) {
         inicializarCarrossel();
@@ -13,35 +11,24 @@ $(document).ready(function() {
     }
     
     function inicializarCarrossel() {
-        console.log('Inicializando carrossel...'); // Debug
+        // Esconde todas as imagens primeiro
+        itens.each(function() {
+            $(this).css('opacity', '0');
+        });
         
-        // Remove a transição temporariamente para mudança instantânea
-        itens.css('transition', 'none');
-        
-        // Força todas as imagens a ficarem invisíveis
-        itens.css('opacity', '0');
-        
-        // Força a primeira imagem a aparecer IMEDIATAMENTE
+        // Força a exibição da primeira imagem
         itens.eq(img).css('opacity', '1');
-        console.log('Primeira imagem exibida:', img); // Debug
-        
-        // Restaura a transição após um pequeno delay
-        setTimeout(function() {
-            itens.css('transition', 'opacity 1s ease-in-out');
-        }, 50);
+        console.log('Primeira imagem exibida:', img); // Para debug
     }
     
     function startCarousel() {
-        console.log('Carrossel iniciado'); // Debug
         setInterval(proximoItem, 3000);
     }
     
     function alternarItens() {
-        // Esconde todas as imagens
         itens.css('opacity', '0');
-        // Mostra a imagem atual
         itens.eq(img).css('opacity', '1');
-        console.log('Imagem atual exibida:', img); // Debug
+        console.log('Imagem atual:', img); // Para debug
     }
     
     function proximoItem() {
@@ -49,6 +36,20 @@ $(document).ready(function() {
         alternarItens();
     }
 });
+
+// Seção de Dúvidas
+$(document).ready(function() {
+    $('.faq-question').on('click', function() {
+        const itemDuvida = $(this).closest('.faq-item');
+        const respostaDuvida = itemDuvida.find('.faq-answer');
+
+        // Alterna a visibilidade da resposta com uma animação
+        respostaDuvida.slideToggle(300); // 300ms para a animação
+        itemDuvida.toggleClass('ativo'); // Alterna a classe 'ativo' no item
+    });
+});
+
+
 
 //Ajax para o cadastro.php
 $(document).ready(function() {
