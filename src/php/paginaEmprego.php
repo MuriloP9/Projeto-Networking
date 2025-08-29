@@ -1218,14 +1218,15 @@ $termoBuscaDisplay = htmlspecialchars($termoBusca, ENT_QUOTES, 'UTF-8');
                         <?php endif; ?>
 
                         <?php if (isset($_SESSION['id_usuario'])): ?>
-                            <?php if (in_array($vaga['id_vaga'], $candidaturas_usuario)): ?>
-                                <button class="already-applied" disabled>Candidatura Enviada</button>
-                            <?php else: ?>
-                                <button class="more-info-btn" data-vaga-id="<?= $id_vaga ?>">Saiba Mais</button>
-                            <?php endif; ?>
+                        <?php if (in_array($vaga['id_vaga'], $candidaturas_usuario)): ?>
+                            <button class="already-applied" disabled>Candidatura Enviada</button>
                         <?php else: ?>
-                            <p><a href="../pages/login.html" class="job-link">Faça login para se candidatar</a></p>
+                            <button class="more-info-btn" data-vaga-id="<?= $id_vaga ?>">Saiba Mais</button>
                         <?php endif; ?>
+                    <?php else: ?>
+                        <!-- MODIFICAÇÃO AQUI: Redireciona para index.php com parâmetro para abrir modal -->
+                        <button class="more-info-btn" onclick="window.location.href='../php/index.php?openLoginModal=true';">Faça login para se candidatar</button>
+                    <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
