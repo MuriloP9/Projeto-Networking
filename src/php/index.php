@@ -12,6 +12,214 @@ session_start();
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos para o Modal de Login */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 5% auto;
+            padding: 0;
+            border: none;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            position: relative;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: rgba(255,255,255,0.1);
+            padding: 20px 30px;
+            border-radius: 20px 20px 0 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+        }
+
+        .modal-header h2 {
+            color: white;
+            margin: 0;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+
+        .close {
+            color: white;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            opacity: 0.7;
+        }
+
+        .modal-body {
+            padding: 30px;
+            background: white;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .modal-textfield {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .modal-textfield label {
+            display: block;
+            margin-bottom: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .modal-textfield input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e1e1;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .modal-textfield input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .modal-btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .modal-btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .modal-btn-login:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .modal-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .modal-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .modal-links a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .modal-mensagem {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .modal-mensagem.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .modal-mensagem.success {
+            background: #efe;
+            color: #363;
+            border: 1px solid #cfc;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+            
+            .modal-body {
+                padding: 20px;
+            }
+            
+            .modal-header h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
 <header>
@@ -41,11 +249,42 @@ session_start();
                <li><button class="logout-btn" onclick="logout()">Olá, <?php echo explode(' ', $_SESSION['nome_usuario'])[0]; ?></button></li>
             <?php endif; ?>
             <li class="profile-item">
-                <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
+                <a href="#" onclick="handleProfileClick(event)"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
             </li>
         </ul>
     </nav>
 </header>
+
+<!-- Modal de Login -->
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Login</h2>
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="form-modal-login">
+                <div class="modal-textfield">
+                    <label for="modal-email">Email</label>
+                    <input type="email" id="modal-email" name="email" placeholder="Digite seu Email" required maxlength="100">
+                </div>
+                <div class="modal-textfield">
+                    <label for="modal-senha">Senha</label>
+                    <input type="password" id="modal-senha" name="senha" placeholder="Digite sua Senha" required maxlength="255">
+                </div>
+                <button type="button" class="modal-btn-login" id="btnModalLogin">Login</button>
+            </form>
+            
+            <div class="modal-links">
+                <a href="../php/esqueci-minha-senha.php">Esqueceu sua senha?</a>
+                <br><br>
+                <p style="font-size: 0.9rem;">Não tem uma conta? <a href="../pages/cadastro2.html">Cadastre-se agora</a></p>
+            </div>
+            
+            <div id="modal-mensagem" class="modal-mensagem" style="display: none;"></div>
+        </div>
+    </div>
+</div>
 
     <section id="home" class="carousel">
         <div class="carousel-container">
@@ -256,6 +495,154 @@ function buscarProfissionais() {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../assets/js/script.js"></script>
     <script>
+        // Função para lidar com o clique no perfil
+        function handleProfileClick(event) {
+            event.preventDefault();
+            
+            <?php if (!isset($_SESSION['usuario_logado'])): ?>
+                // Se não estiver logado, abre o modal
+                openLoginModal();
+            <?php else: ?>
+                // Se estiver logado, vai para o perfil
+                window.location.href = '../php/perfil.php';
+            <?php endif; ?>
+        }
+
+        // Função para abrir o modal de login
+        function openLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+            document.getElementById('modal-email').focus();
+        }
+
+         // Verificar se deve abrir o modal automaticamente
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('openLoginModal') === 'true') {
+                openLoginModal();
+                
+                // Limpar o parâmetro da URL sem recarregar a página
+                const url = new URL(window.location);
+                url.searchParams.delete('openLoginModal');
+                window.history.replaceState({}, '', url);
+        }
+          });
+
+        // Função para fechar o modal de login
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            clearLoginForm();
+        }
+
+        // Função para limpar o formulário
+        function clearLoginForm() {
+            document.getElementById('form-modal-login').reset();
+            const mensagem = document.getElementById('modal-mensagem');
+            mensagem.style.display = 'none';
+            mensagem.className = 'modal-mensagem';
+        }
+
+        // Fechar modal ao clicar fora dele
+        window.onclick = function(event) {
+            const modal = document.getElementById('loginModal');
+            if (event.target == modal) {
+                closeLoginModal();
+            }
+        }
+
+        // Event listener para o botão de login do modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnModalLogin = document.getElementById('btnModalLogin');
+            const formModalLogin = document.getElementById('form-modal-login');
+            
+            // Event listener para o botão
+            btnModalLogin.addEventListener('click', function() {
+                realizarLoginModal();
+            });
+            
+            // Event listener para Enter nos campos
+            formModalLogin.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    realizarLoginModal();
+                }
+            });
+        });
+
+        // Função para realizar o login via modal
+        function realizarLoginModal() {
+            const email = document.getElementById('modal-email').value.trim();
+            const senha = document.getElementById('modal-senha').value;
+            const btnLogin = document.getElementById('btnModalLogin');
+            const mensagem = document.getElementById('modal-mensagem');
+            
+            // Validações do lado do cliente
+            if (!email || !senha) {
+                mostrarMensagemModal('Por favor, preencha todos os campos.', 'error');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                mostrarMensagemModal('Por favor, digite um email válido.', 'error');
+                return;
+            }
+            
+            // Desabilitar botão e mostrar loading
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = '<span class="loading"></span>Entrando...';
+            
+            // Fazer requisição AJAX
+            const formData = new FormData();
+            formData.append('email', email);
+            formData.append('senha', senha);
+            
+            fetch('../php/validarLogin.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso) {
+                    mostrarMensagemModal(data.mensagem, 'success');
+                    setTimeout(() => {
+                        // Recarrega a página para atualizar a sessão
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    mostrarMensagemModal(data.mensagem, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                mostrarMensagemModal('Erro de conexão. Tente novamente.', 'error');
+            })
+            .finally(() => {
+                // Reabilitar botão
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = 'Login';
+            });
+        }
+        
+        // Função para mostrar mensagens no modal
+        function mostrarMensagemModal(texto, tipo) {
+            const mensagem = document.getElementById('modal-mensagem');
+            mensagem.textContent = texto;
+            mensagem.className = `modal-mensagem ${tipo}`;
+            mensagem.style.display = 'block';
+            
+            // Auto-ocultar mensagem de sucesso
+            if (tipo === 'success') {
+                setTimeout(() => {
+                    mensagem.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Função para validar email
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
         function logout() {
             // Redireciona para o arquivo de logout (que destruirá a sessão)
             window.location.href = '../php/logout.php';
@@ -274,7 +661,9 @@ function buscarProfissionais() {
                 mobileMenu.addEventListener('click', function() {
                     menu.classList.add('active');
                     this.style.display = 'none';
-                    closeMenuOutside.style.display = 'flex'; // Mostrar botão de fechar fora do menu
+                    if (closeMenuOutside) {
+                        closeMenuOutside.style.display = 'flex'; // Mostrar botão de fechar fora do menu
+                    }
                 });
             }
             
@@ -283,7 +672,9 @@ function buscarProfissionais() {
                 closeMenu.addEventListener('click', function() {
                     menu.classList.remove('active');
                     mobileMenu.style.display = 'block';
-                    closeMenuOutside.style.display = 'none';
+                    if (closeMenuOutside) {
+                        closeMenuOutside.style.display = 'none';
+                    }
                 });
             }
             
@@ -303,7 +694,9 @@ function buscarProfissionais() {
                     if (window.innerWidth < 992) {
                         menu.classList.remove('active');
                         mobileMenu.style.display = 'block';
-                        closeMenuOutside.style.display = 'none';
+                        if (closeMenuOutside) {
+                            closeMenuOutside.style.display = 'none';
+                        }
                     }
                 });
             });
@@ -313,7 +706,7 @@ function buscarProfissionais() {
                 if (window.innerWidth >= 992) {
                     menu.classList.remove('active');
                     if (mobileMenu) mobileMenu.style.display = 'none';
-                    closeMenuOutside.style.display = 'none';
+                    if (closeMenuOutside) closeMenuOutside.style.display = 'none';
                 } else {
                     if (mobileMenu && !menu.classList.contains('active')) {
                         mobileMenu.style.display = 'block';

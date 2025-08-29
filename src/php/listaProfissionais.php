@@ -152,22 +152,22 @@ if ($searchQuery !== '') {
                 $resultadosHTML .= "</div>";
                 
                 if (!empty($qrCodePath)) {
-                    if ($usuarioLogado) {
-                        $emailEscaped = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
-                        $resultadosHTML .= "<button class='chat-btn show-qr' data-qrcode-path='$qrCodePath' data-email='" . $emailEscaped . "' data-qrcode='" . $qrCodeValue . "'>";
-                        $resultadosHTML .= "Contato App<img src='../assets/img/adicionar-usuarios.png' alt='qrcode' class='chat-icon'>";
-                        $resultadosHTML .= "</button>";
-                    } else {
-                        // Modificação aqui: botão para redirecionar para login.html
-                        $resultadosHTML .= "<button class='chat-btn login-redirect' onclick=\"window.location.href='../pages/login.html';\">";
-                        $resultadosHTML .= "Contato App<img src='../assets/img/adicionar-usuarios.png' alt='qrcode' class='chat-icon'>";
-                        $resultadosHTML .= "</button>";
-                    }
-                } else {
-                    $resultadosHTML .= "<button class='chat-btn' disabled title='QR Code não disponível'>";
-                    $resultadosHTML .= "Contato App<img src='../assets/img/adicionar-usuarios.png' alt='qrcode' class='chat-icon'>";
-                    $resultadosHTML .= "</button>";
-                }
+    if ($usuarioLogado) {
+        $emailEscaped = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
+        $resultadosHTML .= "<button class='chat-btn show-qr' data-qrcode-path='$qrCodePath' data-email='" . $emailEscaped . "' data-qrcode='" . $qrCodeValue . "'>";
+        $resultadosHTML .= "Contato App<img src='../assets/img/adicionar-usuarios.png' alt='qrcode' class='chat-icon'>";
+        $resultadosHTML .= "</button>";
+    } else {
+        // MODIFICAÇÃO AQUI: Redireciona para index.php com parâmetro para abrir modal
+        $resultadosHTML .= "<button class='chat-btn login-redirect' onclick=\"window.location.href='../php/index.php?openLoginModal=true';\">";
+        $resultadosHTML .= "Contato App<img src='../assets/img/adicionar-usuarios.png' alt='qrcode' class='chat-icon'>";
+        $resultadosHTML .= "</button>";
+    }
+} else {
+    $resultadosHTML .= "<button class='chat-btn' disabled title='QR Code não disponível'>";
+    $resultadosHTML .= "Contato App<img src='../assets/img/adicionar-usuarios.png' alt='qrcode' class='chat-icon'>";
+    $resultadosHTML .= "</button>";
+}
                 
                 $resultadosHTML .= "</div>";
             }
