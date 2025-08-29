@@ -35,7 +35,7 @@ session_start();
             <?php if (!isset($_SESSION['usuario_logado'])): ?>
                 
                 <?php if (!isset($_SESSION['cadastro_realizado'])): ?>
-                    <li><a href="../pages/cadastro.html" class="signup-btn">Cadastre-se</a></li>
+                    <li><a href="../pages/cadastro2.html" class="signup-btn">Cadastre-se</a></li>
                 <?php endif; ?>
             <?php else: ?>
                <li><button class="logout-btn" onclick="logout()">Olá, <?php echo explode(' ', $_SESSION['nome_usuario'])[0]; ?></button></li>
