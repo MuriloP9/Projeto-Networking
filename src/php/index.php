@@ -150,6 +150,7 @@ session_start();
         }
 
         .modal-links {
+            color: #010101ff;
             text-align: center;
             margin-top: 20px;
         }
@@ -241,10 +242,6 @@ session_start();
             <li><a href="#job-opportunities">Oportunidades</a></li>
             <li><a href="#contato">Contato</a></li>
             <?php if (!isset($_SESSION['usuario_logado'])): ?>
-                
-                <?php if (!isset($_SESSION['cadastro_realizado'])): ?>
-                    <li><a href="../pages/cadastro2.html" class="signup-btn">Cadastre-se</a></li>
-                <?php endif; ?>
             <?php else: ?>
                <li><button class="logout-btn" onclick="logout()">Olá, <?php echo explode(' ', $_SESSION['nome_usuario'])[0]; ?></button></li>
             <?php endif; ?>
