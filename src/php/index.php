@@ -372,69 +372,106 @@ function buscarProfissionais() {
     window.location.href = `listaProfissionais.php?search=${termoCodificado}`;
 }
 </script>
-    </section>
-
-    <section id="webinars" class="webinars">
+   <section id="webinars" class="webinars">
         <h2>Próximos Webinars</h2>
         <div class="webinar-container">
             <div class="webinar-description">
-                <h3>Descubra Novos Conhecimentos no Próximo Webinar!</h3>
-                <p>Participe do nosso próximo webinar sobre networking global e descubra como expandir suas conexões profissionais.</p>
-                <a href="../php/pagina_webinar.php" class="webinar-link">Saiba mais</a>
-                <img src="../assets/img/undraw_Graduation_re_gthn.png" alt="Imagem do Webinar">
+                <h3>🚀 Transforme Sua Carreira com Networking Global!</h3>
+                <p>Junte-se ao nosso webinar exclusivo e aprenda estratégias comprovadas para expandir suas conexões profissionais internacionalmente. Descubra como profissionais de sucesso constroem redes poderosas.</p>
+                <a href="../php/pagina_webinar.php" class="webinar-link">
+                    Garantir Minha Vaga
+                </a>
+                
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <span class="stat-number">500+</span>
+                        <span class="stat-label">Participantes</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">95%</span>
+                        <span class="stat-label">Satisfação</span>
+                    </div>
+                </div>
             </div>
             <div class="webinar-image">
-                <img src="../assets/img/webinar-animate.svg" width="600px" height="600px" alt="Imagem de Capa do Webinar">
+                <img src="../assets/img/webinar-animate.svg" alt="Webinar Illustration">
             </div>
         </div>
     </section>
-        
+
+    <!-- Seção de Oportunidades de Emprego -->
     <section id="job-opportunities" class="job-opportunities">
-        <h2>Oportunidades de emprego</h2>
-        <br><br>
-            <div class="job-container">
-                <div class="job-description">
-                    <h3>Encontre a Oportunidade dos Seus Sonhos!</h3>
-                    <p>Confira as vagas abertas em diversas áreas profissionais e conecte-se com empregadores ao redor do mundo.</p>
-                    <a href="../php/paginaEmprego.php" class="job-link">Saiba mais</a>
-                    <img src="../assets/img/undraw_Finance_re_gnv2.png" alt="Imagem Oportunidade de Trabalho">
-                </div>
-                <div class="job-image">
-                    <img src="../assets/img/task-animate.svg" width="600px" height="600px"  alt="Imagem de Oportunidade de Trabalho">
+        <h2>Oportunidades de Emprego</h2>
+        <div class="job-container">
+            <div class="job-image">
+                <img src="../assets/img/task-animate.svg" alt="Job Opportunities Illustration">
+            </div>
+            <div class="job-description">
+                <h3>💼 Sua Próxima Oportunidade Te Espera!</h3>
+                <p>Explore milhares de vagas em empresas globais e conecte-se diretamente com recrutadores. Nossa plataforma facilita o match perfeito entre seu perfil e as melhores oportunidades do mercado.</p>
+                <a href="../php/paginaEmprego.php" class="job-link">
+                    Explorar Vagas
+                </a>
+                
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <span class="stat-number">2.5k+</span>
+                        <span class="stat-label">Vagas Ativas</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">85%</span>
+                        <span class="stat-label">Taxa de Match</span>
+                    </div>
                 </div>
             </div>
-    </section> 
+        </div>
+    </section>
 
+    <!-- Call-to-Action Central -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Pronto para Impulsionar Sua Carreira?</h2>
+            <p>Junte-se a milhares de profissionais que já transformaram suas trajetórias conosco!</p>
+            <div class="cta-buttons">
+                <a href="../php/pagina_webinar.php" class="cta-button primary">
+                    🎯 Participar do Webinar
+                </a>
+                <a href="../php/paginaEmprego.php" class="cta-button">
+                    💼 Ver Oportunidades
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline aprimorada -->
     <section class="timeline">
-        <div class="timeline-bg">
-            <h2>Nosso Progresso</h2>
-            <div class="timeline-container">
-                <div class="timeline-item">
-                    <div class="timeline-icon">
-                        <img src="../assets/img/lupa.svg" alt="Icone de busca">
-                    </div>
-                    <div class="timeline-content">
-                        <h3>Conecte-se Facilmente</h3>
-                        <p>Encontre profissionais e oportunidades em diversas áreas usando nossa avançada ferramenta de busca.</p>
-                    </div>
+        <h2>Como Funciona Nossa Plataforma</h2>
+        <div class="timeline-container">
+            <div class="timeline-item">
+                <div class="timeline-icon">
+                    <img src="../assets/img/lupa.svg" alt="Buscar">
                 </div>
-                <div class="timeline-item">
-                    <div class="timeline-icon">
-                        <img src="../assets/img/envelope.svg" alt="Icone de marcador">
-                    </div>
-                    <div class="timeline-content">
-                        <h3>Salve e Organize</h3>
-                        <p>Guarde suas pesquisas e organize suas oportunidades favoritas para acessar mais tarde.</p>
-                    </div>
+                <div class="timeline-content">
+                    <h3>🔍 Conecte-se Facilmente</h3>
+                    <p>Use nossa plataforma avançada para encontrar exatamente o que procura: profissionais, mentores ou oportunidades em sua área.</p>
                 </div>
-                <div class="timeline-item">
-                    <div class="timeline-icon">
-                        <img src="../assets/img/book.svg" alt="Icone de leitura">
-                    </div>
-                    <div class="timeline-content">
-                        <h3>Aprenda e Cresça</h3>
-                        <p>Participe de webinars e eventos para adquirir novos conhecimentos e expandir sua rede.</p>
-                    </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-icon">
+                    <img src="../assets/img/envelope.svg" alt="Organizar">
+                </div>
+                <div class="timeline-content">
+                    <h3>📌 Salve e Organize</h3>
+                    <p>Salve contatos importantes no nosso aplicativo e organize suas oportunidades favoritas em um só lugar.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-icon">
+                    <img src="../assets/img/book.svg" alt="Aprender">
+                </div>
+                <div class="timeline-content">
+                    <h3>📚 Aprenda e Cresça</h3>
+                    <p>Participe de webinars exclusivos, eventos de networking e mentorias para acelerar seu crescimento profissional.</p>
                 </div>
             </div>
         </div>
