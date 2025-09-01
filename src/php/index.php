@@ -393,8 +393,11 @@ function buscarProfissionais() {
                     </div>
                 </div>
             </div>
-            <div class="webinar-image">
-                <img src="../assets/img/webinar-animate.svg" alt="Webinar Illustration">
+            <div class="webinar-iframe-container">
+                <div class="iframe-wrapper">
+                    <div class="iframe-label">🎯 Webinar ao Vivo</div>
+                    <iframe width="1217" height="480" src="https://www.youtube.com/embed/aOj1rqxhHKI" title="Webinars" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
             </div>
         </div>
     </section>
@@ -403,8 +406,11 @@ function buscarProfissionais() {
     <section id="job-opportunities" class="job-opportunities">
         <h2>Oportunidades de Emprego</h2>
         <div class="job-container">
-            <div class="job-image">
-                <img src="../assets/img/task-animate.svg" alt="Job Opportunities Illustration">
+            <div class="job-iframe-container">
+                <div class="iframe-wrapper">
+                    <div class="iframe-label">💼 Encontre Vagas!</div>
+                    <iframe width="1217" height="480" src="https://www.youtube.com/embed/t4oM9Tw6eDw" title="Palestra - Sem experiência profissional, como conseguir um emprego?" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
             </div>
             <div class="job-description">
                 <h3>💼 Sua Próxima Oportunidade Te Espera!</h3>

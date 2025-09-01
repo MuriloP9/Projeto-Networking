@@ -1,41 +1,49 @@
 //Container com imagens rodando
-$(document).ready(function() {
-    let img = 0;
-    const itens = $('.carousel-item');
-    const totalItens = itens.length;
-    
-    // Garante que o carrossel seja inicializado corretamente
-    if (totalItens > 0) {
-        inicializarCarrossel();
-        startCarousel();
-    }
-    
-    function inicializarCarrossel() {
-        // Esconde todas as imagens primeiro
-        itens.each(function() {
-            $(this).css('opacity', '0');
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.carousel-item');
+        const dots = document.querySelectorAll('.carousel-dot');
+        const totalSlides = slides.length;
+
+        function showSlide(index) {
+            // Remove active class de todos os slides e dots
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+
+            // Adiciona active class ao slide e dot atual
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex < 0) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        function currentSlide(index) {
+            currentSlideIndex = index - 1;
+            showSlide(currentSlideIndex);
+        }
+
+        // Auto-play carousel
+        setInterval(() => {
+            changeSlide(1);
+        }, 5000);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
         });
-        
-        // Força a exibição da primeira imagem
-        itens.eq(img).css('opacity', '1');
-        console.log('Primeira imagem exibida:', img); // Para debug
-    }
-    
-    function startCarousel() {
-        setInterval(proximoItem, 3000);
-    }
-    
-    function alternarItens() {
-        itens.css('opacity', '0');
-        itens.eq(img).css('opacity', '1');
-        console.log('Imagem atual:', img); // Para debug
-    }
-    
-    function proximoItem() {
-        img = (img + 1) % totalItens;
-        alternarItens();
-    }
-});
 
 // Seção de Dúvidas
 $(document).ready(function() {
