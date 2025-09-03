@@ -249,7 +249,6 @@ session_start();
             <li><a href="#home">Home</a></li>
             <li><a href="#webinars">Webinars</a></li>
             <li><a href="#job-opportunities">Oportunidades</a></li>
-            <li><a href="#contato">Contato</a></li>
             <?php if (!isset($_SESSION['usuario_logado'])): ?>
             <?php else: ?>
                <li><button class="logout-btn" onclick="logout()">Olá, <?php echo explode(' ', $_SESSION['nome_usuario'])[0]; ?></button></li>
@@ -546,18 +545,6 @@ function buscarProfissionais() {
         </div>
     </section>
 
-    <section id="contato" class="contact-section">
-        <div class="contact-container">
-            <div class="map-container">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3656.3465896377126!2d-46.64165882513707!3d-23.53003478469527!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce5857a5c48815%3A0x70b13f63e8491df3!2sETESP!5e0!3m2!1spt-BR!2sbr!4v1696952749192!5m2!1spt-BR!2sbr" width="400" height="300" style="border:0; border-radius: 15px;" allowfullscreen="" loading="lazy"></iframe>
-            </div>
-            <div class="contact-info">
-                <p>Bom Retiro, São Paulo - SP, 01124-010<br>ETESP</p>
-                <hr class="small-hr">
-                <p>Email: contato@empresa.com<br>Telefone: (11) 1234-5678</p>
-            </div>
-        </div>
-    </section>
 
     <footer class="footer-section">
         <div class="footer-content">
