@@ -934,13 +934,7 @@ $searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
                 <li><a href="../php/index.php">Home</a></li>
                 <li><a href="../php/paginaEmprego.php">Oportunidades de Trabalho</a></li>
                 <li><a href="../php/pagina_webinar.php">Webinars</a></li>
-                <?php if (!isset($_SESSION['usuario_logado'])): ?>
-                    <li><a href="../pages/login.html">Login</a></li>
-                <?php endif; ?>
             </ul>
-            <div class="profile">
-                <a href="../php/perfil.php"><img src="../assets/img/user-48.png" alt="Profile" class="profile-icon"></a>
-            </div>
             <!-- Botão do menu mobile será inserido via JavaScript -->
         </nav>
     </header>

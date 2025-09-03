@@ -358,7 +358,7 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             color: var(--dark-gray);
             line-height: 1.6;
             min-height: 100vh;
@@ -730,7 +730,7 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
         }
 
         .results-count {
-            color: var(--gray);
+            color: white;
             font-weight: 500;
         }
 
@@ -1662,9 +1662,9 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
             </div>
             
             <ul class="menu" id="menu">
-                <li><a href="../php/index.php"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="../php/pagina_webinar.php"><i class="fas fa-video"></i> Webinars</a></li>
-                <li><a href="#contato"><i class="fas fa-envelope"></i> Contato</a></li>
+                <li><a href="../php/index.php">Home</a></li>
+                <li><a href="../php/pagina_webinar.php">Webinars</a></li>
+                <li><a href="#contato">Contato</a></li>
             </ul>
             
             <button class="menu-toggle" id="mobile-menu">

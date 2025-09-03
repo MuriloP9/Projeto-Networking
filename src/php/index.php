@@ -122,7 +122,8 @@ session_start();
             transform: translateY(-2px);
         }
 
-        .modal-btn-login {
+        .modal-btn-login,
+        .modal-btn-reset {
             width: 100%;
             padding: 15px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -137,12 +138,14 @@ session_start();
             margin-top: 10px;
         }
 
-        .modal-btn-login:hover {
+        .modal-btn-login:hover,
+        .modal-btn-reset:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
 
-        .modal-btn-login:disabled {
+        .modal-btn-login:disabled,
+        .modal-btn-reset:disabled {
             background: #ccc;
             cursor: not-allowed;
             transform: none;
@@ -161,6 +164,7 @@ session_start();
             font-family: 'Montserrat', sans-serif;
             font-size: 0.9rem;
             transition: color 0.3s ease;
+            cursor: pointer;
         }
 
         .modal-links a:hover {
@@ -203,6 +207,11 @@ session_start();
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* Estilos específicos para o modal de recuperação de senha */
+        .password-reset-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         /* Responsividade */
@@ -273,12 +282,37 @@ session_start();
             </form>
             
             <div class="modal-links">
-                <a href="../php/esqueci-minha-senha.php">Esqueceu sua senha?</a>
+                <a href="#" onclick="openPasswordResetModal()">Esqueceu sua senha?</a>
                 <br><br>
                 <p style="font-size: 0.9rem;">Não tem uma conta? <a href="../pages/cadastro2.html">Cadastre-se agora</a></p>
             </div>
             
             <div id="modal-mensagem" class="modal-mensagem" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Recuperação de Senha -->
+<div id="passwordResetModal" class="modal">
+    <div class="modal-content password-reset-content">
+        <div class="modal-header">
+            <h2>Recuperação de Senha</h2>
+            <span class="close" onclick="closePasswordResetModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="form-password-reset">
+                <div class="modal-textfield">
+                    <label for="reset-email">Email cadastrado</label>
+                    <input type="email" id="reset-email" name="email" placeholder="Digite seu email" required maxlength="100">
+                </div>
+                <button type="button" class="modal-btn-reset" id="btnPasswordReset">Solicitar Redefinição</button>
+            </form>
+            
+            <div class="modal-links">
+                <a href="#" onclick="backToLoginModal()">Lembrou sua senha?</a>
+            </div>
+            
+            <div id="reset-mensagem" class="modal-mensagem" style="display: none;"></div>
         </div>
     </div>
 </div>
@@ -551,6 +585,21 @@ function buscarProfissionais() {
         // Função para abrir o modal de login
         function openLoginModal() {
             document.getElementById('loginModal').style.display = 'block';
+            document.getElementById('passwordResetModal').style.display = 'none';
+            document.getElementById('modal-email').focus();
+        }
+
+        // Função para abrir o modal de recuperação de senha
+        function openPasswordResetModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('passwordResetModal').style.display = 'block';
+            document.getElementById('reset-email').focus();
+        }
+
+        // Função para voltar ao modal de login
+        function backToLoginModal() {
+            document.getElementById('passwordResetModal').style.display = 'none';
+            document.getElementById('loginModal').style.display = 'block';
             document.getElementById('modal-email').focus();
         }
 
@@ -573,7 +622,13 @@ function buscarProfissionais() {
             clearLoginForm();
         }
 
-        // Função para limpar o formulário
+        // Função para fechar o modal de recuperação de senha
+        function closePasswordResetModal() {
+            document.getElementById('passwordResetModal').style.display = 'none';
+            clearPasswordResetForm();
+        }
+
+        // Função para limpar o formulário de login
         function clearLoginForm() {
             document.getElementById('form-modal-login').reset();
             const mensagem = document.getElementById('modal-mensagem');
@@ -581,29 +636,55 @@ function buscarProfissionais() {
             mensagem.className = 'modal-mensagem';
         }
 
+        // Função para limpar o formulário de recuperação de senha
+        function clearPasswordResetForm() {
+            document.getElementById('form-password-reset').reset();
+            const mensagem = document.getElementById('reset-mensagem');
+            mensagem.style.display = 'none';
+            mensagem.className = 'modal-mensagem';
+        }
+
         // Fechar modal ao clicar fora dele
         window.onclick = function(event) {
-            const modal = document.getElementById('loginModal');
-            if (event.target == modal) {
+            const loginModal = document.getElementById('loginModal');
+            const passwordResetModal = document.getElementById('passwordResetModal');
+            
+            if (event.target == loginModal) {
                 closeLoginModal();
+            }
+            if (event.target == passwordResetModal) {
+                closePasswordResetModal();
             }
         }
 
-        // Event listener para o botão de login do modal
+        // Event listeners para os modais
         document.addEventListener('DOMContentLoaded', function() {
             const btnModalLogin = document.getElementById('btnModalLogin');
             const formModalLogin = document.getElementById('form-modal-login');
+            const btnPasswordReset = document.getElementById('btnPasswordReset');
+            const formPasswordReset = document.getElementById('form-password-reset');
             
-            // Event listener para o botão
+            // Event listeners para o modal de login
             btnModalLogin.addEventListener('click', function() {
                 realizarLoginModal();
             });
             
-            // Event listener para Enter nos campos
             formModalLogin.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     realizarLoginModal();
+                }
+            });
+
+            // Event listeners para o modal de recuperação de senha
+            btnPasswordReset.addEventListener('click', function() {
+                realizarRecuperacaoSenha();
+            });
+            
+            formPasswordReset.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    realizarRecuperacaoSenha();
                 }
             });
         });
@@ -617,12 +698,12 @@ function buscarProfissionais() {
             
             // Validações do lado do cliente
             if (!email || !senha) {
-                mostrarMensagemModal('Por favor, preencha todos os campos.', 'error');
+                mostrarMensagemModal('Por favor, preencha todos os campos.', 'error', 'modal-mensagem');
                 return;
             }
             
             if (!isValidEmail(email)) {
-                mostrarMensagemModal('Por favor, digite um email válido.', 'error');
+                mostrarMensagemModal('Por favor, digite um email válido.', 'error', 'modal-mensagem');
                 return;
             }
             
@@ -642,18 +723,18 @@ function buscarProfissionais() {
             .then(response => response.json())
             .then(data => {
                 if (data.sucesso) {
-                    mostrarMensagemModal(data.mensagem, 'success');
+                    mostrarMensagemModal(data.mensagem, 'success', 'modal-mensagem');
                     setTimeout(() => {
                         // Recarrega a página para atualizar a sessão
                         window.location.reload();
                     }, 1000);
                 } else {
-                    mostrarMensagemModal(data.mensagem, 'error');
+                    mostrarMensagemModal(data.mensagem, 'error', 'modal-mensagem');
                 }
             })
             .catch(error => {
                 console.error('Erro:', error);
-                mostrarMensagemModal('Erro de conexão. Tente novamente.', 'error');
+                mostrarMensagemModal('Erro de conexão. Tente novamente.', 'error', 'modal-mensagem');
             })
             .finally(() => {
                 // Reabilitar botão
@@ -661,20 +742,67 @@ function buscarProfissionais() {
                 btnLogin.innerHTML = 'Login';
             });
         }
+
+        // Função para realizar a recuperação de senha
+        function realizarRecuperacaoSenha() {
+            const email = document.getElementById('reset-email').value.trim();
+            const btnReset = document.getElementById('btnPasswordReset');
+            
+            // Validações do lado do cliente
+            if (!email) {
+                mostrarMensagemModal('Por favor, digite seu email.', 'error', 'reset-mensagem');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                mostrarMensagemModal('Por favor, digite um email válido.', 'error', 'reset-mensagem');
+                return;
+            }
+            
+            // Desabilitar botão e mostrar loading
+            btnReset.disabled = true;
+            btnReset.innerHTML = '<span class="loading"></span>Enviando...';
+            
+            // Fazer requisição AJAX
+            const formData = new FormData();
+            formData.append('email', email);
+            
+            fetch('../php/recuperarSenhaAjax.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso) {
+                    mostrarMensagemModal(data.mensagem, 'success', 'reset-mensagem');
+                    // Limpar o campo de email após sucesso
+                    document.getElementById('reset-email').value = '';
+                } else {
+                    mostrarMensagemModal(data.mensagem, 'error', 'reset-mensagem');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                mostrarMensagemModal('Erro de conexão. Tente novamente.', 'error', 'reset-mensagem');
+            })
+            .finally(() => {
+                // Reabilitar botão
+                btnReset.disabled = false;
+                btnReset.innerHTML = 'Solicitar Redefinição';
+            });
+        }
         
-        // Função para mostrar mensagens no modal
-        function mostrarMensagemModal(texto, tipo) {
-            const mensagem = document.getElementById('modal-mensagem');
+        // Função para mostrar mensagens nos modais
+        function mostrarMensagemModal(texto, tipo, elementoId) {
+            const mensagem = document.getElementById(elementoId);
             mensagem.textContent = texto;
             mensagem.className = `modal-mensagem ${tipo}`;
             mensagem.style.display = 'block';
             
-            // Auto-ocultar mensagem de sucesso
-            if (tipo === 'success') {
-                setTimeout(() => {
-                    mensagem.style.display = 'none';
-                }, 3000);
-            }
+            // Auto-ocultar mensagem após um tempo
+            setTimeout(() => {
+                mensagem.style.display = 'none';
+            }, 5000);
         }
         
         // Função para validar email
