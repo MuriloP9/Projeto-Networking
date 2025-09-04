@@ -91,13 +91,14 @@ try {
         $params[] = $palestrante;
     }
     
+    // CORREÇÃO: Converter datas para formato do SQL Server e usar CAST
     if (!empty($dataInicio)) {
-        $whereConditions[] = "DATE(data_hora) >= ?";
+        $whereConditions[] = "CAST(data_hora AS DATE) >= CAST(? AS DATE)";
         $params[] = $dataInicio;
     }
     
     if (!empty($dataFim)) {
-        $whereConditions[] = "DATE(data_hora) <= ?";
+        $whereConditions[] = "CAST(data_hora AS DATE) <= CAST(? AS DATE)";
         $params[] = $dataFim;
     }
     
@@ -130,7 +131,9 @@ try {
     unset($webinar); // Quebrar referência
     
 } catch (PDOException $e) {
-    echo "<script>alert('Erro ao buscar webinars.');</script>";
+    // Mostrar erro de forma mais detalhada para debug (remover em produção)
+    error_log("Erro ao buscar webinars: " . $e->getMessage());
+    echo "<script>console.error('Erro ao buscar webinars: " . addslashes($e->getMessage()) . "');</script>";
 }
 
 // Sanitizar dados para exibição

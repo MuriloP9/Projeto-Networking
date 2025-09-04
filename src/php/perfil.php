@@ -1174,47 +1174,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-2px); }
         }
+
+        .mobile-nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    list-style: none;
+}
+
+.mobile-nav-links .nav-link {
+    display: block;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 0.25rem 0;
+}
+
+.mobile-nav-links .nav-link.logout {
+    width: 100%;
+    text-align: left;
+    background: linear-gradient(135deg, var(--error), #dc2626);
+}
     </style>
 </head>
 
 <body>
-    <!-- Header -->
-    <header class="header">
-        <nav class="navbar">
-            <a href="../php/index.php" class="logo">
-                <div class="logo-icon">
-                     <img src="../assets/img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
-                </div>
-                ProLink
-            </a>
-            
-            <ul class="nav-links">
-                <li><a href="../php/index.php" class="nav-link">
-                    <i class="fas fa-home"></i> Home
-                </a></li>
-                <li><button onclick="logout()" class="nav-link logout">
-                    <i class="fas fa-sign-out-alt"></i> Sair
-                </button></li>
-            </ul>
-
-            <div class="mobile-toggle" onclick="toggleMobileMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
+   <!-- Header -->
+<header class="header">
+    <nav class="navbar">
+        <a href="../php/index.php" class="logo">
+            <div class="logo-icon">
+                <img src="../assets/img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
             </div>
-        </nav>
+            ProLink
+        </a>
+        
+        <ul class="nav-links">
+            <li><a href="../php/index.php" class="nav-link">
+                <i class="fas fa-home"></i> Home
+            </a></li>
+            <li><button onclick="logout()" class="nav-link logout">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button></li>
+        </ul>
 
-        <div class="mobile-menu">
-            <ul class="nav-links">
-                <li><a href="../php/index.php" class="nav-link">
-                    <i class="fas fa-home"></i> Home
-                </a></li>
-                <li><button onclick="logout()" class="nav-link logout">
-                    <i class="fas fa-sign-out-alt"></i> Sair
-                </button></li>
-            </ul>
+        <div class="mobile-toggle" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
-    </header>
+    </nav>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <ul class="mobile-nav-links">
+            <li><a href="../php/index.php" class="nav-link">
+                <i class="fas fa-home"></i> Home
+            </a></li>
+            <li><button onclick="logout()" class="nav-link logout">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button></li>
+        </ul>
+    </div>
+</header>
 
     <!-- Notification -->
     <?php if (!empty($mensagem)): ?>
@@ -1838,22 +1858,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Função para alternar o menu móvel
-    function toggleMobileMenu() {
-        const mobileMenu = document.querySelector('.mobile-menu');
-        const hamburger = document.querySelector('.mobile-toggle');
-        
-        mobileMenu.classList.toggle('active');
-        
-        if (mobileMenu.classList.contains('active')) {
-            hamburger.children[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
-            hamburger.children[1].style.opacity = '0';
-            hamburger.children[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
-        } else {
-            hamburger.children[0].style.transform = 'rotate(0) translate(0)';
-            hamburger.children[1].style.opacity = '1';
-            hamburger.children[2].style.transform = 'rotate(0) translate(0)';
-        }
+    // Função para alternar o menu móvel
+function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    const hamburger = document.querySelector('.mobile-toggle');
+    
+    mobileMenu.classList.toggle('active');
+    
+    if (mobileMenu.classList.contains('active')) {
+        hamburger.children[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+        hamburger.children[1].style.opacity = '0';
+        hamburger.children[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+    } else {
+        hamburger.children[0].style.transform = 'rotate(0) translate(0)';
+        hamburger.children[1].style.opacity = '1';
+        hamburger.children[2].style.transform = 'rotate(0) translate(0)';
     }
+}
 
     // File input functionality
     function initFileInput() {
