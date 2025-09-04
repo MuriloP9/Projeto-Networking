@@ -1611,6 +1611,7 @@ html {
         padding: 80px 20px 20px;
         z-index: 1000;
         justify-content: flex-start;
+        align-items: center; /* Centraliza os itens horizontalmente */
         overflow-y: auto;
         backdrop-filter: blur(20px);
     }
@@ -1621,7 +1622,9 @@ html {
     
     .menu li {
         width: 100%;
+        max-width: 300px; /* Largura máxima para os itens */
         margin: 12px 0;
+        text-align: center; /* Centraliza o conteúdo */
     }
     
     .menu li a {
@@ -1629,6 +1632,19 @@ html {
         text-align: center;
         padding: 15px;
         font-size: 16px;
+        display: flex;
+        justify-content: center; /* Centraliza o texto */
+        align-items: center;
+    }
+    
+    /* Estilo específico para os botões de sessão e perfil */
+    .menu li .nav-link.logout,
+    .menu li .nav-link.profile {
+        justify-content: center;
+        margin: 10px auto; /* Centraliza horizontalmente */
+        display: flex;
+        width: 100%;
+        max-width: 250px;
     }
     
     .menu-close-item {
@@ -1641,6 +1657,11 @@ html {
     
     .signup-btn {
         margin-top: 15px;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        width: 100%;
+        max-width: 250px;
     }
     
     .webinar-container, .job-container, .faq-container {
@@ -1693,6 +1714,12 @@ html {
     
     .navbar {
         padding: 15px 30px;
+    }
+    
+    /* Centralização adicional para tablets */
+    .menu li {
+        margin-left: auto;
+        margin-right: auto;
     }
 }
 
