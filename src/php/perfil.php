@@ -356,7 +356,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>Perfil - ProLink</title>
     <style>
         * {
@@ -365,272 +366,445 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #f4f7fb;
-            color: #333;
-            padding-top: 80px;
-            line-height: 1.6;
-            font-size: 16px;
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #3b82f6;
+            --secondary: #64748b;
+            --accent: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #475569;
+            --glass-bg: rgba(30, 41, 59, 0.8);
+            --glass-border: rgba(148, 163, 184, 0.2);
         }
 
-        header {
-            background-color: #3b6ebb;
-            color: white;
-            padding: 1em 2em;
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Background Animated */
+        body::before {
+            content: '';
             position: fixed;
-            width: 100%;
             top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundShift 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Header Moderno */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
-            box-shadow: 0 0.4em 1em rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+            transition: all 0.3s ease;
         }
 
         .navbar {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .logo-icon {
-            width: 50px;
-            height: auto;
-            margin-right: 10px;
+            padding: 0 2rem;
         }
 
         .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .menu {
             display: flex;
-            gap: 1.5em;
-        }
-
-        .menu li {
-            list-style: none;
-        }
-
-        .menu a {
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
             text-decoration: none;
-            color: #0a0a0a;
-            background-color: white;
-            padding: 8px 16px;
-            border-radius: 5px;
-            display: inline-block;
+        }
+
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
             transition: all 0.3s ease;
-            white-space: nowrap;
+            font-weight: 500;
         }
 
-        .menu a:hover {
-            background-color: #2e5ca8;
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--glass-bg);
+            transform: translateY(-1px);
+        }
+
+        .nav-link.logout {
+            background: linear-gradient(135deg, var(--error), #dc2626);
             color: white;
+            border: none;
+            cursor: pointer;
         }
 
-        /* Estilos para o menu móvel */
+        .nav-link.logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Mobile Menu */
+        .mobile-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-toggle span {
+            width: 24px;
+            height: 2px;
+            background: var(--text-primary);
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+
         .mobile-menu {
             display: none;
             position: absolute;
-            top: 80px;
+            top: 100%;
             left: 0;
             width: 100%;
-            background-color: #3b6ebb;
-            padding: 15px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            z-index: 999;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem;
         }
 
         .mobile-menu.active {
             display: block;
+            animation: slideDown 0.3s ease;
         }
 
-        .mobile-menu ul {
-            list-style: none;
-            padding: 0;
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .mobile-menu li {
-            margin: 10px 0;
-        }
-
-        .mobile-menu a {
-            display: block;
-            text-decoration: none;
-            color: #0a0a0a;
-            background-color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-weight: 500;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .mobile-menu a:hover {
-            background-color: #2e5ca8;
-            color: white;
-        }
-
-        .container {
-            max-width: 1200px;
+        /* Main Content */
+        .main-container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 6rem 2rem 2rem;
+            min-height: 100vh;
         }
 
-        .cabecalho {
-            display: flex;
-            align-items: center;
-            background-color: #3b6ebb;
-            color: white;
-            border-radius: 1em;
-            padding: 1.5em;
-            margin: 2em auto;
-            max-width: 960px;
-            box-shadow: 0 0.4em 0.8em rgba(0, 0, 0, 0.1);
-        }
-
-        .box-imagem {
-            background-color: #3b6ebb;
-            border-radius: 50%;
-            padding: 10px;
-            margin-right: 1.5em;
-            width: 110px;
-            height: 110px;
-            min-width: 110px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Profile Header */
+        .profile-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
             overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--success));
+            border-radius: 24px 24px 0 0;
+        }
+
+        .profile-content {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .profile-avatar {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            padding: 4px;
             flex-shrink: 0;
         }
 
-        .perfil-imagem {
+        .profile-avatar::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            opacity: 0.3;
+            animation: pulse 2s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.05); opacity: 0.1; }
+        }
+
+        .profile-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
             border-radius: 50%;
-            border: 2px solid white;
+            object-fit: cover;
+            background: var(--surface);
         }
 
-        .info-usuario {
-            flex-grow: 1;
+        .profile-info h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .info-usuario h1 {
-            font-size: 1.8em;
-            margin-bottom: 0.3em;
+        .profile-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
         }
 
-        .info-usuario p {
-            margin-bottom: 0.8em;
-            font-size: 1.1em;
-        }
-
-        .btn-container {
+        .profile-actions {
             display: flex;
+            gap: 1rem;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 0.8em;
         }
 
-        .detalhes,
-        .projetos,
-        .caixa-central {
-            background-color: #fff;
-            margin: 1.5em auto;
-            padding: 1.8em;
-            border-radius: 0.8em;
-            max-width: 960px;
-            box-shadow: 0 0.4em 1em rgba(0, 0, 0, 0.1);
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-family: inherit;
         }
 
-        .detalhes h2,
-        .projetos h2,
-        .caixa-central h2 {
-            font-size: 1.3em;
-            margin-bottom: 1em;
-            color: #3b6ebb;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 0.5em;
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
         }
 
-        .detalhes div {
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--error), #dc2626);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Grid Layout */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+        }
+
+        .profile-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(37, 99, 235, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Detail Items */
+        .detail-item {
             display: flex;
             flex-direction: column;
-            gap: 0.3em;
-            margin-bottom: 1em;
-            border-bottom: 1px solid #f5f5f5;
-            padding-bottom: 0.8em;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(51, 65, 85, 0.3);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
         }
 
-        .detalhes strong {
-            min-width: 200px;
+        .detail-item:hover {
+            background: rgba(51, 65, 85, 0.5);
+            border-color: var(--primary);
+        }
+
+        .detail-label {
             font-weight: 600;
+            color: var(--primary-light);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .detalhes p {
-            flex: 1;
-            margin: 0;
-        }
-
-        .projetos .conteudo {
-            display: flex;
-            align-items: flex-start;
-            gap: 2em;
-        }
-
-        .projetos .texto-conteudo {
-            flex: 1;
-        }
-
-        .imagem-projeto-perfil {
-            max-width: 180px;
-            width: 25%;
-            height: auto;
-            margin-left: auto;
-        }
-
-        .projetos ul, .caixa-central ul {
-            list-style-type: none;
-            padding-left: 0;
-            margin-bottom: 1em;
-        }
-        
-        .projetos li, .caixa-central li {
-            margin-bottom: 0.8em;
+        .detail-value {
+            color: var(--text-primary);
+            font-size: 1rem;
             line-height: 1.6;
         }
 
-        .footer-section {
-            background-color: #2e2e2e;
-            color: white;
-            padding: 1.2em 0;
-            text-align: center;
-            margin-top: 2em;
+        /* Full Width Cards */
+        .profile-card.full-width {
+            grid-column: 1 / -1;
         }
 
-        .footer-content {
+        /* Special Cards */
+        .skills-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(37, 99, 235, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .projects-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(37, 99, 235, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .contact-card {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(37, 99, 235, 0.1));
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .projects-content {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+            gap: 2rem;
+            align-items: flex-start;
         }
 
-        .footer-logo {
-            width: 40px;
-            height: 40px;
+        .projects-text {
+            flex: 1;
         }
 
-        /* Estilos para o modal de edição */
+        .projects-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 16px;
+            object-fit: cover;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .projects-image:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        /* Modal Moderno */
         .modal {
             display: none;
             position: fixed;
@@ -639,531 +813,665 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 25px;
-            border-radius: 8px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            margin: 2% auto;
+            padding: 2rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
             width: 90%;
-            max-width: 700px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            max-width: 800px;
             max-height: 90vh;
             overflow-y: auto;
+            position: relative;
+            animation: modalSlideUp 0.4s ease;
         }
 
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
+        @keyframes modalSlideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
             cursor: pointer;
-            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
         }
 
-        .close:hover {
-            color: #333;
+        .modal-close:hover {
+            background: var(--error);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Form Styling */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-group {
-            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
             font-weight: 600;
-            color: #3b6ebb;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .form-group input[type="text"],
-        .form-group input[type="email"],
-        .form-group input[type="date"],
-        .form-group input[type="number"],
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 14px;
-            transition: border-color 0.3s;
+        .form-input,
+        .form-textarea {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
         }
 
-        .form-group input:focus,
-        .form-group textarea:focus {
-            border-color: #3b6ebb;
+        .form-input:focus,
+        .form-textarea:focus {
             outline: none;
-            box-shadow: 0 0 5px rgba(59, 110, 187, 0.3);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: rgba(51, 65, 85, 0.8);
         }
 
-        .form-group textarea {
+        .form-textarea {
             min-height: 100px;
             resize: vertical;
         }
 
-        .btn {
-            background-color: #3b6ebb;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            transition: background-color 0.3s;
-            display: inline-block;
-        }
-
-        .btn:hover {
-            background-color: #2e5ca8;
-        }
-
-        .btn-editar {
-            background-color: #3b6ebb;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-
-        .btn-editar:hover {
-            background-color: #2e5ca8;
-        }
-
-        .btn-gerar-pdf {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-
-        .btn-gerar-pdf:hover {
-            background-color: #c0392b;
-        }
-
-        .mensagem {
-            padding: 15px;
-            margin: 20px auto;
-            border-radius: 4px;
-            text-align: center;
-            max-width: 960px;
-            animation: fadeOut 5s forwards;
+        .file-input-wrapper {
             position: relative;
-        }
-
-        @keyframes fadeOut {
-            0% { opacity: 1; }
-            70% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        .sucesso {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .erro {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .hamburger-menu {
-            display: none;
-            flex-direction: column;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--surface);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
             cursor: pointer;
-            margin-left: auto;
+            transition: all 0.3s ease;
+            width: 100%;
         }
 
-        .hamburger-menu span {
-            display: block;
-            width: 25px;
-            height: 3px;
-            background-color: white;
-            margin: 3px 0;
-            transition: 0.3s;
+        .file-input-wrapper:hover {
+            border-color: var(--primary);
+            background: rgba(51, 65, 85, 0.5);
         }
 
-        /* Responsividade */
+        .file-input {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+        }
+
+        .file-input-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1001;
+            animation: notificationSlide 0.5s ease, notificationFadeOut 0.5s ease 4.5s forwards;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, var(--error), #dc2626);
+        }
+
+        @keyframes notificationSlide {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes notificationFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; transform: translateX(100%); }
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
         @media (max-width: 1200px) {
-            .cabecalho, 
-            .detalhes,
-            .projetos,
-            .caixa-central,
-            .mensagem {
-                width: 90%;
-                max-width: 90%;
-            }
-
-            .detalhes div {
-                flex-direction: column;
-                gap: 0.3em;
+            .main-container {
+                padding: 6rem 1.5rem 2rem;
             }
             
-    
-
-
-            .info-usuario h1 {
-                font-size: 1.6em;
-            }
-        }
-
-        @media (max-width: 992px) {
-            body {
-                font-size: 15px;
-            }
-            
-            .detalhes strong {
-                min-width: 180px;
-            }
-
-
-              .detalhes div {
-                flex-direction: column;
-                gap: 0.3em;
-            }
-            
-    
-            
-            .imagem-projeto-perfil {
-                max-width: 150px;
+            .profile-grid {
+                grid-template-columns: 1fr;
             }
         }
 
         @media (max-width: 768px) {
-            body {
-                padding-top: 70px;
-            }
-            
-            header {
-                padding: 0.8em 1.5em;
-            }
-            
-            .navbar {
-                padding: 0;
-            }
-            
-            .menu {
+            .nav-links {
                 display: none;
             }
-            
-            .hamburger-menu {
+
+            .mobile-toggle {
                 display: flex;
             }
-            
-            .mobile-menu {
-                top: 70px; /* Ajustado para altura menor do header em mobile */
+
+            .profile-header {
+                padding: 2rem;
             }
-            
-            .cabecalho {
+
+            .profile-content {
                 flex-direction: column;
                 text-align: center;
-                padding: 1.2em;
+                gap: 1.5rem;
             }
-            
-            .box-imagem {
-                margin-right: 0;
-                margin-bottom: 1em;
-            }
-            
-            .info-usuario h1 {
-                font-size: 1.5em;
-            }
-            
-            .btn-container {
-                justify-content: center;
-            }
-            
-            .detalhes, 
-            .projetos, 
-            .caixa-central {
-                padding: 1.2em;
-            }
-            
-            .detalhes div {
-                flex-direction: column;
-                gap: 0.3em;
-            }
-            
-            .detalhes strong {
-                min-width: unset;
-            }
-            
-            .projetos .conteudo {
-                flex-direction: column;
-            }
-            
-            .imagem-projeto-perfil {
-                max-width: 200px;
-                width: 80%;
-                margin: 1em auto;
-                display: block;
-            }
-            
-            .modal-content {
-                width: 95%;
-                margin: 10% auto 5% auto;
-                padding: 20px;
-            }
-        }
 
-        @media (max-width: 576px) {
-            body {
-                font-size: 14px;
+            .profile-avatar {
+                width: 120px;
+                height: 120px;
             }
-            
-            .logo-icon {
-                width: 40px;
-            }
-            
-            .logo {
-                font-size: 20px;
-            }
-            
-            .cabecalho {
-                margin: 1em auto;
-            }
-            
-            .box-imagem {
-                width: 90px;
-                height: 90px;
-                min-width: 90px;
-            }
-            
-            .info-usuario h1 {
-                font-size: 1.3em;
-            }
-            
-            .detalhes h2,
-            .projetos h2,
-            .caixa-central h2 {
-                font-size: 1.3em;
-            }
-            
-            .btn-editar,
-            .btn-gerar-pdf {
-                padding: 7px 14px;
-                font-size: 13px;
-            }
-            
-            .form-group label {
-                font-size: 14px;
-            }
-            
-            .form-group input,
-            .form-group textarea {
-                padding: 8px 10px;
-                font-size: 13px;
-            }
-            
-            .btn {
-                padding: 10px 15px;
-                font-size: 14px;
-            }
-        }
 
-        @media (max-width: 400px) {
-            .box-imagem {
-                width: 80px;
-                height: 80px;
-                min-width: 80px;
+            .profile-info h1 {
+                font-size: 2rem;
             }
-            
-            .info-usuario h1 {
-                font-size: 1.2em;
+
+            .form-grid {
+                grid-template-columns: 1fr;
             }
-            
-            .btn-container {
+
+            .projects-content {
                 flex-direction: column;
                 align-items: center;
-                gap: 8px;
             }
-            
-            .btn-editar,
-            .btn-gerar-pdf {
+
+            .projects-image {
+                width: 150px;
+                height: 150px;
+            }
+
+            .notification {
+                right: 1rem;
+                left: 1rem;
+                right: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 6rem 1rem 2rem;
+            }
+
+            .profile-header {
+                padding: 1.5rem;
+            }
+
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+            }
+
+            .profile-info h1 {
+                font-size: 1.8rem;
+            }
+
+            .profile-card {
+                padding: 1.5rem;
+            }
+
+            .modal-content {
+                margin: 5% auto;
+                padding: 1.5rem;
+                border-radius: 20px;
+            }
+
+            .profile-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
                 width: 100%;
-                text-align: center;
             }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Hover Effects for Interactive Elements */
+        .detail-item:hover .detail-label {
+            color: var(--accent);
+        }
+
+        .card-icon {
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-2px); }
         }
     </style>
 </head>
 
 <body>
-     <header>
+    <!-- Header -->
+    <header class="header">
         <nav class="navbar">
-            <div class="logo-container">
-                <img src="../assets/img/globo-mundial.png" alt="Logo" class="logo-icon">
-                <div class="logo">ProLink</div>
-            </div>
-            <div class="hamburger-menu" onclick="toggleMobileMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <ul class="menu">
-                <li><a href="../php/index.php">Home</a></li>
-                <li><a href="#" class="btn-logout" onclick="logout(); return false;">Sair</a></li>
+            <a href="../php/index.php" class="logo">
+                <div class="logo-icon">
+                     <img src="../assets/img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
+                </div>
+                ProLink
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="../php/index.php" class="nav-link">
+                    <i class="fas fa-home"></i> Home
+                </a></li>
+                <li><button onclick="logout()" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button></li>
             </ul>
-        </nav>
-    </header>
-    
-    <!-- Menu Mobile - Adicionado aqui -->
-    <div class="mobile-menu">
-        <ul>
-            <li><a href="../php/index.php">Home</a></li>
-            <li><a href="#" class="btn-logout" onclick="logout(); return false;">Sair</a></li>
-        </ul>
-    </div>
 
+            <div class="mobile-toggle" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+
+        <div class="mobile-menu">
+            <ul class="nav-links">
+                <li><a href="../php/index.php" class="nav-link">
+                    <i class="fas fa-home"></i> Home
+                </a></li>
+                <li><button onclick="logout()" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Notification -->
     <?php if (!empty($mensagem)): ?>
-        <div class="mensagem <?php echo strpos($mensagem, 'sucesso') !== false ? 'sucesso' : 'erro'; ?>">
+        <div class="notification <?php echo strpos($mensagem, 'sucesso') !== false ? 'success' : 'error'; ?>">
+            <i class="fas fa-<?php echo strpos($mensagem, 'sucesso') !== false ? 'check-circle' : 'exclamation-triangle'; ?>"></i>
             <?php echo htmlspecialchars($mensagem); ?>
         </div>
     <?php endif; ?>
 
-    <div class="cabecalho">
-        <div class="box-imagem">
-            <?php if ($foto_perfil): ?>
-                <img src="<?php echo $foto_perfil; ?>" alt="Foto de perfil" class="perfil-imagem">
-            <?php else: ?>
-                <img src="../assets/img/userp.jpg" alt="Avatar padrão" class="perfil-imagem">
-            <?php endif; ?>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-content">
+                <div class="profile-avatar">
+                    <?php if ($foto_perfil): ?>
+                        <img src="<?php echo $foto_perfil; ?>" alt="Foto de perfil" class="profile-image">
+                    <?php else: ?>
+                        <img src="../assets/img/userp.jpg" alt="Avatar padrão" class="profile-image">
+                    <?php endif; ?>
+                </div>
+                <div class="profile-info">
+                    <h1><?php echo htmlspecialchars($nome); ?></h1>
+                    <p class="profile-subtitle">Perfil Profissional</p>
+                    <div class="profile-actions">
+                        <button class="btn btn-primary" onclick="abrirModal()">
+                            <i class="fas fa-edit"></i> Editar Perfil
+                        </button>
+                        <button class="btn btn-secondary" onclick="gerarPDF()">
+                            <i class="fas fa-file-pdf"></i> Gerar PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="info-usuario">
-            <h1>Perfil</h1>
-            <p><?php echo htmlspecialchars($nome); ?></p>
-            <button class="btn-editar" onclick="abrirModal()">Editar Perfil</button>
-            <button class="btn-gerar-pdf" onclick="gerarPDF()">Gerar PDF</button>
-        </div>
-    </div>
 
-    <div class="detalhes">
-        <h2>Detalhes</h2>
-        <div><strong>Nome:</strong>
-            <p><?php echo htmlspecialchars($usuario['nome']); ?></p>
-        </div>
-        <div><strong>Idade:</strong>
-            <p><?php echo $usuario['idade'] ?? 'Não informado'; ?></p>
-        </div>
-        <div><strong>Endereço:</strong>
-            <p><?php echo htmlspecialchars($usuario['endereco']); ?></p>
-        </div>
-        <div><strong>Formação:</strong>
-            <p><?php echo htmlspecialchars($usuario['formacao']); ?></p>
-        </div>
-        <div><strong>Experiência Profissional:</strong>
-            <p><?php echo nl2br(htmlspecialchars($usuario['experiencia_profissional'])); ?></p>
-        </div>
-        <div><strong>Interesses:</strong>
-            <p><?php echo nl2br(htmlspecialchars($usuario['interesses'])); ?></p>
-        </div>
-    </div>
+        <!-- Profile Grid -->
+        <div class="profile-grid">
+            <!-- Detalhes Pessoais -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h2 class="card-title">Detalhes Pessoais</h2>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Nome</span>
+                    <span class="detail-value"><?php echo htmlspecialchars($usuario['nome']); ?></span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Idade</span>
+                    <span class="detail-value"><?php echo $usuario['idade'] ?? 'Não informado'; ?></span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Endereço</span>
+                    <span class="detail-value"><?php echo htmlspecialchars($usuario['endereco']) ?: 'Não informado'; ?></span>
+                </div>
+            </div>
 
-    <div class="projetos">
-        <h2>Projetos e Especializações</h2>
-        <div class="conteudo">
-            <ul>
-                <li><?php echo nl2br(htmlspecialchars($usuario['projetos_especializacoes'])); ?></li>
-            </ul>
-            <img src="../assets/img/organizing-projects-animate.svg" class="imagem-projeto-perfil" alt="Projetos">
+            <!-- Formação e Experiência -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h2 class="card-title">Formação & Experiência</h2>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Formação</span>
+                    <span class="detail-value"><?php echo htmlspecialchars($usuario['formacao']) ?: 'Não informado'; ?></span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Experiência Profissional</span>
+                    <span class="detail-value"><?php echo nl2br(htmlspecialchars($usuario['experiencia_profissional'])) ?: 'Não informado'; ?></span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Interesses</span>
+                    <span class="detail-value"><?php echo nl2br(htmlspecialchars($usuario['interesses'])) ?: 'Não informado'; ?></span>
+                </div>
+            </div>
+
+            <!-- Projetos e Especializações -->
+            <div class="profile-card projects-card full-width">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h2 class="card-title">Projetos & Especializações</h2>
+                </div>
+                
+                <div class="projects-content">
+                    <div class="projects-text">
+                        <div class="detail-item">
+                            <span class="detail-value">
+                                <?php echo nl2br(htmlspecialchars($usuario['projetos_especializacoes'])) ?: 'Nenhum projeto ou especialização cadastrado ainda.'; ?>
+                            </span>
+                        </div>
+                    </div>
+                    <img src="../assets/img/organizing-projects-animate.svg" class="projects-image" alt="Projetos">
+                </div>
+            </div>
+
+            <!-- Habilidades -->
+            <div class="profile-card skills-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h2 class="card-title">Habilidades</h2>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-value">
+                        <?php echo nl2br(htmlspecialchars($usuario['habilidades'])) ?: 'Nenhuma habilidade cadastrada ainda.'; ?>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Contato -->
+            <div class="profile-card contact-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h2 class="card-title">Contato</h2>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">E-mail</span>
+                    <span class="detail-value"><?php echo htmlspecialchars($usuario['email']); ?></span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Telefone</span>
+                    <span class="detail-value"><?php echo htmlspecialchars($usuario['telefone']) ?: 'Não informado'; ?></span>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <div class="caixa-central">
-        <h2>Habilidades</h2>
-        <ul>
-            <li><?php echo nl2br(htmlspecialchars($usuario['habilidades'])); ?></li>
-        </ul>
-    </div>
-
-    <div class="caixa-central">
-        <h2>Contato</h2>
-        <p><strong>E-mail:</strong> <?php echo htmlspecialchars($usuario['email']); ?></p>
     </div>
 
     <!-- Modal de Edição -->
     <div id="modalEditar" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="fecharModal()">&times;</span>
-            <h2>Editar Perfil</h2>
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="fas fa-edit"></i> Editar Perfil
+                </h2>
+                <button class="modal-close" onclick="fecharModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
             <form action="perfil.php" method="POST" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="foto_perfil">Foto de Perfil:</label>
-                    <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*">
+                <div class="form-group full-width">
+                    <label for="foto_perfil" class="form-label">
+                        <i class="fas fa-camera"></i> Foto de Perfil
+                    </label>
+                    <div class="file-input-wrapper">
+                        <i class="fas fa-upload"></i>
+                        <span class="file-input-text">Clique para selecionar uma imagem</span>
+                        <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" class="file-input">
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="nome">Nome:</label>
-                    <input type="text" id="nome" name="nome" value="<?php echo htmlspecialchars($usuario['nome']); ?>" required>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nome" class="form-label">
+                            <i class="fas fa-user"></i> Nome
+                        </label>
+                        <input type="text" id="nome" name="nome" value="<?php echo htmlspecialchars($usuario['nome']); ?>" required class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="idade" class="form-label">
+                            <i class="fas fa-calendar-alt"></i> Idade
+                        </label>
+                        <input type="number" id="idade" name="idade" value="<?php echo htmlspecialchars($usuario['idade'] ?? ''); ?>" class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dataNascimento" class="form-label">
+                            <i class="fas fa-birthday-cake"></i> Data de Nascimento
+                        </label>
+                        <input type="date" id="dataNascimento" name="dataNascimento" value="<?php echo htmlspecialchars($usuario['dataNascimento'] ?? ''); ?>" class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="telefone" class="form-label">
+                            <i class="fas fa-phone"></i> Telefone
+                        </label>
+                        <input type="text" id="telefone" name="telefone" value="<?php echo htmlspecialchars($usuario['telefone'] ?? ''); ?>" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="endereco" class="form-label">
+                        <i class="fas fa-map-marker-alt"></i> Endereço
+                    </label>
+                    <input type="text" id="endereco" name="endereco" value="<?php echo htmlspecialchars($usuario['endereco']); ?>" class="form-input">
                 </div>
                 
-                <div class="form-group">
-                    <label for="idade">Idade:</label>
-                    <input type="number" id="idade" name="idade" value="<?php echo htmlspecialchars($usuario['idade'] ?? ''); ?>">
+                <div class="form-group full-width">
+                    <label for="formacao" class="form-label">
+                        <i class="fas fa-graduation-cap"></i> Formação
+                    </label>
+                    <input type="text" id="formacao" name="formacao" value="<?php echo htmlspecialchars($usuario['formacao']); ?>" class="form-input">
                 </div>
                 
-                <div class="form-group">
-                    <label for="dataNascimento">Data de Nascimento:</label>
-                    <input type="date" id="dataNascimento" name="dataNascimento" value="<?php echo htmlspecialchars($usuario['dataNascimento'] ?? ''); ?>">
+                <div class="form-group full-width">
+                    <label for="experiencia_profissional" class="form-label">
+                        <i class="fas fa-briefcase"></i> Experiência Profissional
+                    </label>
+                    <textarea id="experiencia_profissional" name="experiencia_profissional" class="form-textarea"><?php echo htmlspecialchars($usuario['experiencia_profissional']); ?></textarea>
                 </div>
                 
-                <div class="form-group">
-                    <label for="telefone">Telefone:</label>
-                    <input type="text" id="telefone" name="telefone" value="<?php echo htmlspecialchars($usuario['telefone'] ?? ''); ?>">
+                <div class="form-group full-width">
+                    <label for="interesses" class="form-label">
+                        <i class="fas fa-heart"></i> Interesses
+                    </label>
+                    <textarea id="interesses" name="interesses" class="form-textarea"><?php echo htmlspecialchars($usuario['interesses']); ?></textarea>
                 </div>
                 
-                <div class="form-group">
-                    <label for="endereco">Endereço:</label>
-                    <input type="text" id="endereco" name="endereco" value="<?php echo htmlspecialchars($usuario['endereco']); ?>">
+                <div class="form-group full-width">
+                    <label for="projetos_especializacoes" class="form-label">
+                        <i class="fas fa-project-diagram"></i> Projetos e Especializações
+                    </label>
+                    <textarea id="projetos_especializacoes" name="projetos_especializacoes" class="form-textarea"><?php echo htmlspecialchars($usuario['projetos_especializacoes']); ?></textarea>
                 </div>
                 
-                <div class="form-group">
-                    <label for="formacao">Formação:</label>
-                    <input type="text" id="formacao" name="formacao" value="<?php echo htmlspecialchars($usuario['formacao']); ?>">
+                <div class="form-group full-width">
+                    <label for="habilidades" class="form-label">
+                        <i class="fas fa-cogs"></i> Habilidades
+                    </label>
+                    <textarea id="habilidades" name="habilidades" class="form-textarea"><?php echo htmlspecialchars($usuario['habilidades']); ?></textarea>
                 </div>
                 
-                <div class="form-group">
-                    <label for="experiencia_profissional">Experiência Profissional:</label>
-                    <textarea id="experiencia_profissional" name="experiencia_profissional"><?php echo htmlspecialchars($usuario['experiencia_profissional']); ?></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="interesses">Interesses:</label>
-                    <textarea id="interesses" name="interesses"><?php echo htmlspecialchars($usuario['interesses']); ?></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="projetos_especializacoes">Projetos e Especializações:</label>
-                    <textarea id="projetos_especializacoes" name="projetos_especializacoes"><?php echo htmlspecialchars($usuario['projetos_especializacoes']); ?></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="habilidades">Habilidades:</label>
-                    <textarea id="habilidades" name="habilidades"><?php echo htmlspecialchars($usuario['habilidades']); ?></textarea>
-                </div>
-                
-                <button type="submit" class="btn">Salvar Alterações</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                    <i class="fas fa-save"></i> Salvar Alterações
+                </button>
             </form>
         </div>
     </div>
 
-    <footer class="footer-section">
+    <!-- Footer -->
+    <footer class="footer">
         <div class="footer-content">
-            <img src="../assets/img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
-            <p>&copy; 2024 ProLink. Todos os direitos reservados.</p>
+            <div class="footer-logo">
+                 <img src="../assets/img/globo-mundial.png" alt="Logo da Empresa" class="footer-logo">
+            </div>
+            <span class="footer-text">&copy; 2024 ProLink. Todos os direitos reservados.</span>
         </div>
     </footer>
 
@@ -1328,14 +1636,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 break;
                 
-            case 'text':
-                // Para telefone, permitir apenas números, parênteses, hífen, espaço e +
-                const regexTel = /^[\d()\-\s+]*$/;
-                if (!regexTel.test(valor)) {
-                    input.value = valor.replace(/[^\d()\-\s+]/g, '');
-                }
-                break;
-                
             case 'number':
                 // Para idade, permitir apenas números
                 if (!/^\d*$/.test(valor)) {
@@ -1353,7 +1653,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // Limitar tamanho máximo para campos de texto
-        if (['text', 'text'].includes(tipoEsperado) && valor.length > 500) {
+        if (['text'].includes(tipoEsperado) && valor.length > 500) {
             input.value = valor.substring(0, 500);
         }
     }
@@ -1374,33 +1674,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: #ff4444;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
-            padding: 20px 25px;
-            border-radius: 8px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             z-index: 20000;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
             max-width: 400px;
             text-align: center;
-            animation: modalWarningShow 0.3s ease-out;
+            animation: modalWarningShow 0.4s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         `;
         
         aviso.innerHTML = `
-            <strong>🔒 Alerta de Segurança</strong><br><br>
+            <div style="font-size: 2rem; margin-bottom: 1rem;">🔒</div>
+            <strong style="font-size: 1.1rem; display: block; margin-bottom: 1rem;">Alerta de Segurança</strong>
             Tentativa de manipulação detectada no campo: <strong>${campo}</strong><br>
             O formulário foi resetado por segurança.<br><br>
             <button onclick="this.parentElement.remove()" style="
-                background: white;
-                color: #ff4444;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                padding: 0.75rem 1.5rem;
+                border-radius: 8px;
                 cursor: pointer;
-                font-weight: bold;
-                margin-top: 10px;
-            ">OK</button>
+                font-weight: 600;
+                margin-top: 1rem;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(10px);
+            " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">OK</button>
         `;
         
         // Adicionar CSS da animação se não existir
@@ -1409,7 +1713,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             style.id = 'modal-security-warning-styles';
             style.textContent = `
                 @keyframes modalWarningShow {
-                    from { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
+                    from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
                     to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
                 }
             `;
@@ -1427,7 +1731,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }, 8000);
     }
 
-    // ===== FUNÇÕES ORIGINAIS DO MODAL =====
     // Funções para controlar o modal
     function abrirModal() {
         document.getElementById('modalEditar').style.display = 'block';
@@ -1436,42 +1739,111 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     function fecharModal() {
-        document.getElementById('modalEditar').style.display = 'none';
+        const modal = document.getElementById('modalEditar');
+        modal.style.animation = 'modalFadeOut 0.3s ease';
+        setTimeout(() => {
+            modal.style.display = 'none';
+            modal.style.animation = '';
+        }, 300);
     }
 
     // Fechar o modal se clicar fora dele
     window.onclick = function(event) {
         const modal = document.getElementById('modalEditar');
         if (event.target == modal) {
-            modal.style.display = 'none';
+            fecharModal();
         }
     }
 
-    // Gerar PDF
+    // Gerar PDF com loading
     function gerarPDF() {
-        // Mostra um alerta enquanto processa
-        alert("Gerando PDF... Isso pode levar alguns instantes.");
+        const btn = event.target;
+        const originalText = btn.innerHTML;
         
-        // Envia uma requisição para o servidor gerar o PDF
-        window.location.href = "../php/gerar_pdf.php";
+        // Mostra loading
+        btn.innerHTML = '<span class="loading"></span> Gerando PDF...';
+        btn.disabled = true;
+        
+        // Simula delay antes de redirecionar
+        setTimeout(() => {
+            window.location.href = "../php/gerar_pdf.php";
+            
+            // Restaura o botão após um tempo
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 3000);
+        }, 1000);
     }
 
     // Função de logout
     function logout() {
-        if(confirm('Tem certeza que deseja sair?')) {
-            window.location.href = '../php/logout.php';
-        }
+        // Criar modal de confirmação moderno
+        const confirmModal = document.createElement('div');
+        confirmModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: modalFadeIn 0.3s ease;
+        `;
+        
+        confirmModal.innerHTML = `
+            <div style="
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--glass-border);
+                border-radius: 20px;
+                padding: 2rem;
+                max-width: 400px;
+                text-align: center;
+                animation: modalSlideUp 0.4s ease;
+            ">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚠️</div>
+                <h3 style="color: var(--text-primary); margin-bottom: 1rem; font-size: 1.3rem;">Confirmar Logout</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">Tem certeza que deseja sair da sua conta?</p>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button onclick="this.closest('div').parentElement.remove()" style="
+                        background: var(--surface-light);
+                        color: var(--text-primary);
+                        border: 1px solid var(--border);
+                        padding: 0.75rem 1.5rem;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        transition: all 0.3s ease;
+                    ">Cancelar</button>
+                    <button onclick="window.location.href='../php/logout.php'" style="
+                        background: linear-gradient(135deg, var(--error), #dc2626);
+                        color: white;
+                        border: none;
+                        padding: 0.75rem 1.5rem;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        transition: all 0.3s ease;
+                    ">Sair</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(confirmModal);
     }
 
     // Função para alternar o menu móvel
     function toggleMobileMenu() {
         const mobileMenu = document.querySelector('.mobile-menu');
-        const hamburger = document.querySelector('.hamburger-menu');
+        const hamburger = document.querySelector('.mobile-toggle');
         
-        // Alterna a classe 'active' no menu mobile
         mobileMenu.classList.toggle('active');
         
-        // Transforma o ícone do hambúrguer em X quando o menu está aberto
         if (mobileMenu.classList.contains('active')) {
             hamburger.children[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
             hamburger.children[1].style.opacity = '0';
@@ -1483,22 +1855,221 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // File input functionality
+    function initFileInput() {
+        const fileInput = document.getElementById('foto_perfil');
+        const wrapper = fileInput?.closest('.file-input-wrapper');
+        const text = wrapper?.querySelector('.file-input-text');
+        
+        if (fileInput && wrapper && text) {
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const fileName = e.target.files[0].name;
+                    text.innerHTML = `<i class="fas fa-check"></i> ${fileName}`;
+                    wrapper.style.borderColor = 'var(--success)';
+                    wrapper.style.background = 'rgba(16, 185, 129, 0.1)';
+                } else {
+                    text.innerHTML = '<i class="fas fa-upload"></i> Clique para selecionar uma imagem';
+                    wrapper.style.borderColor = 'var(--border)';
+                    wrapper.style.background = 'var(--surface)';
+                }
+            });
+            
+            wrapper.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // Drag and drop
+            wrapper.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                wrapper.style.borderColor = 'var(--primary)';
+                wrapper.style.background = 'rgba(37, 99, 235, 0.1)';
+            });
+            
+            wrapper.addEventListener('dragleave', function() {
+                wrapper.style.borderColor = 'var(--border)';
+                wrapper.style.background = 'var(--surface)';
+            });
+            
+            wrapper.addEventListener('drop', function(e) {
+                e.preventDefault();
+                wrapper.style.borderColor = 'var(--border)';
+                wrapper.style.background = 'var(--surface)';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    const fileName = e.dataTransfer.files[0].name;
+                    text.innerHTML = `<i class="fas fa-check"></i> ${fileName}`;
+                    wrapper.style.borderColor = 'var(--success)';
+                    wrapper.style.background = 'rgba(16, 185, 129, 0.1)';
+                }
+            });
+        }
+    }
+
+    // Animação de entrada para cards
+    function animateCards() {
+        const cards = document.querySelectorAll('.profile-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 150);
+        });
+    }
+
+    // Smooth scroll para links internos
+    function initSmoothScroll() {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    }
+
+    // Adicionar CSS para animações adicionais
+    function addExtraStyles() {
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes modalFadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+            
+            .profile-card {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            
+            /* Efeito glassmorphism aprimorado */
+            .profile-header::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(45deg, 
+                    rgba(37, 99, 235, 0.05) 0%, 
+                    rgba(139, 92, 246, 0.05) 50%, 
+                    rgba(16, 185, 129, 0.05) 100%);
+                pointer-events: none;
+                border-radius: 24px;
+            }
+            
+            /* Hover effects aprimorados */
+            .btn:active {
+                transform: translateY(0);
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            }
+            
+            .form-input:hover,
+            .form-textarea:hover {
+                border-color: rgba(37, 99, 235, 0.5);
+            }
+            
+            /* Micro interações */
+            .nav-link::after {
+                content: '';
+                position: absolute;
+                bottom: -2px;
+                left: 50%;
+                width: 0;
+                height: 2px;
+                background: linear-gradient(90deg, var(--primary), var(--accent));
+                transition: all 0.3s ease;
+                transform: translateX(-50%);
+            }
+            
+            .nav-link:hover::after {
+                width: 80%;
+            }
+            
+            /* Particles effect para o background */
+            .particles {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: -1;
+            }
+            
+            .particle {
+                position: absolute;
+                background: rgba(37, 99, 235, 0.1);
+                border-radius: 50%;
+                animation: float 6s ease-in-out infinite;
+            }
+            
+            @keyframes float {
+                0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.1; }
+                50% { transform: translateY(-20px) rotate(180deg); opacity: 0.3; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Criar efeito de partículas
+    function createParticles() {
+        const particles = document.createElement('div');
+        particles.className = 'particles';
+        
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.width = Math.random() * 4 + 2 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.animationDelay = Math.random() * 6 + 's';
+            particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+            particles.appendChild(particle);
+        }
+        
+        document.body.appendChild(particles);
+    }
+
     // Inicialização quando o DOM estiver carregado
     document.addEventListener('DOMContentLoaded', function() {
+        // Adicionar estilos extras
+        addExtraStyles();
+        
+        // Criar efeito de partículas
+        createParticles();
+        
+        // Animar cards
+        setTimeout(animateCards, 100);
+        
+        // Inicializar file input
+        initFileInput();
+        
+        // Inicializar smooth scroll
+        initSmoothScroll();
+        
         // Fechar o menu ao clicar em um link
-        document.querySelectorAll('.mobile-menu a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                // Se não for o link de logout, fecha o menu automaticamente
-                if (!link.classList.contains('btn-logout')) {
-                    toggleMobileMenu();
-                }
+        document.querySelectorAll('.mobile-menu a, .mobile-menu button').forEach(link => {
+            link.addEventListener('click', () => {
+                toggleMobileMenu();
             });
         });
         
         // Fechar o menu ao clicar fora dele
         document.addEventListener('click', (event) => {
             const mobileMenu = document.querySelector('.mobile-menu');
-            const hamburger = document.querySelector('.hamburger-menu');
+            const hamburger = document.querySelector('.mobile-toggle');
             
             if (mobileMenu.classList.contains('active') &&
                 !mobileMenu.contains(event.target) &&
@@ -1507,13 +2078,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         });
         
-        // Inicializar proteção dos inputs do modal se o modal já estiver presente
+        // Inicializar proteção dos inputs do modal
         const modal = document.getElementById('modalEditar');
         if (modal) {
-            // Aguardar um pouco para garantir que todos os elementos foram carregados
             setTimeout(protegerInputsModal, 500);
         }
+        
+        // Adicionar efeito de typing para o título
+        const titulo = document.querySelector('.profile-info h1');
+        if (titulo) {
+            const texto = titulo.textContent;
+            titulo.textContent = '';
+            titulo.style.borderRight = '2px solid var(--primary)';
+            
+            let i = 0;
+            const typeWriter = () => {
+                if (i < texto.length) {
+                    titulo.textContent += texto.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 100);
+                } else {
+                    // Remove cursor após terminar
+                    setTimeout(() => {
+                        titulo.style.borderRight = 'none';
+                    }, 1000);
+                }
+            };
+            
+            setTimeout(typeWriter, 1000);
+        }
+        
+        // Adicionar ripple effect aos botões
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const ripple = document.createElement('div');
+                ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.3);
+                    pointer-events: none;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                `;
+                
+                const rect = btn.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = e.clientX - rect.left - size / 2 + 'px';
+                ripple.style.top = e.clientY - rect.top - size / 2 + 'px';
+                
+                btn.style.position = 'relative';
+                btn.style.overflow = 'hidden';
+                btn.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+        
+        // Adicionar CSS para ripple effect
+        const rippleStyle = document.createElement('style');
+        rippleStyle.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(rippleStyle);
     });
+
+    // Adicionar CSS para animação de fade out personalizada
+    const fadeStyle = document.createElement('style');
+    fadeStyle.textContent = `
+        @keyframes modalFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    `;
+    document.head.appendChild(fadeStyle);
 </script>
 </body>
 </html>
