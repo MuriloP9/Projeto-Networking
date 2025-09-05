@@ -8,7 +8,8 @@ function buscarPorNome($pdo, $searchQuery) {
     // Sanitizar entrada
     $searchQuery = filter_var($searchQuery, FILTER_SANITIZE_SPECIAL_CHARS);
     
-    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
+    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, 
+                     P.idade, P.endereco, P.interesses, P.projetos_especializacoes, U.qr_code
               FROM Perfil P
               INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
               WHERE U.nome LIKE :searchPattern";
@@ -25,7 +26,8 @@ function buscarPorFormacao($pdo, $searchQuery) {
     // Sanitizar entrada
     $searchQuery = filter_var($searchQuery, FILTER_SANITIZE_SPECIAL_CHARS);
     
-    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
+    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil,
+                     P.idade, P.endereco, P.interesses, P.projetos_especializacoes, U.qr_code
               FROM Perfil P
               INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
               WHERE P.formacao LIKE :searchPattern";
@@ -42,7 +44,8 @@ function buscarPorHabilidades($pdo, $searchQuery) {
     // Sanitizar entrada
     $searchQuery = filter_var($searchQuery, FILTER_SANITIZE_SPECIAL_CHARS);
     
-    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil, U.qr_code
+    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil,
+                     P.idade, P.endereco, P.interesses, P.projetos_especializacoes, U.qr_code
               FROM Perfil P
               INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
               WHERE P.habilidades LIKE :searchPattern";
@@ -55,8 +58,28 @@ function buscarPorHabilidades($pdo, $searchQuery) {
     return $sql->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function buscarPorInteresses($pdo, $searchQuery) {
+    // Sanitizar entrada
+    $searchQuery = filter_var($searchQuery, FILTER_SANITIZE_SPECIAL_CHARS);
+    
+    $query = "SELECT U.nome, P.formacao, P.experiencia_profissional, U.email, P.habilidades, U.foto_perfil,
+                     P.idade, P.endereco, P.interesses, P.projetos_especializacoes, U.qr_code
+              FROM Perfil P
+              INNER JOIN Usuario U ON P.id_usuario = U.id_usuario
+              WHERE P.interesses LIKE :searchPattern";
+    
+    $sql = $pdo->prepare($query);
+    $searchPattern = '%' . $searchQuery . '%';
+    $sql->bindValue(":searchPattern", $searchPattern, PDO::PARAM_STR);
+    $sql->execute();
+    
+    return $sql->fetchAll(PDO::FETCH_ASSOC);
+}
+
 // Processar a pesquisa com sanitização
 $searchQuery = '';
+$filtro = 'todos'; // Filtro padrão
+
 if (isset($_GET['search'])) {
     $searchQuery = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS);
     $searchQuery = trim($searchQuery);
@@ -67,6 +90,11 @@ if (isset($_GET['search'])) {
     }
 }
 
+// Verificar se foi selecionado um filtro específico
+if (isset($_GET['filtro'])) {
+    $filtro = filter_input(INPUT_GET, 'filtro', FILTER_SANITIZE_SPECIAL_CHARS);
+}
+
 // Inicializar variáveis para armazenar os resultados
 $resultadosHTML = '';
 $modalHTML = '';
@@ -75,17 +103,27 @@ if ($searchQuery !== '') {
     try {
         $pdo = conectar();
         
-        // Modificar as consultas para incluir qr_code da tabela Usuario
-        $resultadosNome = buscarPorNome($pdo, $searchQuery);
-        $resultadosFormacao = buscarPorFormacao($pdo, $searchQuery);
-        $resultadosHabilidades = buscarPorHabilidades($pdo, $searchQuery);
+        // Buscar resultados baseado no filtro selecionado
+        if ($filtro === 'nome') {
+            $resultados = buscarPorNome($pdo, $searchQuery);
+        } elseif ($filtro === 'formacao') {
+            $resultados = buscarPorFormacao($pdo, $searchQuery);
+        } elseif ($filtro === 'habilidades') {
+            $resultados = buscarPorHabilidades($pdo, $searchQuery);
+        } elseif ($filtro === 'interesses') {
+            $resultados = buscarPorInteresses($pdo, $searchQuery);
+        } else {
+            // Buscar em todos os campos (comportamento padrão)
+            $resultadosNome = buscarPorNome($pdo, $searchQuery);
+            $resultadosFormacao = buscarPorFormacao($pdo, $searchQuery);
+            $resultadosHabilidades = buscarPorHabilidades($pdo, $searchQuery);
+            $resultadosInteresses = buscarPorInteresses($pdo, $searchQuery);
+            $resultados = array_merge($resultadosNome, $resultadosFormacao, $resultadosHabilidades, $resultadosInteresses);
+        }
         
-        // Combinar resultados, removendo duplicatas
-        $profissionais = array_merge($resultadosNome, $resultadosFormacao, $resultadosHabilidades);
+        // Remover duplicatas
         $profissionaisUnicos = array();
-        
-        foreach ($profissionais as $profissional) {
-            // Sanitizar email antes de usar como chave
+        foreach ($resultados as $profissional) {
             $email = filter_var($profissional['email'], FILTER_SANITIZE_EMAIL);
             if (!isset($profissionaisUnicos[$email]) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $profissionaisUnicos[$email] = $profissional;
@@ -107,7 +145,13 @@ if ($searchQuery !== '') {
                 $formacao = htmlspecialchars($profissional['formacao'], ENT_QUOTES, 'UTF-8');
                 $habilidades = htmlspecialchars($profissional['habilidades'], ENT_QUOTES, 'UTF-8');
                 $experiencia = htmlspecialchars($profissional['experiencia_profissional'], ENT_QUOTES, 'UTF-8');
+                $idade = htmlspecialchars($profissional['idade'], ENT_QUOTES, 'UTF-8');
+                $endereco = htmlspecialchars($profissional['endereco'], ENT_QUOTES, 'UTF-8');
+                $interesses = htmlspecialchars($profissional['interesses'], ENT_QUOTES, 'UTF-8');
+                $projetos = htmlspecialchars($profissional['projetos_especializacoes'], ENT_QUOTES, 'UTF-8');
                 $email = filter_var($profissional['email'], FILTER_SANITIZE_EMAIL);
+                $qrCodePath = !empty($profissional['qr_code']) ? 
+                    'get_qrcode.php?file=' . basename(htmlspecialchars($profissional['qr_code'], ENT_QUOTES, 'UTF-8')) : '';
                 
                 // Validar email
                 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -118,9 +162,6 @@ if ($searchQuery !== '') {
                     ? "data:image/jpeg;base64," . base64_encode($profissional['foto_perfil'])
                     : "../assets/img/userp.jpg";
                 
-                $qrCodePath = !empty($profissional['qr_code']) ? 
-                    'get_qrcode.php?file=' . basename(htmlspecialchars($profissional['qr_code'], ENT_QUOTES, 'UTF-8')) : '';
-                
                 // Obter o valor do qr_code da tabela Usuario para este email
                 $stmt = $pdo->prepare("SELECT qr_code FROM Usuario WHERE email = :email");
                 $stmt->bindParam(':email', $email);
@@ -128,67 +169,119 @@ if ($searchQuery !== '') {
                 $qrCodeValue = $stmt->fetchColumn();
                 $qrCodeValue = htmlspecialchars($qrCodeValue, ENT_QUOTES, 'UTF-8');
                 
-                $resultadosHTML .= "<div class='professional-item'>";
+                $resultadosHTML .= "<div class='professional-card'>";
+                
+                // Header do cartão com foto e nome
+                $resultadosHTML .= "<div class='card-header'>";
                 $resultadosHTML .= "<div class='profile-pic' style='background-image: url($fotoPerfil);'></div>";
-                $resultadosHTML .= "<div class='professional-info'>";
-                $resultadosHTML .= "<div class='professional-name'>" . $nome . "</div>";
+                $resultadosHTML .= "<div class='professional-name-container'>";
+                $resultadosHTML .= "<h3 class='professional-name'>" . $nome . "</h3>";
+                if (!empty($idade)) {
+                    $resultadosHTML .= "<span class='professional-age'>" . $idade . " anos</span>";
+                }
+                $resultadosHTML .= "</div>";
+                $resultadosHTML .= "</div>";
+                
+                // Conteúdo principal do cartão
+                $resultadosHTML .= "<div class='card-content'>";
+                
+                // Informações básicas em grid
+                $resultadosHTML .= "<div class='info-grid'>";
                 
                 if (!empty($formacao)) {
-                    $resultadosHTML .= "<div class='professional-specialization'>" . $formacao . "</div>";
+                    $resultadosHTML .= "<div class='info-item'>";
+                    $resultadosHTML .= "<div class='info-icon'>🎓</div>";
+                    $resultadosHTML .= "<div class='info-content'>";
+                    $resultadosHTML .= "<strong>Formação</strong>";
+                    $resultadosHTML .= "<p>" . $formacao . "</p>";
+                    $resultadosHTML .= "</div></div>";
+                }
+                
+                if (!empty($endereco)) {
+                    $resultadosHTML .= "<div class='info-item'>";
+                    $resultadosHTML .= "<div class='info-icon'>📍</div>";
+                    $resultadosHTML .= "<div class='info-content'>";
+                    $resultadosHTML .= "<strong>Localização</strong>";
+                    $resultadosHTML .= "<p>" . $endereco . "</p>";
+                    $resultadosHTML .= "</div></div>";
+                }
+                
+                $resultadosHTML .= "</div>";
+                
+                // Seções expandidas
+                if (!empty($experiencia)) {
+                    $resultadosHTML .= "<div class='expandable-section'>";
+                    $resultadosHTML .= "<div class='section-title'>💼 Experiência Profissional</div>";
+                    $resultadosHTML .= "<div class='section-content'>" . nl2br($experiencia) . "</div>";
+                    $resultadosHTML .= "</div>";
                 }
                 
                 if (!empty($habilidades)) {
-                    $resultadosHTML .= "<p><strong>Habilidades:</strong> " . $habilidades . "</p>";
+                    $resultadosHTML .= "<div class='expandable-section'>";
+                    $resultadosHTML .= "<div class='section-title'>⚡ Habilidades</div>";
+                    $resultadosHTML .= "<div class='section-content'>";
+                    // Transformar habilidades em tags
+                    $habilidadesArray = explode(',', $habilidades);
+                    foreach ($habilidadesArray as $habilidade) {
+                        $habilidade = trim($habilidade);
+                        if (!empty($habilidade)) {
+                            $resultadosHTML .= "<span class='skill-tag'>" . $habilidade . "</span>";
+                        }
+                    }
+                    $resultadosHTML .= "</div></div>";
                 }
                 
-                if (!empty($experiencia)) {
-                    $resultadosHTML .= "<p><strong>Experiência:</strong> " . nl2br($experiencia) . "</p>";
+                if (!empty($interesses)) {
+                    $resultadosHTML .= "<div class='expandable-section'>";
+                    $resultadosHTML .= "<div class='section-title'>💡 Interesses</div>";
+                    $resultadosHTML .= "<div class='section-content'>";
+                    // Transformar interesses em tags
+                    $interessesArray = explode(',', $interesses);
+                    foreach ($interessesArray as $interesse) {
+                        $interesse = trim($interesse);
+                        if (!empty($interesse)) {
+                            $resultadosHTML .= "<span class='interest-tag'>" . $interesse . "</span>";
+                        }
+                    }
+                    $resultadosHTML .= "</div></div>";
                 }
                 
-                if (!empty($email)) {
-                    $resultadosHTML .= "<p><strong>Email:</strong> " . $email . "</p>";
+                if (!empty($projetos)) {
+                    $resultadosHTML .= "<div class='expandable-section'>";
+                    $resultadosHTML .= "<div class='section-title'>🚀 Projetos e Especializações</div>";
+                    $resultadosHTML .= "<div class='section-content'>" . nl2br($projetos) . "</div>";
+                    $resultadosHTML .= "</div>";
                 }
                 
                 $resultadosHTML .= "</div>";
                 
-                if (!empty($qrCodePath)) {
-    if ($usuarioLogado) {
-        $emailEscaped = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
-        $resultadosHTML .= "<button class='chat-btn show-qr' data-qrcode-path='$qrCodePath' data-email='" . $emailEscaped . "' data-qrcode='" . $qrCodeValue . "'>";
-        $resultadosHTML .= "Contato App<img src='../assets/img/adicionar-usuarios.png' alt='qrcode' class='chat-icon'>";
-        $resultadosHTML .= "</button>";
-    } else {
-        // MODIFICAÇÃO AQUI: Redireciona para index.php com parâmetro para abrir modal
-        $resultadosHTML .= "<button class='chat-btn login-redirect' onclick=\"window.location.href='../php/index.php?openLoginModal=true';\">";
-        $resultadosHTML .= "Contato App<img src='../assets/img/adicionar-usuarios.png' alt='qrcode' class='chat-icon'>";
-        $resultadosHTML .= "</button>";
-    }
-} else {
-    $resultadosHTML .= "<button class='chat-btn' disabled title='QR Code não disponível'>";
-    $resultadosHTML .= "Contato App<img src='../assets/img/adicionar-usuarios.png' alt='qrcode' class='chat-icon'>";
-    $resultadosHTML .= "</button>";
-}
+                // Footer do cartão com botão de ação
+                $resultadosHTML .= "<div class='card-footer'>";
                 
+                if (!empty($qrCodePath)) {
+                    if ($usuarioLogado) {
+                        $emailEscaped = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
+                        $resultadosHTML .= "<button class='action-btn copy-link-btn' data-qrcode-path='$qrCodePath' data-email='" . $emailEscaped . "' data-qrcode='" . $qrCodeValue . "'>";
+                        $resultadosHTML .= "<span>Copiar Link de Contato</span>";
+                        $resultadosHTML .= "<div class='btn-icon'>🔗</div>";
+                        $resultadosHTML .= "</button>";
+                    } else {
+                        $resultadosHTML .= "<button class='action-btn login-redirect' onclick=\"window.location.href='../php/index.php?openLoginModal=true';\">";
+                        $resultadosHTML .= "<span>Copiar Link de Contato</span>";
+                        $resultadosHTML .= "<div class='btn-icon'>🔒</div>";
+                        $resultadosHTML .= "</button>";
+                    }
+                } else {
+                    $resultadosHTML .= "<button class='action-btn' disabled title='Link não disponível'>";
+                    $resultadosHTML .= "<span>Link Indisponível</span>";
+                    $resultadosHTML .= "<div class='btn-icon'>❌</div>";
+                    $resultadosHTML .= "</button>";
+                }
+                
+                $resultadosHTML .= "</div>";
                 $resultadosHTML .= "</div>";
             }
             $resultadosHTML .= "</div>";
-            
-            if ($usuarioLogado) {
-                $modalHTML = '
-                <div id="qrModal" class="modal">
-                    <div class="modal-content">
-                        <span class="close-modal">&times;</span>
-                        <h3>QR Code de Contato</h3>
-                        <div id="qrCodeContainer">
-                            <img id="qrCodeImage" src="" alt="QR Code" style="max-width:250px">
-                        </div>
-                        <div class="link-container">
-                            <input type="text" id="profileLink" readonly>
-                            <button id="copyLink">Copiar Link</button>
-                        </div>
-                    </div>
-                </div>';
-            }
         }
     } catch (Exception $erro) {
         $erroMessage = htmlspecialchars($erro->getMessage(), ENT_QUOTES, 'UTF-8');
@@ -212,7 +305,7 @@ $searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-    <!-- Estilo responsivo adaptado -->
+    <!-- Estilo responsivo melhorado -->
     <style>
         * {
             margin: 0;
@@ -270,485 +363,548 @@ $searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
             transform: rotate(45deg);
         }
 
-/* Área de busca melhorada */
-.search-container {
-    display: flex;
-    align-items: center;
-    margin: 30px auto;
-    max-width: 800px;
-    padding: 0 20px;
-    gap: 15px;
-    position: relative;
-}
+        /* Área de busca melhorada */
+        .search-container {
+            display: flex;
+            align-items: center;
+            margin: 30px auto;
+            max-width: 800px;
+            padding: 0 20px;
+            gap: 15px;
+            position: relative;
+        }
 
-.search-bar {
-    flex-grow: 2;
-    padding: 16px 20px;
-    font-size: 16px;
-    border-radius: 25px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    font-family: 'Montserrat', sans-serif;
-}
+        .search-bar {
+            flex-grow: 2;
+            padding: 16px 20px;
+            font-size: 16px;
+            border-radius: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            font-family: 'Montserrat', sans-serif;
+        }
 
-.search-bar::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-    font-weight: 300;
-}
+        .search-bar::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+        }
 
-.search-bar:focus {
-    outline: none;
-    border-color: rgb(21, 118, 228);
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(21, 118, 228, 0.3);
-}
+        .search-bar:focus {
+            outline: none;
+            border-color: rgb(21, 118, 228);
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(21, 118, 228, 0.3);
+        }
 
-.search-btn {
-    padding: 16px 28px;
-    font-size: 16px;
-    background: linear-gradient(135deg, rgb(21, 118, 228), rgb(116, 154, 224));
-    color: white;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: 600;
-    font-family: 'Montserrat', sans-serif;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 8px 32px rgba(21, 118, 228, 0.3);
-    position: relative;
-    overflow: hidden;
-}
+        .search-btn {
+            padding: 16px 28px;
+            font-size: 16px;
+            background: linear-gradient(135deg, rgb(21, 118, 228), rgb(116, 154, 224));
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(21, 118, 228, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
 
-.search-btn:hover {
-    background: linear-gradient(135deg, rgb(116, 154, 224), rgb(21, 118, 228));
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(21, 118, 228, 0.4);
-}
+        .search-btn:hover {
+            background: linear-gradient(135deg, rgb(116, 154, 224), rgb(21, 118, 228));
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(21, 118, 228, 0.4);
+        }
 
-.search-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 16px rgba(21, 118, 228, 0.3);
-}
+        .search-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 16px rgba(21, 118, 228, 0.3);
+        }
 
-.search-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-}
+        .search-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
 
-.search-btn:hover::before {
-    left: 100%;
-}
+        .search-btn:hover::before {
+            left: 100%;
+        }
 
-/* Lista de Profissionais melhorada */
-.professional-list {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px;
-    flex: 1;
-    gap: 20px;
-}
+        /* Filtros de pesquisa melhorados */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
 
-.professional-item {
-    display: flex;
-    align-items: center;
-    background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
-    padding: 25px;
-    margin: 0;
-    width: min(90%, 900px);
-    border-radius: 20px;
-    box-shadow: 
-        0 10px 30px rgba(0, 0, 0, 0.3),
-        0 1px 8px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-}
+        .filter-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
 
-.professional-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, rgb(21, 118, 228), rgb(116, 154, 224));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
+        .filter-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(21, 118, 228, 0.3) 0%, transparent 70%);
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
 
-.professional-item:hover {
-    transform: translateY(-8px);
-    box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.4),
-        0 8px 20px rgba(21, 118, 228, 0.2);
-    background: linear-gradient(145deg, #404040, #303030);
-}
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(21, 118, 228, 0.2);
+        }
 
-.professional-item:hover::before {
-    opacity: 1;
-}
+        .filter-btn:hover::before {
+            width: 200px;
+            height: 200px;
+        }
 
-.profile-pic {
-    width: 80px;
-    height: 80px;
-    min-width: 80px;
-    border-radius: 50%;
-    margin-right: 25px;
-    background-size: cover;
-    background-position: center;
-    border: 3px solid rgba(21, 118, 228, 0.3);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-}
+        .filter-btn.active {
+            background: linear-gradient(135deg, rgb(21, 118, 228), rgb(116, 154, 224));
+            border-color: rgb(21, 118, 228);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(21, 118, 228, 0.4);
+        }
 
-.professional-item:hover .profile-pic {
-    border-color: rgb(21, 118, 228);
-    transform: scale(1.05);
-    box-shadow: 0 12px 35px rgba(21, 118, 228, 0.4);
-}
+        /* Cartões de Profissionais Completamente Redesenhados */
+        .professional-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-.professional-info {
-    flex: 1;
-    color: #fff;
-    overflow: hidden;
-}
+        .professional-card {
+            background: linear-gradient(145deg, 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
 
-.professional-name {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    background: linear-gradient(135deg, #ffffff, #e0e0e0);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
+        .professional-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                rgb(21, 118, 228), 
+                rgb(116, 154, 224), 
+                rgb(21, 118, 228));
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
 
-.professional-specialization {
-    font-size: 16px;
-    color: rgb(116, 154, 224);
-    margin-bottom: 12px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
 
-.professional-info p {
-    margin-bottom: 8px;
-    word-wrap: break-word;
-    line-height: 1.6;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 14px;
-}
+        .professional-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                0 8px 20px rgba(21, 118, 228, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            background: linear-gradient(145deg, 
+                rgba(255, 255, 255, 0.15) 0%, 
+                rgba(255, 255, 255, 0.08) 100%);
+        }
 
-.professional-info strong {
-    color: rgb(21, 118, 228);
-    font-weight: 600;
-}
+        .professional-card:hover::before {
+            opacity: 1;
+        }
 
-.chat-btn {
-    background: linear-gradient(135deg, rgb(21, 118, 228), rgb(116, 154, 224));
-    color: white;
-    border: none;
-    padding: 14px 20px;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    font-weight: 600;
-    font-family: 'Montserrat', sans-serif;
-    box-shadow: 0 6px 20px rgba(21, 118, 228, 0.3);
-    position: relative;
-    overflow: hidden;
-    min-width: 140px;
-    justify-content: center;
-}
+        /* Header do Cartão */
+        .card-header {
+            display: flex;
+            align-items: center;
+            padding: 24px;
+            background: linear-gradient(135deg, 
+                rgba(21, 118, 228, 0.1) 0%, 
+                rgba(116, 154, 224, 0.1) 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-.chat-btn:hover {
-    background: linear-gradient(135deg, rgb(116, 154, 224), rgb(21, 118, 228));
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(21, 118, 228, 0.4);
-}
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            min-width: 80px;
+            border-radius: 20px;
+            background-size: cover;
+            background-position: center;
+            border: 3px solid rgba(21, 118, 228, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
 
-.chat-btn:active {
-    transform: translateY(0);
-}
+        .profile-pic::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 30%, rgba(21, 118, 228, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
 
-.chat-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-}
+        .professional-card:hover .profile-pic {
+            border-color: rgb(21, 118, 228);
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 
+                0 12px 35px rgba(21, 118, 228, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
 
-.chat-btn:hover::before {
-    left: 100%;
-}
+        .professional-card:hover .profile-pic::after {
+            opacity: 1;
+        }
 
-.chat-icon {
-    width: 24px;
-    height: 24px;
-    margin-left: 10px;
-    filter: brightness(0) invert(1);
-    transition: transform 0.3s ease;
-}
+        .professional-name-container {
+            margin-left: 20px;
+            flex: 1;
+        }
 
-.chat-btn:hover .chat-icon {
-    transform: scale(1.1);
-}
+        .professional-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            line-height: 1.2;
+        }
 
-/* Estados especiais dos botões */
-.chat-btn:disabled {
-    background: linear-gradient(135deg, #666, #555);
-    cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none;
-}
+        .professional-age {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(21, 118, 228, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(21, 118, 228, 0.3);
+        }
 
-.chat-btn:disabled:hover {
-    transform: none !important;
-    box-shadow: none;
-}
+        /* Conteúdo do Cartão */
+        .card-content {
+            padding: 24px;
+        }
 
-.login-redirect {
-    background: linear-gradient(135deg, #ff6b6b, #ff8e8e) !important;
-    position: relative;
-}
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
 
-.login-redirect::after {
-    content: '🔒';
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-}
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
 
-/* Modal QR Code melhorado */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(8px);
-    animation: fadeIn 0.3s ease;
-}
+        .info-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
+        .info-icon {
+            font-size: 24px;
+            margin-right: 12px;
+            opacity: 0.8;
+            transition: transform 0.3s ease;
+        }
 
-.modal-content {
-    background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
-    margin: 5% auto;
-    padding: 30px;
-    border-radius: 20px;
-    max-width: 90vw;
-    width: auto;
-    text-align: center;
-    color: white;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+        .info-item:hover .info-icon {
+            transform: scale(1.1);
+        }
 
-@keyframes slideIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(-50px) scale(0.9);
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0) scale(1);
-    }
-}
+        .info-content strong {
+            display: block;
+            color: rgb(21, 118, 228);
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
 
-.close-modal {
-    color: rgba(255, 255, 255, 0.7);
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-}
+        .info-content p {
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.4;
+        }
 
-.close-modal:hover {
-    color: white;
-    background: rgba(255, 255, 255, 0.2);
-    transform: rotate(90deg);
-}
+        /* Seções Expandíveis */
+        .expandable-section {
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
 
-#qrCodeContainer {
-    max-width: 100%;
-    overflow: hidden;
-    margin: 20px auto;
-    text-align: center;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
+        .expandable-section:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(21, 118, 228, 0.2);
+        }
 
-#qrCodeImage {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-    border: none;
-    padding: 15px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    transition: transform 0.3s ease;
-}
+        .section-title {
+            padding: 16px 20px;
+            font-weight: 600;
+            color: rgb(21, 118, 228);
+            background: rgba(21, 118, 228, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-#qrCodeImage:hover {
-    transform: scale(1.05);
-}
+        .section-content {
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            font-size: 14px;
+        }
 
-.link-container {
-    margin-top: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: center;
-}
+        /* Tags de Habilidades e Interesses */
+        .skill-tag, .interest-tag {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 4px 8px 4px 0;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
 
-#profileLink {
-    flex: 1;
-    min-width: 200px;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 14px;
-    transition: all 0.3s ease;
-}
+        .skill-tag {
+            background: linear-gradient(135deg, rgba(21, 118, 228, 0.2), rgba(116, 154, 224, 0.2));
+            color: rgb(21, 118, 228);
+            border: 1px solid rgba(21, 118, 228, 0.3);
+        }
 
-#profileLink:focus {
-    outline: none;
-    border-color: rgb(21, 118, 228);
-    background: rgba(255, 255, 255, 0.15);
-}
+        .skill-tag:hover {
+            background: linear-gradient(135deg, rgba(21, 118, 228, 0.3), rgba(116, 154, 224, 0.3));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(21, 118, 228, 0.3);
+        }
 
-#copyLink {
-    background: linear-gradient(135deg, rgb(21, 118, 228), rgb(116, 154, 224));
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    font-family: 'Montserrat', sans-serif;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 6px 20px rgba(21, 118, 228, 0.3);
-}
+        .interest-tag {
+            background: linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(233, 30, 99, 0.2));
+            color: rgb(233, 30, 99);
+            border: 1px solid rgba(233, 30, 99, 0.3);
+        }
 
-#copyLink:hover {
-    background: linear-gradient(135deg, rgb(116, 154, 224), rgb(21, 118, 228));
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(21, 118, 228, 0.4);
-}
+        .interest-tag:hover {
+            background: linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(233, 30, 99, 0.3));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+        }
 
-/* Mensagem de erro da busca */
-.search-error {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: linear-gradient(135deg, #ff6b6b, #ff5252);
-    color: white;
-    padding: 12px 20px;
-    border-radius: 0 0 15px 15px;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
-    animation: errorSlideIn 0.3s ease;
-    z-index: 10;
-}
+        /* Footer do Cartão */
+        .card-footer {
+            padding: 20px 24px;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.03) 0%, 
+                rgba(255, 255, 255, 0.01) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-@keyframes errorSlideIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(-10px);
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0);
-    }
-}
+        .action-btn {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, rgb(21, 118, 228), rgb(116, 154, 224));
+            color: white;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(21, 118, 228, 0.3);
+        }
 
-@keyframes errorSlideIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(-10px);
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0);
-    }
-}
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            transition: left 0.6s;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, rgb(116, 154, 224), rgb(21, 118, 228));
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(21, 118, 228, 0.4);
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
+        }
+
+        .action-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-icon {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .action-btn:hover .btn-icon {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        /* Estados especiais dos botões */
+        .action-btn:disabled {
+            background: linear-gradient(135deg, #666, #555);
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-btn:disabled:hover {
+            transform: none !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-btn:disabled .btn-icon {
+            transform: none !important;
+        }
+
+        .login-redirect {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e) !important;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .login-redirect:hover {
+            background: linear-gradient(135deg, #ff8e8e, #ff6b6b) !important;
+            box-shadow: 0 12px 40px rgba(255, 107, 107, 0.4);
+        }
 
         /* Footer */
         .footer-section {
             background-color: #2e2e2e;
             color: white;
-            padding: 10px;
+            padding: 20px;
             text-align: center;
-            position: relative;
-            bottom: 0;
-            width: 100%;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .footer-content {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
 
         .footer-logo {
             width: 40px;
             height: 40px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-logo:hover {
+            opacity: 1;
+        }
+
+        /* Animações adicionais */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .professional-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .professional-card:nth-child(even) {
+            animation-delay: 0.1s;
+        }
+
+        .professional-card:nth-child(odd) {
+            animation-delay: 0.2s;
         }
 
         /* Efeito de fade-in nos botões do menu */
@@ -773,6 +929,13 @@ $searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
         .menu.active li:nth-child(4) { animation-delay: 0.4s; }
 
         /* Media Queries */
+        @media (max-width: 1200px) {
+            .professional-list {
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 25px;
+            }
+        }
+
         @media (max-width: 991px) {
             .navbar {
                 padding: 15px 20px;
@@ -820,41 +983,27 @@ $searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
                 text-align: center;
                 padding: 12px;
             }
-            
-            .professional-item {
-                width: 95%;
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-            
-            .profile-pic {
-                margin-right: 0;
-                margin-bottom: 15px;
-                width: 80px;
-                height: 80px;
-            }
-            
-            .professional-info {
-                width: 100%;
-                margin-bottom: 15px;
-            }
-            
-            .chat-btn {
-                width: 100%;
-                justify-content: center;
+
+            .professional-list {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px 15px;
             }
 
-             .profile-icon{
-                display: none;
+            .filter-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .filter-btn {
+                width: 100%;
+                text-align: center;
+                max-width: 300px;
             }
         }
 
         @media (max-width: 768px) {
-            .professional-item {
-                padding: 10px;
-            }
-            
             .navbar {
                 padding: 10px 15px;
             }
@@ -872,53 +1021,110 @@ $searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
             .search-container {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 12px;
             }
             
             .search-bar, 
             .search-btn {
                 width: 100%;
-                margin-bottom: 10px;
-            }
-            
-            .modal-content {
-                padding: 15px;
-            }
-            
-            .profile-icon {
-                display: none;
             }
 
-             .profile-icon{
-                display: none;
+            .professional-list {
+                grid-template-columns: 1fr;
+                padding: 15px 10px;
+            }
+
+            .professional-card {
+                margin: 0;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding: 20px;
+            }
+
+            .profile-pic {
+                margin-bottom: 15px;
+                width: 70px;
+                height: 70px;
+                min-width: 70px;
+            }
+
+            .professional-name-container {
+                margin-left: 0;
+            }
+
+            .professional-name {
+                font-size: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card-content {
+                padding: 20px;
             }
         }
 
         @media (max-width: 480px) {
+            .professional-card {
+                border-radius: 16px;
+            }
+
+            .card-header {
+                padding: 16px;
+            }
+
             .profile-pic {
                 width: 60px;
                 height: 60px;
+                min-width: 60px;
+                border-radius: 15px;
             }
             
             .professional-name {
-                font-size: 16px;
+                font-size: 18px;
             }
             
-            .professional-info p {
-                font-size: 14px;
-            }
-            
-            .link-container {
-                flex-direction: column;
+            .card-content {
+                padding: 16px;
             }
 
-             .profile-icon{
-                display: none;
+            .section-title {
+                font-size: 14px;
+                padding: 14px 16px;
             }
-            
-            #profileLink, 
-            #copyLink {
-                width: 100%;
+
+            .section-content {
+                padding: 16px;
+                font-size: 13px;
             }
+
+            .skill-tag, .interest-tag {
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+        }
+
+        /* Estados de carregamento e vazio */
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: rgb(21, 118, 228);
         }
     </style>
 </head>
@@ -948,9 +1154,19 @@ $searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
     <form method="GET" action="">
         <div class="search-container">
             <input type="text" name="search" id="searchInput" class="search-bar"
-                placeholder="Pesquisar por nome, formação ou habilidades..."
+                placeholder="Pesquisar por nome, formação, habilidades ou interesses..."
                 value="<?= $searchQueryDisplay ?>">
             <button type="submit" class="search-btn">Procurar</button>
+        </div>
+        
+        <!-- Filtros de pesquisa -->
+        <div class="filter-container">
+            <button type="button" class="filter-btn <?= $filtro === 'todos' ? 'active' : '' ?>" data-filter="todos">Todos</button>
+            <button type="button" class="filter-btn <?= $filtro === 'nome' ? 'active' : '' ?>" data-filter="nome">Nome</button>
+            <button type="button" class="filter-btn <?= $filtro === 'formacao' ? 'active' : '' ?>" data-filter="formacao">Formação</button>
+            <button type="button" class="filter-btn <?= $filtro === 'habilidades' ? 'active' : '' ?>" data-filter="habilidades">Habilidades</button>
+            <button type="button" class="filter-btn <?= $filtro === 'interesses' ? 'active' : '' ?>" data-filter="interesses">Interesses</button>
+            <input type="hidden" name="filtro" id="filtroInput" value="<?= $filtro ?>">
         </div>
     </form>
 
@@ -963,12 +1179,10 @@ $searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
         </div>
     </footer> 
 
-    <?php echo $modalHTML; ?>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../assets/js/script.js"></script>
 
-  <script>
+    <script>
     $(document).ready(function() {
         // ===== PROTEÇÃO CONTRA MANIPULAÇÃO DE INPUTS =====
         function protegerInputs() {
@@ -1073,9 +1287,9 @@ $searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
             const valor = input.value;
             
             // Para campo de busca, permitir apenas caracteres seguros
-            const regexTexto = /^[\w\sáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\-.,;:!?@#%&*()+=]*$/;
+            const regexTexto = /^[\w\sáàâãéèêíïóôõöúçñÁÀÂãÉÈÊÍÏÓÔÕÖÚÇÑ\-.,;:!?@#%&*()+=]*$/;
             if (!regexTexto.test(valor)) {
-                input.value = valor.replace(/[^\w\sáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\-.,;:!?@#%&*()+=]/g, '');
+                input.value = valor.replace(/[^\w\sáàâãéèêíïóôõöúçñÁÀÂãÉÈÊÍÏÓÔÕÖÚÇÑ\-.,;:!?@#%&*()+=]/g, '');
             }
             
             // Limitar tamanho máximo
@@ -1143,53 +1357,52 @@ $searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
         // Inicializar proteções
         protegerInputs();
         
-        // ===== SEU CÓDIGO EXISTENTE CONTINUA AQUI =====
+        // ===== FILTROS DE PESQUISA =====
+        $('.filter-btn').click(function() {
+            // Remover a classe active de todos os botões
+            $('.filter-btn').removeClass('active');
+            
+            // Adicionar a classe active ao botão clicado
+            $(this).addClass('active');
+            
+            // Atualizar o valor do filtro no input hidden
+            const filtro = $(this).data('filter');
+            $('#filtroInput').val(filtro);
+            
+            // Enviar o formulário
+            $(this).closest('form').submit();
+        });
         
-        // Mostrar modal com QR Code
-        $('.show-qr').click(function() {
-            const qrCodePath = $(this).data('qrcode-path');
-            const email = $(this).data('email');
-            const qrcode = $(this).data('qrcode');
+        // ===== COPIAR LINK DO QR CODE =====
+        $('.copy-link-btn').click(function() {
+            const qrCodeValue = $(this).data('qrcode');
             
-            // Adiciona timestamp para evitar cache
-            const timestamp = new Date().getTime();
-            $('#qrCodeImage').attr('src', qrCodePath + '&t=' + timestamp);
-            
-            // Usar o valor da coluna qr_code da tabela Usuario se disponível, senão usar o email
-            if (qrcode) {
-                $('#profileLink').val(qrcode);
-            } else {
-                const profileLink = window.location.origin + '/perfil.php?email=' + encodeURIComponent(email);
-                $('#profileLink').val(profileLink);
+            if (qrCodeValue) {
+                // Criar um elemento de input temporário
+                const tempInput = document.createElement('input');
+                tempInput.value = qrCodeValue;
+                document.body.appendChild(tempInput);
+                
+                // Selecionar e copiar o texto
+                tempInput.select();
+                document.execCommand('copy');
+                
+                // Remover o elemento temporário
+                document.body.removeChild(tempInput);
+                
+                // Feedback visual melhorado
+                const originalHTML = $(this).html();
+                $(this).html('<span>Link Copiado!</span><div class="btn-icon">✅</div>');
+                $(this).css('background', 'linear-gradient(135deg, #4caf50, #66bb6a)');
+                
+                // Restaurar o conteúdo original após 3 segundos
+                setTimeout(() => {
+                    $(this).html(originalHTML);
+                    $(this).css('background', '');
+                }, 3000);
             }
-            
-            $('#qrModal').show();
         });
         
-        // Fechar modal
-        $('.close-modal').click(function() {
-            $('#qrModal').hide();
-        });
-        
-        // Copiar link
-        $('#copyLink').click(function() {
-            const linkInput = document.getElementById('profileLink');
-            linkInput.select();
-            document.execCommand('copy');
-            
-            $(this).text('Copiado!');
-            setTimeout(() => {
-                $(this).text('Copiar Link');
-            }, 2000);
-        });
-        
-        // Fechar modal ao clicar fora
-        $(window).click(function(event) {
-            if (event.target.id === 'qrModal') {
-                $('#qrModal').hide();
-            }
-        });
-
         // Adicionar evento de tecla para buscar ao pressionar Enter
         document.getElementById('searchInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -1219,7 +1432,7 @@ $searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
                 mobileMenu.addEventListener('click', function() {
                     menu.classList.add('active');
                     this.style.display = 'none';
-                    closeMenuBtn.style.display = 'flex'; // Mostrar botão de fechar
+                    closeMenuBtn.style.display = 'flex';
                 });
             }
             
@@ -1227,7 +1440,7 @@ $searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
                 closeMenuBtn.addEventListener('click', function() {
                     menu.classList.remove('active');
                     if (mobileMenu) mobileMenu.style.display = 'block';
-                    this.style.display = 'none'; // Esconder botão de fechar
+                    this.style.display = 'none';
                 });
             }
             
@@ -1261,53 +1474,30 @@ $searchQueryDisplay = htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8');
                 mobileMenu.style.display = 'none';
             }
         });
-    });
 
-    // Função para buscar profissionais com validação de segurança (VERSÃO MELHORADA)
-    function buscarProfissionais() {
-        // Pega o valor do campo de busca
-        const inputElement = document.getElementById('searchInput');
-        
-        // Verificar se o input ainda existe e não foi manipulado
-        if (!inputElement || inputElement.type !== 'text') {
-            console.warn('Input de busca foi manipulado ou não existe');
-            mostrarAvisoSeguranca();
-            return false;
-        }
-        
-        let termoBusca = inputElement.value.trim();
-        
-        // Sanitização do lado do cliente (defesa em profundidade)
-        termoBusca = termoBusca.replace(/[\x00-\x1F\x7F]/g, ''); // Remove caracteres de controle
-        termoBusca = termoBusca.substring(0, 100); // Limita o tamanho
-        
-        // Verifica se o termo de busca é válido
-        if (!termoBusca || !/^[\w\sáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\-.,;:!?@#%&*()+=]{3,}$/.test(termoBusca)) {
-            // Mostra mensagem de erro acessível (melhor que alert)
-            const errorElement = document.createElement('div');
-            errorElement.className = 'search-error';
-            errorElement.textContent = 'Por favor, digite um termo válido (mínimo 3 caracteres).';
-            errorElement.setAttribute('role', 'alert');
-            errorElement.setAttribute('aria-live', 'assertive');
-            
-            // Remove mensagens anteriores
-            const oldError = document.querySelector('.search-error');
-            if (oldError) oldError.remove();
-            
-            // Insere a mensagem após a barra de pesquisa
-            inputElement.insertAdjacentElement('afterend', errorElement);
-            inputElement.focus();
-            return false;
-        }
-        
-        // Codifica o termo para URL (previne XSS e injection na URL)
-        const termoCodificado = encodeURIComponent(termoBusca)
-            .replace(/%20/g, '+') // Espaços como +
-            .replace(/[!'()*]/g, function(c) {
-                return '%' + c.charCodeAt(0).toString(16);
+        // ===== ANIMAÇÕES DE ENTRADA DOS CARTÕES =====
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
             });
-        
-        console.log('Termo de busca validado:', termoCodificado);
-        return true;
-    }
-</script>
+        }, observerOptions);
+
+        // Observar todos os cartões de profissionais
+        document.querySelectorAll('.professional-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    });
+    </script>
+</body>
+</html>
