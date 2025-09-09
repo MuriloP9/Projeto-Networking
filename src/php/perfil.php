@@ -1029,6 +1029,307 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 0.9rem;
         }
 
+        /* Templates Section */
+        .templates-section {
+            margin: 3rem 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+        }
+
+        .templates-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .templates-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .templates-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .template-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .template-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary);
+        }
+
+        .template-preview {
+            height: 200px;
+            background: #fff;
+            padding: 12px;
+            margin: 12px;
+            border-radius: 8px;
+            font-size: 8px;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Preview Elements */
+        .preview-header {
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .preview-name {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: #2c3e50;
+        }
+
+        .preview-contact {
+            font-size: 7px;
+            color: #666;
+        }
+
+        .preview-section {
+            margin-bottom: 12px;
+        }
+
+        .preview-title {
+            font-weight: bold;
+            font-size: 9px;
+            margin-bottom: 6px;
+            color: #2c3e50;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .preview-line {
+            height: 3px;
+            background: #ddd;
+            margin-bottom: 3px;
+            border-radius: 2px;
+        }
+
+        .preview-line.short {
+            width: 60%;
+        }
+
+        .preview-line.medium {
+            width: 80%;
+        }
+
+        .preview-line.thin {
+            height: 1px;
+            background: #2c3e50;
+            margin: 8px 0;
+        }
+
+        /* Moderno Template */
+        .template-preview.moderno {
+            display: flex;
+            padding: 0;
+        }
+
+        .preview-sidebar {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            width: 40%;
+            padding: 12px 8px;
+            color: white;
+        }
+
+        .preview-avatar {
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            margin: 0 auto 8px;
+        }
+
+        .preview-title.white {
+            color: white;
+            font-size: 7px;
+        }
+
+        .preview-line.white {
+            background: rgba(255, 255, 255, 0.7);
+            height: 2px;
+        }
+
+        .preview-line.white.short {
+            width: 70%;
+        }
+
+        .skill-bar {
+            height: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin-bottom: 4px;
+            overflow: hidden;
+        }
+
+        .skill-fill {
+            height: 100%;
+            background: white;
+            width: 90%;
+            border-radius: 2px;
+        }
+
+        .skill-fill.medium {
+            width: 75%;
+        }
+
+        .preview-main {
+            flex: 1;
+            padding: 12px;
+        }
+
+        .preview-name.large {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .preview-subtitle {
+            font-size: 8px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        /* Minimalista Template */
+        .template-preview.minimalista .preview-header.minimal {
+            border-bottom: none;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .template-preview.minimalista .preview-name {
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .template-preview.minimalista .preview-contact.small {
+            font-size: 6px;
+        }
+
+        .template-preview.minimalista .preview-section.minimal {
+            margin-bottom: 16px;
+        }
+
+        .template-preview.minimalista .preview-title.minimal {
+            font-size: 8px;
+            color: #666;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 4px;
+        }
+
+        /* Executivo Template */
+        .template-preview.executivo .preview-header.executive {
+            background: #f8f9fa;
+            margin: -12px -12px 12px -12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .template-preview.executivo .preview-name.executive {
+            font-size: 13px;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .template-preview.executivo .preview-contact.executive {
+            font-size: 7px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .preview-divider {
+            height: 2px;
+            background: var(--primary);
+            margin: 8px 0;
+            width: 40px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .preview-columns {
+            display: flex;
+            gap: 12px;
+        }
+
+        .preview-col {
+            flex: 1;
+        }
+
+        .template-preview.executivo .preview-title.executive {
+            font-size: 8px;
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+            padding-left: 6px;
+            margin-bottom: 8px;
+        }
+
+        /* Template Info */
+        .template-info {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .template-info h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .template-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .template-info .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .templates-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .template-preview {
+                height: 180px;
+            }
+            
+            .templates-section {
+                padding: 2rem;
+            }
+        }
+
         /* Responsive Design */
         @media (max-width: 1200px) {
             .main-container {
@@ -1176,24 +1477,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .mobile-nav-links {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    list-style: none;
-}
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        list-style: none;
+        }
 
-.mobile-nav-links .nav-link {
-    display: block;
-    padding: 1rem;
-    border-radius: 8px;
-    margin: 0.25rem 0;
-}
+        .mobile-nav-links .nav-link {
+            display: block;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 0.25rem 0;
+        }
 
-.mobile-nav-links .nav-link.logout {
-    width: 100%;
-    text-align: left;
-    background: linear-gradient(135deg, var(--error), #dc2626);
-}
+        .mobile-nav-links .nav-link.logout {
+            width: 100%;
+            text-align: left;
+            background: linear-gradient(135deg, var(--error), #dc2626);
+        }
     </style>
 </head>
 
@@ -1262,9 +1563,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="profile-actions">
                         <button class="btn btn-primary" onclick="abrirModal()">
                             <i class="fas fa-edit"></i> Editar Perfil
-                        </button>
-                        <button class="btn btn-secondary" onclick="gerarPDF()">
-                            <i class="fas fa-file-pdf"></i> Gerar PDF
                         </button>
                     </div>
                 </div>
@@ -1381,6 +1679,151 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
+
+
+    <!-- Seção de Templates de Currículo -->
+<div class="templates-section">
+    <div class="templates-header">
+        <h2>
+            <i class="fas fa-file-alt"></i>
+            Escolha seu Template de Currículo
+        </h2>
+        <p>Selecione um modelo e baixe seu currículo profissional</p>
+    </div>
+    
+    <div class="templates-grid">
+        <div class="template-card" data-template="classico">
+            <div class="template-preview">
+                <div class="preview-header">
+                    <div class="preview-name">João Silva</div>
+                    <div class="preview-contact">joao@email.com | (11) 99999-9999</div>
+                </div>
+                <div class="preview-section">
+                    <div class="preview-title">EXPERIÊNCIA</div>
+                    <div class="preview-content">
+                        <div class="preview-line"></div>
+                        <div class="preview-line short"></div>
+                    </div>
+                </div>
+                <div class="preview-section">
+                    <div class="preview-title">FORMAÇÃO</div>
+                    <div class="preview-content">
+                        <div class="preview-line"></div>
+                        <div class="preview-line short"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="template-info">
+                <h3>Clássico</h3>
+                <p>Design limpo e profissional, ideal para qualquer área</p>
+                <button class="btn btn-primary" onclick="gerarPDFTemplate('classico')">
+                    <i class="fas fa-download"></i> Baixar PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="template-card" data-template="moderno">
+            <div class="template-preview moderno">
+                <div class="preview-sidebar">
+                    <div class="preview-avatar"></div>
+                    <div class="preview-section">
+                        <div class="preview-title white">CONTATO</div>
+                        <div class="preview-line white short"></div>
+                        <div class="preview-line white"></div>
+                    </div>
+                    <div class="preview-section">
+                        <div class="preview-title white">SKILLS</div>
+                        <div class="skill-bar"><div class="skill-fill"></div></div>
+                        <div class="skill-bar"><div class="skill-fill medium"></div></div>
+                    </div>
+                </div>
+                <div class="preview-main">
+                    <div class="preview-name large">João Silva</div>
+                    <div class="preview-subtitle">Desenvolvedor</div>
+                    <div class="preview-section">
+                        <div class="preview-title">EXPERIÊNCIA</div>
+                        <div class="preview-line"></div>
+                        <div class="preview-line short"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="template-info">
+                <h3>Moderno</h3>
+                <p>Layout com sidebar colorida, perfeito para áreas criativas</p>
+                <button class="btn btn-primary" onclick="gerarPDFTemplate('moderno')">
+                    <i class="fas fa-download"></i> Baixar PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="template-card" data-template="minimalista">
+            <div class="template-preview minimalista">
+                <div class="preview-header minimal">
+                    <div class="preview-name">JOÃO SILVA</div>
+                    <div class="preview-line thin"></div>
+                    <div class="preview-contact small">joao@email.com</div>
+                </div>
+                <div class="preview-section minimal">
+                    <div class="preview-title minimal">EXPERIÊNCIA PROFISSIONAL</div>
+                    <div class="preview-content">
+                        <div class="preview-line"></div>
+                        <div class="preview-line medium"></div>
+                        <div class="preview-line short"></div>
+                    </div>
+                </div>
+                <div class="preview-section minimal">
+                    <div class="preview-title minimal">EDUCAÇÃO</div>
+                    <div class="preview-content">
+                        <div class="preview-line medium"></div>
+                        <div class="preview-line short"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="template-info">
+                <h3>Minimalista</h3>
+                <p>Design clean e elegante, foco no conteúdo</p>
+                <button class="btn btn-primary" onclick="gerarPDFTemplate('minimalista')">
+                    <i class="fas fa-download"></i> Baixar PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="template-card" data-template="executivo">
+            <div class="template-preview executivo">
+                <div class="preview-header executive">
+                    <div class="preview-name executive">JOÃO SILVA</div>
+                    <div class="preview-contact executive">Chief Executive Officer</div>
+                    <div class="preview-divider"></div>
+                </div>
+                <div class="preview-columns">
+                    <div class="preview-col">
+                        <div class="preview-section">
+                            <div class="preview-title executive">EXPERIÊNCIA</div>
+                            <div class="preview-line"></div>
+                            <div class="preview-line short"></div>
+                        </div>
+                    </div>
+                    <div class="preview-col">
+                        <div class="preview-section">
+                            <div class="preview-title executive">COMPETÊNCIAS</div>
+                            <div class="preview-line medium"></div>
+                            <div class="preview-line"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="template-info">
+                <h3>Executivo</h3>
+                <p>Formato corporativo para cargos de liderança</p>
+                <button class="btn btn-primary" onclick="gerarPDFTemplate('executivo')">
+                    <i class="fas fa-download"></i> Baixar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
     <!-- Modal de Edição -->
     <div id="modalEditar" class="modal">
@@ -1856,6 +2299,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         document.body.appendChild(confirmModal);
     }
+
+    // Função para gerar PDF com template específico
+function gerarPDFTemplate(template) {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    
+    // Mostra loading
+    btn.innerHTML = '<span class="loading"></span> Gerando PDF...';
+    btn.disabled = true;
+    
+    // Simula delay antes de redirecionar
+    setTimeout(() => {
+        window.location.href = `../php/gerar_pdf.php?template=${template}`;
+        
+        // Restaura o botão após um tempo
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 3000);
+    }, 1000);
+}
+
+// Adicionar ao escopo global
+window.gerarPDFTemplate = gerarPDFTemplate;
 
     // Função para alternar o menu móvel
     // Função para alternar o menu móvel
