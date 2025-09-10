@@ -677,59 +677,67 @@ function buscarProfissionais() {
         });
 
         // Função para realizar o login via modal
-        function realizarLoginModal() {
-            const email = document.getElementById('modal-email').value.trim();
-            const senha = document.getElementById('modal-senha').value;
-            const btnLogin = document.getElementById('btnModalLogin');
-            const mensagem = document.getElementById('modal-mensagem');
+      function realizarLoginModal() {
+    const email = document.getElementById('modal-email').value.trim();
+    const senha = document.getElementById('modal-senha').value;
+    const btnLogin = document.getElementById('btnModalLogin');
+    const mensagem = document.getElementById('modal-mensagem');
+    
+    // Validações do lado do cliente
+    if (!email || !senha) {
+        mostrarMensagemModal('Por favor, preencha todos os campos.', 'error', 'modal-mensagem');
+        return;
+    }
+    
+    if (!isValidEmail(email)) {
+        mostrarMensagemModal('Por favor, digite um email válido.', 'error', 'modal-mensagem');
+        return;
+    }
+    
+    // Desabilitar botão e mostrar loading
+    btnLogin.disabled = true;
+    btnLogin.innerHTML = '<span class="loading"></span>Entrando...';
+    
+    // Fazer requisição AJAX
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('senha', senha);
+    
+    fetch('../php/validarLogin.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.sucesso) {
+            mostrarMensagemModal(data.mensagem, 'success', 'modal-mensagem');
             
-            // Validações do lado do cliente
-            if (!email || !senha) {
-                mostrarMensagemModal('Por favor, preencha todos os campos.', 'error', 'modal-mensagem');
-                return;
+            // VERIFICAR SE HÁ REDIRECIONAMENTO ESPECÍFICO
+            if (data.redirect) {
+                // Redirecionar para a página especificada
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 1000);
+            } else {
+                // Redirecionamento padrão (recarregar página)
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             }
-            
-            if (!isValidEmail(email)) {
-                mostrarMensagemModal('Por favor, digite um email válido.', 'error', 'modal-mensagem');
-                return;
-            }
-            
-            // Desabilitar botão e mostrar loading
-            btnLogin.disabled = true;
-            btnLogin.innerHTML = '<span class="loading"></span>Entrando...';
-            
-            // Fazer requisição AJAX
-            const formData = new FormData();
-            formData.append('email', email);
-            formData.append('senha', senha);
-            
-            fetch('../php/validarLogin.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.sucesso) {
-                    mostrarMensagemModal(data.mensagem, 'success', 'modal-mensagem');
-                    setTimeout(() => {
-                        // Recarrega a página para atualizar a sessão
-                        window.location.reload();
-                    }, 1000);
-                } else {
-                    mostrarMensagemModal(data.mensagem, 'error', 'modal-mensagem');
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                mostrarMensagemModal('Erro de conexão. Tente novamente.', 'error', 'modal-mensagem');
-            })
-            .finally(() => {
-                // Reabilitar botão
-                btnLogin.disabled = false;
-                btnLogin.innerHTML = 'Login';
-            });
+        } else {
+            mostrarMensagemModal(data.mensagem, 'error', 'modal-mensagem');
         }
-
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        mostrarMensagemModal('Erro de conexão. Tente novamente.', 'error', 'modal-mensagem');
+    })
+    .finally(() => {
+        // Reabilitar botão
+        btnLogin.disabled = false;
+        btnLogin.innerHTML = 'Login';
+    });
+}
         // Função para realizar a recuperação de senha
         function realizarRecuperacaoSenha() {
             const email = document.getElementById('reset-email').value.trim();
