@@ -18,8 +18,59 @@ if ($usuario['tipo'] === 'usuario') {
     exit();
 }
 
-// Obter dados do usuário
-$menu_items = gerarMenuPermitido();
+// Criar menu manualmente com apenas os itens permitidos
+$menu_permitido = array(
+    array(
+        'nome' => 'Dashboard',
+        'url' => 'dashboard.php',
+        'icone' => 'fa-tachometer-alt'
+    ),
+    array(
+        'nome' => 'Gerenciar Usuários',
+        'url' => 'gerenciar_usuarios.php',
+        'icone' => 'fa-users-cog'
+    ),
+    array(
+        'nome' => 'Configurações Sistema',
+        'url' => 'configuracoes.php',
+        'icone' => 'fa-cog'
+    ),
+    array(
+        'nome' => 'Minha Equipe',
+        'url' => 'minha_equipe.php',
+        'icone' => 'fa-users'
+    ),
+    array(
+        'nome' => 'Aprovações',
+        'url' => 'aprovacoes.php',
+        'icone' => 'fa-check-circle'
+    ),
+    array(
+        'nome' => 'Funcionários',
+        'url' => 'funcionarios.php',
+        'icone' => 'fa-user-tie'
+    ),
+    array(
+        'nome' => 'Relatórios Básicos',
+        'url' => 'relatorios_basicos.php',
+        'icone' => 'fa-chart-bar'
+    ),
+    array(
+        'nome' => 'Vagas',
+        'url' => 'vagas.php',
+        'icone' => 'fa-briefcase'
+    ),
+    array(
+        'nome' => 'Webinars',
+        'url' => 'webinars.php',
+        'icone' => 'fa-video'
+    ),
+    array(
+        'nome' => 'Meu Perfil',
+        'url' => 'perfil.php',
+        'icone' => 'fa-user-edit'
+    )
+);
 ?>
 
 <!DOCTYPE html>
@@ -29,351 +80,296 @@ $menu_items = gerarMenuPermitido();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sistema de Gestão</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            color: #333;
+            display: flex;
+        }
+        
         .sidebar {
+            width: 250px;
             min-height: 100vh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            margin: 0.25rem;
-        }
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            background: rgba(255,255,255,0.1);
             color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 20px 0;
+            overflow-y: auto;
         }
+        
         .user-info {
             background: rgba(255,255,255,0.1);
-            padding: 1rem;
+            padding: 20px;
             border-radius: 8px;
-            margin-bottom: 2rem;
+            margin: 0 15px 30px;
+            text-align: center;
         }
-        .card-stats {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
+        
+        .user-info i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
         }
-        .card-stats:hover {
-            transform: translateY(-5px);
+        
+        .user-info h6 {
+            font-size: 16px;
+            margin-bottom: 5px;
         }
+        
+        .user-info small {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
         .nivel-badge {
-            padding: 0.25rem 0.75rem;
+            padding: 5px 12px;
             border-radius: 20px;
-            font-size: 0.75rem;
+            font-size: 12px;
             font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
         }
+        
         .nivel-0 { background: #dc3545; color: white; }
         .nivel-1 { background: #fd7e14; color: white; }
         .nivel-2 { background: #198754; color: white; }
-        .restricted-content {
-            opacity: 0.5;
-            pointer-events: none;
+        
+        .nav {
+            list-style: none;
+            padding: 0 15px;
         }
-    </style>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <!-- Informações do Usuário -->
-                    <div class="user-info text-white text-center">
-                        <i class="fas fa-user-circle fa-3x mb-2"></i>
-                        <h6><?php echo htmlspecialchars($usuario['nome']); ?></h6>
-                        <small><?php echo ucfirst($usuario['tipo']); ?></small>
-                        <?php if ($usuario['tipo'] === 'funcionario'): ?>
-                            <div class="mt-2">
-                                <span class="nivel-badge nivel-<?php echo $usuario['nivel_acesso']; ?>">
-                                    <?php echo $usuario['nivel_nome']; ?>
-                                </span>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-
-                    <!-- Menu -->
-                    <ul class="nav flex-column">
-                        <?php foreach ($menu_items as $item): ?>
-                            <li class="nav-item">
-                                <a class="nav-link" href="<?php echo $item['url']; ?>">
-                                    <i class="fas <?php echo $item['icone']; ?> me-2"></i>
-                                    <?php echo $item['nome']; ?>
-                                </a>
-                            </li>
-                        <?php endforeach; ?>
-                        
-                        <hr class="text-white">
-                        <li class="nav-item">
-                            <a class="nav-link" href="logout.php">
-                                <i class="fas fa-sign-out-alt me-2"></i>
-                                Sair
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Dashboard</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <div class="btn-group me-2">
-                            <span class="badge bg-primary">
-                                <?php echo date('d/m/Y H:i'); ?>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Cards de estatísticas -->
-                <div class="row">
-                    <!-- Card sempre visível -->
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card card-stats bg-primary text-white">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col">
-                                        <h5 class="card-title text-uppercase mb-0">Dashboard</h5>
-                                        <span class="h2 font-weight-bold mb-0">Ativo</span>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-tachometer-alt fa-2x"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card apenas para Gerente ou superior -->
-                    <?php if (podeAcessar('gerenciar_equipe')): ?>
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card card-stats bg-warning text-white">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col">
-                                        <h5 class="card-title text-uppercase mb-0">Minha Equipe</h5>
-                                        <span class="h2 font-weight-bold mb-0">12</span>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-users fa-2x"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-
-                    <!-- Card apenas para Admin -->
-                    <?php if (podeAcessar('gerenciar_usuarios')): ?>
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card card-stats bg-success text-white">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col">
-                                        <h5 class="card-title text-uppercase mb-0">Total Usuários</h5>
-                                        <span class="h2 font-weight-bold mb-0">156</span>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-user-cog fa-2x"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-
-                    <!-- Card para todos -->
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card card-stats bg-info text-white">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col">
-                                        <h5 class="card-title text-uppercase mb-0">Meu Perfil</h5>
-                                        <span class="h6 font-weight-bold mb-0">Ativo</span>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-user fa-2x"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Seção de Ações Rápidas -->
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="mb-0">Ações Rápidas</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <!-- Botões baseados em permissões -->
-                                    <?php if (podeAcessar('gerenciar_usuarios')): ?>
-                                    <div class="col-md-3 mb-3">
-                                        <a href="gerenciar_usuarios.php" class="btn btn-outline-primary btn-lg w-100">
-                                            <i class="fas fa-users-cog d-block mb-2"></i>
-                                            Gerenciar Usuários
-                                        </a>
-                                    </div>
-                                    <?php endif; ?>
-
-                                    <?php if (podeAcessar('gerenciar_equipe')): ?>
-                                    <div class="col-md-3 mb-3">
-                                        <a href="gerenciar_equipe.php" class="btn btn-outline-warning btn-lg w-100">
-                                            <i class="fas fa-users d-block mb-2"></i>
-                                            Minha Equipe
-                                        </a>
-                                    </div>
-                                    <?php endif; ?>
-
-                                    <?php if (podeAcessar('visualizar_relatorios')): ?>
-                                    <div class="col-md-3 mb-3">
-                                        <a href="relatorios.php" class="btn btn-outline-success btn-lg w-100">
-                                            <i class="fas fa-chart-bar d-block mb-2"></i>
-                                            Relatórios
-                                        </a>
-                                    </div>
-                                    <?php endif; ?>
-
-                                    <!-- Botão sempre disponível -->
-                                    <div class="col-md-3 mb-3">
-                                        <a href="perfil.php" class="btn btn-outline-info btn-lg w-100">
-                                            <i class="fas fa-user-edit d-block mb-2"></i>
-                                            Meu Perfil
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Seção de Informações Recentes -->
-                <div class="row mt-4">
-                    <?php if (podeAcessar('visualizar_relatorios')): ?>
-                    <div class="col-md-8">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between">
-                                <h5 class="mb-0">Atividades Recentes</h5>
-                                <small class="text-muted">Últimas 24 horas</small>
-                            </div>
-                            <div class="card-body">
-                                <div class="list-group list-group-flush">
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <i class="fas fa-user-plus text-success me-2"></i>
-                                            <strong>Novo usuário cadastrado:</strong> João Silva
-                                        </div>
-                                        <small class="text-muted">2 horas atrás</small>
-                                    </div>
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <i class="fas fa-edit text-warning me-2"></i>
-                                            <strong>Perfil atualizado:</strong> Maria Santos
-                                        </div>
-                                        <small class="text-muted">5 horas atrás</small>
-                                    </div>
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <i class="fas fa-chart-line text-info me-2"></i>
-                                            <strong>Relatório gerado:</strong> Relatório Mensal
-                                        </div>
-                                        <small class="text-muted">8 horas atrás</small>
-                                    </div>
-                                </div>
-                                <div class="text-center mt-3">
-                                    <a href="atividades.php" class="btn btn-sm btn-outline-primary">
-                                        Ver todas as atividades
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-
-                    <div class="col-md-<?php echo podeAcessar('visualizar_relatorios') ? '4' : '12'; ?>">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="mb-0">Suas Informações</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <p><strong>Nome:</strong></p>
-                                        <p class="text-muted"><?php echo htmlspecialchars($usuario['nome']); ?></p>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <p><strong>Email:</strong></p>
-                                        <p class="text-muted"><?php echo htmlspecialchars($usuario['email']); ?></p>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <p><strong>Tipo:</strong></p>
-                                        <p class="text-muted"><?php echo ucfirst($usuario['tipo']); ?></p>
-                                    </div>
-                                    <?php if ($usuario['tipo'] === 'funcionario'): ?>
-                                    <div class="col-sm-6">
-                                        <p><strong>Nível de Acesso:</strong></p>
-                                        <p class="text-muted">
-                                            <span class="nivel-badge nivel-<?php echo $usuario['nivel_acesso']; ?>">
-                                                <?php echo $usuario['nivel_nome']; ?>
-                                            </span>
-                                        </p>
-                                    </div>
-                                    <?php endif; ?>
-                                    <div class="col-sm-6">
-                                        <p><strong>Último Login:</strong></p>
-                                        <p class="text-muted"><?php echo date('d/m/Y H:i', strtotime($usuario['ultimo_login'])); ?></p>
-                                    </div>
-                                </div>
-                                <div class="text-center mt-3">
-                                    <a href="perfil.php" class="btn btn-sm btn-outline-primary">
-                                        Editar Perfil
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Footer -->
-                <footer class="text-center text-muted mt-5 py-3">
-                    <small>&copy; <?php echo date('Y'); ?> Sistema de Gestão. Todos os direitos reservados.</small>
-                </footer>
-            </main>
-        </div>
-    </div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        // Auto-atualizar a data/hora a cada minuto
-        setInterval(function() {
-            const agora = new Date();
-            const dataHora = agora.toLocaleDateString('pt-BR') + ' ' + 
-                           agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
-            document.querySelector('.badge.bg-primary').textContent = dataHora;
-        }, 60000);
-
-        // Adicionar animação aos cards
-        document.addEventListener('DOMContentLoaded', function() {
-            const cards = document.querySelectorAll('.card-stats');
-            cards.forEach(function(card, index) {
-                card.style.animationDelay = (index * 0.1) + 's';
-                card.classList.add('animate__animated', 'animate__fadeInUp');
-            });
-        });
-    </script>
-
-    <style>
+        
+        .nav-item {
+            margin-bottom: 5px;
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .nav-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.2);
+            margin: 15px 0;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 25px;
+        }
+        
+        .badge {
+            background: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-stats .content {
+            flex: 1;
+        }
+        
+        .card-stats .icon {
+            font-size: 32px;
+            opacity: 0.8;
+        }
+        
+        .card-title {
+            text-transform: uppercase;
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #6c757d;
+        }
+        
+        .card-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .bg-primary { background: #007bff; color: white; }
+        .bg-warning { background: #ffc107; color: #212529; }
+        .bg-success { background: #28a745; color: white; }
+        .bg-info { background: #17a2b8; color: white; }
+        
+        .section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-body {
+            padding: 20px;
+        }
+        
+        .btn-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            border-color: #007bff;
+            color: #007bff;
+        }
+        
+        .btn i {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .list-group {
+            list-style: none;
+        }
+        
+        .list-group-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-item {
+            margin-bottom: 15px;
+        }
+        
+        .info-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .text-muted {
+            color: #6c757d;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-3 {
+            margin-top: 15px;
+        }
+        
+        .btn-sm {
+            display: inline-block;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            color: #007bff;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-sm:hover {
+            background: #007bff;
+            color: white;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            margin-top: 40px;
+        }
+        
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -384,9 +380,294 @@ $menu_items = gerarMenuPermitido();
                 transform: translateY(0);
             }
         }
-        .animate__fadeInUp {
+        
+        .animate-fadeInUp {
             animation: fadeInUp 0.6s ease-out forwards;
         }
     </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Informações do Usuário -->
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <h6><?php echo htmlspecialchars($usuario['nome']); ?></h6>
+            <small><?php echo ucfirst($usuario['tipo']); ?></small>
+            <?php if ($usuario['tipo'] === 'funcionario'): ?>
+                <div class="mt-2">
+                    <span class="nivel-badge nivel-<?php echo $usuario['nivel_acesso']; ?>">
+                        <?php echo $usuario['nivel_nome']; ?>
+                    </span>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Menu -->
+        <ul class="nav">
+            <?php foreach ($menu_permitido as $item): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?php echo $item['url']; ?>">
+                        <i class="fas <?php echo $item['icone']; ?>"></i>
+                        <?php echo $item['nome']; ?>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+            
+            <li class="nav-divider"></li>
+            <li class="nav-item">
+                <a class="nav-link" href="logout.php">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>Dashboard</h1>
+            <div class="badge">
+                <?php echo date('d/m/Y H:i'); ?>
+            </div>
+        </div>
+
+        <!-- Cards de estatísticas -->
+        <div class="cards-container">
+            <!-- Card sempre visível -->
+            <div class="card card-stats bg-primary">
+                <div class="content">
+                    <div class="card-title">Dashboard</div>
+                    <div class="card-value">Ativo</div>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+            </div>
+
+            <!-- Card apenas para Gerente ou superior -->
+            <?php if (podeAcessar('gerenciar_equipe')): ?>
+            <div class="card card-stats bg-warning">
+                <div class="content">
+                    <div class="card-title">Minha Equipe</div>
+                    <div class="card-value">12</div>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- Card apenas para Admin -->
+            <?php if (podeAcessar('gerenciar_usuarios')): ?>
+            <div class="card card-stats bg-success">
+                <div class="content">
+                    <div class="card-title">Total Usuários</div>
+                    <div class="card-value">156</div>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user-cog"></i>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- Card para todos -->
+            <div class="card card-stats bg-info">
+                <div class="content">
+                    <div class="card-title">Meu Perfil</div>
+                    <div class="card-value">Ativo</div>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Ações Rápidas -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Ações Rápidas</h2>
+            </div>
+            <div class="section-body">
+                <div class="btn-container">
+                    <!-- Botões baseados em permissões -->
+                    <?php if (podeAcessar('gerenciar_usuarios')): ?>
+                    <a href="gerenciar_usuarios.php" class="btn">
+                        <i class="fas fa-users-cog"></i>
+                        Gerenciar Usuários
+                    </a>
+                    <?php endif; ?>
+
+                    <?php if (podeAcessar('gerenciar_equipe')): ?>
+                    <a href="gerenciar_equipe.php" class="btn">
+                        <i class="fas fa-users"></i>
+                        Minha Equipe
+                    </a>
+                    <?php endif; ?>
+
+                    <?php if (podeAcessar('visualizar_relatorios')): ?>
+                    <a href="relatorios.php" class="btn">
+                        <i class="fas fa-chart-bar"></i>
+                        Relatórios
+                    </a>
+                    <?php endif; ?>
+
+                    <?php if (podeAcessar('gerenciar_vagas')): ?>
+                    <a href="vagas.php" class="btn">
+                        <i class="fas fa-briefcase"></i>
+                        Vagas
+                    </a>
+                    <?php endif; ?>
+
+                    <?php if (podeAcessar('gerenciar_webinars')): ?>
+                    <a href="webinars.php" class="btn">
+                        <i class="fas fa-video"></i>
+                        Webinars
+                    </a>
+                    <?php endif; ?>
+
+                    <!-- Botão sempre disponível -->
+                    <a href="perfil.php" class="btn">
+                        <i class="fas fa-user-edit"></i>
+                        Meu Perfil
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Informações Recentes -->
+        <div style="display: flex; gap: 20px;">
+            <?php if (podeAcessar('visualizar_relatorios')): ?>
+            <div style="flex: 2;">
+                <div class="section">
+                    <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2>Atividades Recentes</h2>
+                        <small class="text-muted">Últimas 24 horas</small>
+                    </div>
+                    <div class="section-body">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <div>
+                                    <i class="fas fa-user-plus" style="color: #28a745; margin-right: 10px;"></i>
+                                    <strong>Novo usuário cadastrado:</strong> João Silva
+                                </div>
+                                <small class="text-muted">2 horas atrás</small>
+                            </li>
+                            <li class="list-group-item">
+                                <div>
+                                    <i class="fas fa-edit" style="color: #ffc107; margin-right: 10px;"></i>
+                                    <strong>Perfil atualizado:</strong> Maria Santos
+                                </div>
+                                <small class="text-muted">5 horas atrás</small>
+                            </li>
+                            <li class="list-group-item">
+                                <div>
+                                    <i class="fas fa-chart-line" style="color: #17a2b8; margin-right: 10px;"></i>
+                                    <strong>Relatório gerado:</strong> Relatório Mensal
+                                </div>
+                                <small class="text-muted">8 horas atrás</small>
+                            </li>
+                            <li class="list-group-item">
+                                <div>
+                                    <i class="fas fa-briefcase" style="color: #6f42c1; margin-right: 10px;"></i>
+                                    <strong>Nova vaga publicada:</strong> Desenvolvedor PHP
+                                </div>
+                                <small class="text-muted">10 horas atrás</small>
+                            </li>
+                            <li class="list-group-item">
+                                <div>
+                                    <i class="fas fa-video" style="color: #e83e8c; margin-right: 10px;"></i>
+                                    <strong>Webinar agendado:</strong> Introdução ao Networking
+                                </div>
+                                <small class="text-muted">12 horas atrás</small>
+                            </li>
+                        </ul>
+                        <div class="text-center mt-3">
+                            <a href="atividades.php" class="btn-sm">
+                                Ver todas as atividades
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <div style="flex: 1;">
+                <div class="section">
+                    <div class="section-header">
+                        <h2>Suas Informações</h2>
+                    </div>
+                    <div class="section-body">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <strong>Nome:</strong>
+                                <div class="text-muted"><?php echo htmlspecialchars($usuario['nome']); ?></div>
+                            </div>
+                            <div class="info-item">
+                                <strong>Email:</strong>
+                                <div class="text-muted"><?php echo htmlspecialchars($usuario['email']); ?></div>
+                            </div>
+                            <div class="info-item">
+                                <strong>Tipo:</strong>
+                                <div class="text-muted"><?php echo ucfirst($usuario['tipo']); ?></div>
+                            </div>
+                            <?php if ($usuario['tipo'] === 'funcionario'): ?>
+                            <div class="info-item">
+                                <strong>Nível de Acesso:</strong>
+                                <div class="text-muted">
+                                    <span class="nivel-badge nivel-<?php echo $usuario['nivel_acesso']; ?>">
+                                        <?php echo $usuario['nivel_nome']; ?>
+                                    </span>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            <div class="info-item">
+                                <strong>Último Login:</strong>
+                                <div class="text-muted">
+                                    <?php 
+                                    if (isset($usuario['ultimo_login']) && !empty($usuario['ultimo_login'])) {
+                                        echo date('d/m/Y H:i', strtotime($usuario['ultimo_login']));
+                                    } else {
+                                        echo 'Primeiro acesso';
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="perfil.php" class="btn-sm">
+                                Editar Perfil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <small>&copy; <?php echo date('Y'); ?> Sistema de Gestão. Todos os direitos reservados.</small>
+        </footer>
+    </div>
+
+    <script>
+        // Auto-atualizar a data/hora a cada minuto
+        setInterval(function() {
+            const agora = new Date();
+            const dataHora = agora.toLocaleDateString('pt-BR') + ' ' + 
+                           agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+            document.querySelector('.badge').textContent = dataHora;
+        }, 60000);
+
+        // Adicionar animação aos cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(function(card, index) {
+                card.style.animationDelay = (index * 0.1) + 's';
+                card.classList.add('animate-fadeInUp');
+            });
+        });
+    </script>
 </body>
 </html>

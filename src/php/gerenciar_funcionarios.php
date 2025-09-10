@@ -6,19 +6,19 @@ include('verificar_permissoes.php');
 include('../php/conexao.php');
 
 // Verificar se tem permissão para acessar esta página
-//if (!verificarLogin()) {
-//    header("Location: ../php/index.php");
-  //  exit();
-//}
+if (!verificarLogin()) {
+    header("Location: ../php/index.php");
+    exit();
+}
 
 // Verificar se pode gerenciar funcionários (apenas Admin ou para visualizar)
 $pode_editar = podeAcessar('gerenciar_usuarios');
 $pode_visualizar = podeAcessar('visualizar_funcionarios');
 
-//if (!$pode_visualizar) {
-  //  header("Location: acesso_negado.php");
-   // exit();
-//}
+if (!$pode_visualizar) {
+    header("Location: acesso_negado.php");
+    exit();
+}
 
 $pdo = conectar();
 $usuario = getUsuarioLogado();
