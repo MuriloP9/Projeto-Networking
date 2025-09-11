@@ -1,18 +1,8 @@
--- =====================================================
--- SCRIPT DE CRIAÇÃO DO BANCO DE DADOS PROLINK01
--- =====================================================
-
--- Criação do banco de dados
 CREATE DATABASE prolink01;
 GO
 
 USE prolink01;
 GO
-
--- =====================================================
--- CRIAÇÃO DAS TABELAS
--- =====================================================
-
 -- Tabela de Usuários
 CREATE TABLE Usuario (
     id_usuario INT IDENTITY(1,1) PRIMARY KEY,
@@ -29,12 +19,13 @@ CREATE TABLE Usuario (
     foto_perfil VARBINARY(MAX) NULL,
     token_rec_senha NVARCHAR(64) NULL,
     dt_expiracao_token DATETIME NULL,
-    timestamp_expiracao BIGINT NULL,
-    statusLGPD BIT NOT NULL DEFAULT 0,
-    IP_registro VARCHAR(45) NULL
+	timestamp_expiracao BIGINT NULL,
+	statusLGPD BIT NOT NULL DEFAULT 0,
+	IP_registro VARCHAR(45) NULL
 );
 GO
-
+select * from Usuario
+GO
 -- Tabela de Perfil 
 CREATE TABLE Perfil (
     id_perfil INT IDENTITY(1,1) PRIMARY KEY,
@@ -53,8 +44,7 @@ CREATE TABLE Perfil (
         ON UPDATE CASCADE
 );
 GO
-
--- Tabela de Funcionários
+-- Tabela de Funcionários (corrigida)
 CREATE TABLE Funcionario (
     id_funcionario INT IDENTITY(1,1) PRIMARY KEY,
     nome_completo NVARCHAR(255) NOT NULL,
@@ -68,15 +58,13 @@ CREATE TABLE Funcionario (
     FOREIGN KEY (criado_por) REFERENCES Funcionario(id_funcionario)
 );
 GO
-
 -- Tabela de Áreas de Atuação
 CREATE TABLE AreaAtuacao (
     id_area INT IDENTITY(1,1) PRIMARY KEY,
     nome_area NVARCHAR(100) NOT NULL
 );
 GO
-
--- Tabela de Vagas
+-- Tabela de Vagas (corrigida para referenciar id_funcionario corretamente)
 CREATE TABLE Vagas (
     id_vaga INT IDENTITY(1,1) PRIMARY KEY,
     id_funcionario INT NOT NULL,
@@ -98,7 +86,6 @@ CREATE TABLE Vagas (
     CONSTRAINT CHK_TipoEmprego CHECK (tipo_emprego IN ('full-time', 'part-time', 'internship'))
 );
 GO
-
 -- Tabela de Profissionais em Áreas
 CREATE TABLE ProfissionalArea (
     id_profissional_area INT IDENTITY(1,1) PRIMARY KEY,
@@ -110,13 +97,12 @@ CREATE TABLE ProfissionalArea (
         REFERENCES AreaAtuacao(id_area)
 );
 GO
-
--- Tabela de Candidaturas
+-- Tabela de Candidaturas (corrigida)
 CREATE TABLE Candidatura (
     id_candidatura INT IDENTITY(1,1) PRIMARY KEY,
     id_vaga INT NOT NULL,
     id_perfil INT NOT NULL,
-    ativo BIT DEFAULT 1,
+	ativo BIT DEFAULT 1,
     data_candidatura DATETIME DEFAULT GETDATE(),
     data_atualizacao_status DATETIME NULL,
     status NVARCHAR(20) DEFAULT 'Pendente',
@@ -128,7 +114,6 @@ CREATE TABLE Candidatura (
 );
 GO
 
--- Alteração da tabela Candidatura (adicionar coluna ativo caso não exista)
 ALTER TABLE Candidatura 
 ADD ativo BIT DEFAULT 1;
 
@@ -136,8 +121,49 @@ ADD ativo BIT DEFAULT 1;
 UPDATE Candidatura 
 SET ativo = 1 
 WHERE ativo IS NULL;
-GO
 
+select * from Candidatura
+
+
+
+ --trigger para atualização automática da data_atualizacao_status
+CREATE TRIGGER TR_Candidatura_StatusUpdate
+ON Candidatura
+AFTER UPDATE
+AS
+BEGIN
+    IF UPDATE(status)
+    BEGIN
+        UPDATE Candidatura 
+        SET data_atualizacao_status = GETDATE()
+        FROM Candidatura c
+        INNER JOIN inserted i ON c.id_candidatura = i.id_candidatura
+        WHERE c.status IN ('Aprovado', 'Reprovado');
+    END
+END;
+
+select * from Candidatura
+
+select * from Usuario
+
+select * from Perfil
+
+UPDATE Candidatura 
+SET status = 'Aprovado' 
+WHERE id_candidatura = 68; -- Substituir ? pelo ID da candidatura
+
+-- REPROVAR uma candidatura específica
+UPDATE Vagas 
+SET ativa = 1
+WHERE id_vaga = 9;
+
+select * from Vagas
+
+UPDATE Candidatura 
+SET ativo = 1
+WHERE id_candidatura = 54;
+
+GO
 -- Tabela de Mensagens
 CREATE TABLE Mensagem (
     id_mensagem INT IDENTITY(1,1) PRIMARY KEY,
@@ -153,35 +179,119 @@ CREATE TABLE Mensagem (
 );
 GO
 
--- Tabela de Webinar
 CREATE TABLE Webinar (
     id_webinar INT IDENTITY(1,1) PRIMARY KEY,
     tema NVARCHAR(255) NULL,
     data_hora DATETIME NULL,
     palestrante NVARCHAR(255) NULL,
     link NVARCHAR(500) NULL,
-    ativo BIT DEFAULT 1,
+	ativo BIT DEFAULT 1,
     descricao NVARCHAR(MAX) NULL,
     data_cadastro DATETIME DEFAULT GETDATE()
 );
+
+GO
+INSERT INTO Webinar (tema, data_hora, palestrante, link, descricao)
+VALUES
+('Introdução à Inteligência Artificial', '20240615 14:00:00', 'Dr. Carlos Silva', 'https://www.youtube.com/watch?v=8tPnX7OPo0Q', 'Webinar introdutório sobre os conceitos básicos de IA e machine learning para iniciantes.'),
+('Desenvolvimento Web Moderno com React', '20240620 19:30:00', 'Ana Beatriz Souza', 'https://www.youtube.com/watch?v=Ke90Tje7VS0', 'Aprenda os fundamentos do React e como criar aplicações web modernas.'),
+('Gestão Ágil de Projetos com Scrum', '20240625 10:00:00', 'Roberto Almeida', 'https://www.youtube.com/watch?v=9TycLR0TqFA', 'Domine as práticas essenciais do framework Scrum para gerenciamento de projetos.'),
+('Segurança da Informação para Empresas', '20240705 16:00:00', 'Dra. Fernanda Costa', 'https://www.youtube.com/watch?v=inWWhr5tnEA', 'Proteja seus dados corporativos contra ameaças cibernéticas.'),
+('Data Science na Prática', '20240712 15:00:00', 'Prof. Marcelo Santos', 'https://www.youtube.com/watch?v=ua-CiDNNj30', 'Aplicações reais de Data Science e análise de dados em diferentes setores.'),
+('Blockchain e Criptomoedas', '20240718 20:00:00', 'Lucas Oliveira', 'https://www.youtube.com/watch?v=1PU5AfTfN3Q', 'Entenda a tecnologia por trás do Bitcoin e outras criptomoedas.'),
+('UX/UI Design para Iniciantes', '20240725 11:00:00', 'Camila Rodrigues', 'https://www.youtube.com/watch?v=c9Wg6Cb_YlU', 'Princípios fundamentais de design de interface e experiência do usuário.'),
+('Cloud Computing com AWS', '20240803 14:30:00', 'Eng. Thiago Lima', 'https://www.youtube.com/watch?v=IT1X42D1KeA', 'Introdução aos serviços de nuvem da Amazon Web Services.'),
+('Marketing Digital para Pequenos Negócios', '20240810 09:00:00', 'Patrícia Mendes', 'https://www.youtube.com/watch?v=4qNBNg4gX3Y', 'Estratégias eficazes de marketing digital com orçamento limitado.'),
+('Programação em Python para Finanças', '20240817 18:00:00', 'Dr. Ricardo Fernandes', 'https://www.youtube.com/watch?v=GhrvZ6nUoG8', 'Aplicações de Python em análise financeira e algoritmos de trading.');
+
+GO
+INSERT INTO Usuario (nome, email, senha, dataNascimento, telefone, ativo)
+VALUES 
+('João Silva', 'joao.silva@email.com', 'senha123', '1990-05-15', '11987654321', 1),
+('Maria Oliveira', 'maria.oliveira@email.com', 'senha456', '1985-08-20', '21987654321', 1),
+('Carlos Souza', 'carlos.souza@email.com', 'senha789', '1995-03-10', '31987654321', 1),
+('Ana Pereira', 'ana.pereira@email.com', 'senhaabc', '1992-11-25', '41987654321', 1),
+('Pedro Costa', 'pedro.costa@email.com', 'senhaxyz', '1988-07-30', '51987654321', 1);
+GO
+INSERT INTO Perfil (id_usuario, idade, endereco, formacao, experiencia_profissional, interesses, habilidades)
+VALUES
+(1, 33, 'Rua A, 123 - São Paulo/SP', 'Engenharia de Software', '5 anos como desenvolvedor Java', 'Tecnologia, Esportes', 'Java, Spring, SQL'),
+(2, 38, 'Av. B, 456 - Rio de Janeiro/RJ', 'Administração de Empresas', '10 anos em RH', 'Recursos Humanos, Psicologia', 'Recrutamento, Treinamento'),
+(3, 28, 'Rua C, 789 - Belo Horizonte/MG', 'Ciência da Computação', '3 anos como desenvolvedor Front-end', 'Programação, Games', 'JavaScript, React, HTML/CSS'),
+(4, 31, 'Av. D, 101 - Curitiba/PR', 'Design Gráfico', '6 anos como designer', 'Arte, Fotografia', 'Photoshop, Illustrator, UI/UX'),
+(5, 35, 'Rua E, 202 - Porto Alegre/RS', 'Engenharia Civil', '8 anos em construção civil', 'Arquitetura, Sustentabilidade', 'AutoCAD, Gestão de Projetos');
+GO
+-- Inserções na tabela Funcionario (incluindo um admin master)
+-- Admin master (sem criado_por)
+INSERT INTO Funcionario (nome_completo, email, senha, nivel_acesso, ativo)
+VALUES ('Admin Master', 'admin@empresa.com', 'admin123', 0, 1);
+
+-- Outros funcionários (criados pelo admin master)
+INSERT INTO Funcionario (nome_completo, email, senha, nivel_acesso, criado_por, ativo)
+VALUES
+('Gerente RH', 'gerente.rh@empresa.com', 'gerente123', 1, 1, 1),
+('Supervisor TI', 'supervisor.ti@empresa.com', 'super123', 2, 1, 1),
+('Analista Recrutamento', 'recrutamento@empresa.com', 'rec123', 2, 2, 1);
+GO
+INSERT INTO AreaAtuacao (nome_area)
+VALUES
+('Tecnologia da Informação'),
+('Recursos Humanos'),
+('Engenharia'),
+('Design'),
+('Administração');
+GO
+INSERT INTO Vagas (id_funcionario, titulo_vaga, localizacao, tipo_emprego, descricao, id_area)
+VALUES
+(2, 'Desenvolvedor Back-end Java', 'São Paulo/SP', 'full-time', 'Vaga para desenvolvedor Java com experiência em Spring Boot', 1),
+(3, 'Analista de RH', 'Rio de Janeiro/RJ', 'full-time', 'Vaga para analista de RH com experiência em recrutamento', 2),
+(2, 'Designer UI/UX', 'Remoto', 'part-time', 'Vaga para designer com experiência em interfaces', 4),
+(4, 'Engenheiro Civil', 'Belo Horizonte/MG', 'full-time', 'Vaga para engenheiro civil com experiência em obras', 3);
+GO
+INSERT INTO Vagas (id_funcionario, titulo_vaga, localizacao, tipo_emprego, descricao, id_area, id_usuario, empresa, salario, requisitos, beneficios)
+VALUES
+(2, 'Desenvolvedor Back-end Java', 'São Paulo/SP', 'full-time', 'Vaga para desenvolvedor Java com experiência em Spring Boot', 1, 1, 'TechCorp Soluções', 8500.00, 'Graduação em Ciência da Computação ou áreas afins; Experiência mínima de 3 anos com Java; Conhecimento em Spring Boot, JPA/Hibernate; Experiência com banco de dados relacionais (MySQL, PostgreSQL)', 'Vale alimentação; Vale transporte; Plano de saúde; Plano odontológico; Auxílio home office'),
+
+(3, 'Analista de RH', 'Rio de Janeiro/RJ', 'full-time', 'Vaga para analista de RH com experiência em recrutamento', 2, 2, 'Recursos Humanos Plus', 5500.00, 'Graduação em Psicologia, Administração ou Recursos Humanos; Experiência mínima de 2 anos em recrutamento e seleção; Conhecimento em técnicas de entrevista; Domínio do pacote Office', 'Vale alimentação; Vale transporte; Plano de saúde; Participação nos lucros; Flexibilidade de horário'),
+
+(2, 'Designer UI/UX', 'Remoto', 'part-time', 'Vaga para designer com experiência em interfaces', 4, 3, 'Creative Design Studio', 3200.00, 'Graduação em Design, Design Gráfico ou áreas correlatas; Portfolio demonstrando experiência em UI/UX; Domínio de ferramentas como Figma, Adobe XD, Sketch; Conhecimento em prototipagem', 'Horário flexível; Trabalho 100% remoto; Cursos e certificações pagas pela empresa; Equipment allowance'),
+
+(4, 'Engenheiro Civil', 'Belo Horizonte/MG', 'full-time', 'Vaga para engenheiro civil com experiência em obras', 3, 1, 'Construtora MG Ltda', 7800.00, 'Graduação em Engenharia Civil; CREA ativo; Experiência mínima de 4 anos em gerenciamento de obras; Conhecimento em AutoCAD e MS Project; Disponibilidade para viagens', 'Vale alimentação; Vale combustível; Plano de saúde; Plano odontológico; Carro da empresa; Participação nos lucros');
+GO
+INSERT INTO ProfissionalArea (id_usuario, id_area)
+VALUES
+(1, 1), -- João Silva em TI
+(2, 2), -- Maria Oliveira em RH
+(3, 1), -- Carlos Souza em TI
+(4, 4), -- Ana Pereira em Design
+(5, 3); -- Pedro Costa em Engenharia
+GO
+INSERT INTO Candidatura (id_vaga, id_perfil, status)
+VALUES
+(1, 1, 'Pendente'), -- João se candidatou a vaga de Dev Java
+(1, 3, 'Aprovada'), -- Carlos se candidatou a vaga de Dev Java
+(2, 2, 'Recusada'), -- Maria se candidatou a vaga de RH
+(3, 4, 'Pendente'); -- Ana se candidatou a vaga de Designer
+GO
+INSERT INTO Mensagem (id_usuario_remetente, id_usuario_destinatario, texto)
+VALUES
+(1, 3, 'Olá Carlos, vi seu perfil e gostaria de conversar sobre oportunidades'),
+(3, 1, 'Oi João, claro! Podemos marcar uma conversa'),
+(2, 4, 'Ana, você tem interesse em participar de um projeto?'),
+(4, 2, 'Sim Maria, me conte mais sobre esse projeto');
 GO
 
--- Tabela de Inscrições em Webinars
-CREATE TABLE inscricoes_webinar(
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    nome_completo VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    telefone VARCHAR(20),
-    recebe_notificacoes BIT DEFAULT 0,
-    consentimento_lgpd BIT NOT NULL,
-    id_usuario INT,
-    data_inscricao DATETIME DEFAULT GETDATE(),
-    CONSTRAINT FK_Inscricoes_Usuario FOREIGN KEY (id_usuario) 
-        REFERENCES Usuario(id_usuario)
-);
-GO
+select * from Perfil
 
--- Tabela de Contatos
+select * from Vagas
+
+select * from Candidatura
+
+select * from Usuario
+
+select * from Funcionario
+
+GO
 CREATE TABLE Contatos (
     id_contatos INT IDENTITY(1,1) PRIMARY KEY,
     id_usuario INT NOT NULL,
@@ -194,52 +304,30 @@ CREATE TABLE Contatos (
     CONSTRAINT UC_Contato UNIQUE (id_usuario, id_contato)
 );
 GO
-
--- Tabela de Histórico de Acessos
 CREATE TABLE HistoricoAcessos (
     id_historico INT IDENTITY(1,1) PRIMARY KEY,
-    id_funcionario INT NOT NULL,
+    id_funcionario INT NULL,
+    id_usuario INT NULL,
     email NVARCHAR(100) NOT NULL,
     data_login DATETIME NOT NULL DEFAULT GETDATE(),
     data_logout DATETIME NULL,
-    FOREIGN KEY (id_funcionario) REFERENCES Funcionario(id_funcionario)
+    tipo_acesso CHAR(1) NULL CHECK (tipo_acesso IN ('F', 'U')),
+    FOREIGN KEY (id_funcionario) REFERENCES Funcionario(id_funcionario),
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
+    CONSTRAINT CK_ApenasUmId CHECK (
+        (id_funcionario IS NOT NULL AND id_usuario IS NULL) OR
+        (id_usuario IS NOT NULL AND id_funcionario IS NULL)
+    )
 );
 GO
-
--- =====================================================
--- TRIGGERS
--- =====================================================
-
--- Trigger para atualização automática da data_atualizacao_status
-CREATE TRIGGER TR_Candidatura_StatusUpdate
-ON Candidatura
-AFTER UPDATE
-AS
-BEGIN
-    IF UPDATE(status)
-    BEGIN
-        UPDATE Candidatura 
-        SET data_atualizacao_status = GETDATE()
-        FROM Candidatura c
-        INNER JOIN inserted i ON c.id_candidatura = i.id_candidatura
-        WHERE c.status IN ('Aprovado', 'Reprovado');
-    END
-END;
-GO
-
--- =====================================================
--- CONFIGURAÇÃO DE CRIPTOGRAFIA
--- =====================================================
-
--- Criar Master Key
+--Criptografar senha 
 IF NOT EXISTS (SELECT * FROM sys.symmetric_keys WHERE name = '##MS_DatabaseMasterKey##')
 BEGIN
     CREATE MASTER KEY 
     ENCRYPTION BY PASSWORD = 'PASSWORD@123ProLink2024!'
 END
 GO
-
--- Criar Certificado
+-- Verificar se certificado já existe
 IF NOT EXISTS (SELECT * FROM sys.certificates WHERE name = 'CertificadoSenhaUsuario')
 BEGIN
     CREATE CERTIFICATE CertificadoSenhaUsuario
@@ -247,8 +335,7 @@ BEGIN
     WITH SUBJECT = 'Certificado para Criptografia de Senhas'
 END
 GO
-
--- Criar Chave Simétrica
+-- Verificar se chave simétrica já existe
 IF NOT EXISTS (SELECT * FROM sys.symmetric_keys WHERE name = 'ChaveSenhaUsuario')
 BEGIN
     CREATE SYMMETRIC KEY ChaveSenhaUsuario
@@ -256,16 +343,10 @@ BEGIN
     ENCRYPTION BY CERTIFICATE CertificadoSenhaUsuario
 END
 GO
-
--- =====================================================
--- STORED PROCEDURES
--- =====================================================
-
--- Procedure para criptografar senha
+-- para criptografar senha
 IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'sp_CriptografarSenha')
     DROP PROCEDURE sp_CriptografarSenha
 GO
-
 CREATE PROCEDURE sp_CriptografarSenha
     @SenhaTexto NVARCHAR(255),
     @SenhaCriptografada VARBINARY(MAX) OUTPUT
@@ -298,7 +379,7 @@ BEGIN
 END
 GO
 
--- Procedure para descriptografar senha (apenas para validação)
+-- para descriptografar senha (apenas para validação)
 IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'sp_DescriptografarSenha')
     DROP PROCEDURE sp_DescriptografarSenha
 GO
@@ -334,12 +415,14 @@ BEGIN
 END
 GO
 
--- Procedure de login WEB
-IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'sp_ValidarLogin')
-    DROP PROCEDURE sp_ValidarLogin
+
+
+-- procedure de login Web e mobile
+IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'sp_ValidarLogin2')
+    DROP PROCEDURE sp_ValidarLogin2
 GO
 
-CREATE PROCEDURE sp_ValidarLogin
+CREATE PROCEDURE sp_ValidarLogin2
     @Email NVARCHAR(255),
     @Senha NVARCHAR(255)
 AS
@@ -394,7 +477,7 @@ BEGIN
             IF EXISTS (SELECT 1 FROM Usuario WHERE email = @Email AND ativo = 0)
             BEGIN
                 INSERT INTO @Resultado (sucesso, mensagem, id_usuario, nome, id_perfil)
-                VALUES (0, 'Usuário inativo. Entre em contato com o administrador.', NULL, NULL, NULL);
+                VALUES (0, 'Email ou senha incorretos.', NULL, NULL, NULL);
             END
             ELSE IF EXISTS (SELECT 1 FROM Usuario WHERE email = @Email AND ativo = 1)
             BEGIN
@@ -430,164 +513,161 @@ BEGIN
 END;
 GO
 
--- =====================================================
--- INSERÇÃO DE DADOS DE TESTE
--- =====================================================
 
--- Inserção de Webinars
-INSERT INTO Webinar (tema, data_hora, palestrante, link, descricao)
-VALUES
-('Introdução à Inteligência Artificial', '20240615 14:00:00', 'Dr. Carlos Silva', 'https://www.youtube.com/watch?v=8tPnX7OPo0Q', 'Webinar introdutório sobre os conceitos básicos de IA e machine learning para iniciantes.'),
-('Desenvolvimento Web Moderno com React', '20240620 19:30:00', 'Ana Beatriz Souza', 'https://www.youtube.com/watch?v=Ke90Tje7VS0', 'Aprenda os fundamentos do React e como criar aplicações web modernas.'),
-('Gestão Ágil de Projetos com Scrum', '20240625 10:00:00', 'Roberto Almeida', 'https://www.youtube.com/watch?v=9TycLR0TqFA', 'Domine as práticas essenciais do framework Scrum para gerenciamento de projetos.'),
-('Segurança da Informação para Empresas', '20240705 16:00:00', 'Dra. Fernanda Costa', 'https://www.youtube.com/watch?v=inWWhr5tnEA', 'Proteja seus dados corporativos contra ameaças cibernéticas.'),
-('Data Science na Prática', '20240712 15:00:00', 'Prof. Marcelo Santos', 'https://www.youtube.com/watch?v=ua-CiDNNj30', 'Aplicações reais de Data Science e análise de dados em diferentes setores.'),
-('Blockchain e Criptomoedas', '20240718 20:00:00', 'Lucas Oliveira', 'https://www.youtube.com/watch?v=1PU5AfTfN3Q', 'Entenda a tecnologia por trás do Bitcoin e outras criptomoedas.'),
-('UX/UI Design para Iniciantes', '20240725 11:00:00', 'Camila Rodrigues', 'https://www.youtube.com/watch?v=c9Wg6Cb_YlU', 'Princípios fundamentais de design de interface e experiência do usuário.'),
-('Cloud Computing com AWS', '20240803 14:30:00', 'Eng. Thiago Lima', 'https://www.youtube.com/watch?v=IT1X42D1KeA', 'Introdução aos serviços de nuvem da Amazon Web Services.'),
-('Marketing Digital para Pequenos Negócios', '20240810 09:00:00', 'Patrícia Mendes', 'https://www.youtube.com/watch?v=4qNBNg4gX3Y', 'Estratégias eficazes de marketing digital com orçamento limitado.'),
-('Programação em Python para Finanças', '20240817 18:00:00', 'Dr. Ricardo Fernandes', 'https://www.youtube.com/watch?v=GhrvZ6nUoG8', 'Aplicações de Python em análise financeira e algoritmos de trading.');
-GO
-
--- Inserção de Usuários
-INSERT INTO Usuario (nome, email, senha, dataNascimento, telefone, ativo)
-VALUES 
-('João Silva', 'joao.silva@email.com', 'senha123', '1990-05-15', '11987654321', 1),
-('Maria Oliveira', 'maria.oliveira@email.com', 'senha456', '1985-08-20', '21987654321', 1),
-('Carlos Souza', 'carlos.souza@email.com', 'senha789', '1995-03-10', '31987654321', 1),
-('Ana Pereira', 'ana.pereira@email.com', 'senhaabc', '1992-11-25', '41987654321', 1),
-('Pedro Costa', 'pedro.costa@email.com', 'senhaxyz', '1988-07-30', '51987654321', 1);
-GO
-
--- Inserção de Perfis
-INSERT INTO Perfil (id_usuario, idade, endereco, formacao, experiencia_profissional, interesses, habilidades)
-VALUES
-(1, 33, 'Rua A, 123 - São Paulo/SP', 'Engenharia de Software', '5 anos como desenvolvedor Java', 'Tecnologia, Esportes', 'Java, Spring, SQL'),
-(2, 38, 'Av. B, 456 - Rio de Janeiro/RJ', 'Administração de Empresas', '10 anos em RH', 'Recursos Humanos, Psicologia', 'Recrutamento, Treinamento'),
-(3, 28, 'Rua C, 789 - Belo Horizonte/MG', 'Ciência da Computação', '3 anos como desenvolvedor Front-end', 'Programação, Games', 'JavaScript, React, HTML/CSS'),
-(4, 31, 'Av. D, 101 - Curitiba/PR', 'Design Gráfico', '6 anos como designer', 'Arte, Fotografia', 'Photoshop, Illustrator, UI/UX'),
-(5, 35, 'Rua E, 202 - Porto Alegre/RS', 'Engenharia Civil', '8 anos em construção civil', 'Arquitetura, Sustentabilidade', 'AutoCAD, Gestão de Projetos');
-GO
-
--- Inserção de Funcionários
--- Admin master (sem criado_por)
-INSERT INTO Funcionario (nome_completo, email, senha, nivel_acesso, ativo)
-VALUES ('Admin Master', 'admin@empresa.com', 'admin123', 0, 1);
-
--- Outros funcionários (criados pelo admin master)
-INSERT INTO Funcionario (nome_completo, email, senha, nivel_acesso, criado_por, ativo)
-VALUES
-('Gerente RH', 'gerente.rh@empresa.com', 'gerente123', 1, 1, 1),
-('Supervisor TI', 'supervisor.ti@empresa.com', 'super123', 2, 1, 1),
-('Analista Recrutamento', 'recrutamento@empresa.com', 'rec123', 2, 2, 1);
-GO
-
--- Inserção de Áreas de Atuação
-INSERT INTO AreaAtuacao (nome_area)
-VALUES
-('Tecnologia da Informação'),
-('Recursos Humanos'),
-('Engenharia'),
-('Design'),
-('Administração');
-GO
-
--- Inserção de Vagas (primeira parte)
-INSERT INTO Vagas (id_funcionario, titulo_vaga, localizacao, tipo_emprego, descricao, id_area)
-VALUES
-(2, 'Desenvolvedor Back-end Java', 'São Paulo/SP', 'full-time', 'Vaga para desenvolvedor Java com experiência em Spring Boot', 1),
-(3, 'Analista de RH', 'Rio de Janeiro/RJ', 'full-time', 'Vaga para analista de RH com experiência em recrutamento', 2),
-(2, 'Designer UI/UX', 'Remoto', 'part-time', 'Vaga para designer com experiência em interfaces', 4),
-(4, 'Engenheiro Civil', 'Belo Horizonte/MG', 'full-time', 'Vaga para engenheiro civil com experiência em obras', 3);
-GO
-
--- Inserção de Vagas (segunda parte - com mais detalhes)
-INSERT INTO Vagas (id_funcionario, titulo_vaga, localizacao, tipo_emprego, descricao, id_area, id_usuario, empresa, salario, requisitos, beneficios)
-VALUES
-(2, 'Desenvolvedor Back-end Java', 'São Paulo/SP', 'full-time', 'Vaga para desenvolvedor Java com experiência em Spring Boot', 1, 1, 'TechCorp Soluções', 8500.00, 'Graduação em Ciência da Computação ou áreas afins; Experiência mínima de 3 anos com Java; Conhecimento em Spring Boot, JPA/Hibernate; Experiência com banco de dados relacionais (MySQL, PostgreSQL)', 'Vale alimentação; Vale transporte; Plano de saúde; Plano odontológico; Auxílio home office'),
-
-(3, 'Analista de RH', 'Rio de Janeiro/RJ', 'full-time', 'Vaga para analista de RH com experiência em recrutamento', 2, 2, 'Recursos Humanos Plus', 5500.00, 'Graduação em Psicologia, Administração ou Recursos Humanos; Experiência mínima de 2 anos em recrutamento e seleção; Conhecimento em técnicas de entrevista; Domínio do pacote Office', 'Vale alimentação; Vale transporte; Plano de saúde; Participação nos lucros; Flexibilidade de horário'),
-
-(2, 'Designer UI/UX', 'Remoto', 'part-time', 'Vaga para designer com experiência em interfaces', 4, 3, 'Creative Design Studio', 3200.00, 'Graduação em Design, Design Gráfico ou áreas correlatas; Portfolio demonstrando experiência em UI/UX; Domínio de ferramentas como Figma, Adobe XD, Sketch; Conhecimento em prototipagem', 'Horário flexível; Trabalho 100% remoto; Cursos e certificações pagas pela empresa; Equipment allowance'),
-
-(4, 'Engenheiro Civil', 'Belo Horizonte/MG', 'full-time', 'Vaga para engenheiro civil com experiência em obras', 3, 1, 'Construtora MG Ltda', 7800.00, 'Graduação em Engenharia Civil; CREA ativo; Experiência mínima de 4 anos em gerenciamento de obras; Conhecimento em AutoCAD e MS Project; Disponibilidade para viagens', 'Vale alimentação; Vale combustível; Plano de saúde; Plano odontológico; Carro da empresa; Participação nos lucros');
-GO
-
--- Inserção de Profissionais em Áreas
-INSERT INTO ProfissionalArea (id_usuario, id_area)
-VALUES
-(1, 1), -- João Silva em TI
-(2, 2), -- Maria Oliveira em RH
-(3, 1), -- Carlos Souza em TI
-(4, 4), -- Ana Pereira em Design
-(5, 3); -- Pedro Costa em Engenharia
-GO
-
--- Inserção de Candidaturas
-INSERT INTO Candidatura (id_vaga, id_perfil, status)
-VALUES
-(1, 1, 'Pendente'), -- João se candidatou a vaga de Dev Java
-(1, 3, 'Aprovada'), -- Carlos se candidatou a vaga de Dev Java
-(2, 2, 'Recusada'), -- Maria se candidatou a vaga de RH
-(3, 4, 'Pendente'); -- Ana se candidatou a vaga de Designer
-GO
-
--- Inserção de Mensagens
-INSERT INTO Mensagem (id_usuario_remetente, id_usuario_destinatario, texto)
-VALUES
-(1, 3, 'Olá Carlos, vi seu perfil e gostaria de conversar sobre oportunidades'),
-(3, 1, 'Oi João, claro! Podemos marcar uma conversa'),
-(2, 4, 'Ana, você tem interesse em participar de um projeto?'),
-(4, 2, 'Sim Maria, me conte mais sobre esse projeto');
-GO
-
--- Inserção de Inscrições em Webinar
-INSERT INTO inscricoes_webinar (nome_completo, email, telefone, recebe_notificacoes, consentimento_lgpd, id_usuario)
-VALUES
-('João Silva', 'joao.silva@email.com', '11987654321', 1, 1, 1),
-('Carlos Souza', 'carlos.souza@email.com', '31987654321', 0, 1, 3),
-('Ana Pereira', 'ana.pereira@email.com', '41987654321', 1, 1, 4);
-GO
-
--- =====================================================
--- COMANDOS DE CONSULTA E ATUALIZAÇÃO
--- =====================================================
-
--- Consultas para verificação
-select * from Usuario
-GO
-
-select * from Perfil
-GO
-
-select * from Vagas
-GO
-
-select * from Funcionario
-GO
-
-select * from Candidatura
-GO
 
 select * from Contatos
-GO
+
+select * from Candidatura
+
+select * from Funcionario
 
 select * from Mensagem
-GO
+
+select * from Vagas
+
+Select * from Usuario
+
+Select * from Perfil 
 
 Select * from Webinar
-GO
 
--- Comandos de atualização específicos
-UPDATE Candidatura 
-SET status = 'Reprovado' 
-WHERE id_candidatura = 53; -- Substituir ? pelo ID da candidatura
-
--- REPROVAR uma candidatura específica
-UPDATE Vagas 
+UPDATE Vagas
 SET ativa = 1
-WHERE id_vaga = 8;
+WHERE id_vaga = 1;
+
+
+
+
+
+
+
 
 UPDATE Webinar 
-SET ativo = 1
-WHERE id_webinar = 10;
+SET data_hora = CONVERT(DATETIME, '20250715 14:00:00', 112)
+WHERE tema = 'Introdução à Inteligência Artificial';
+
+-- Atualizar webinar de React
+UPDATE Webinar 
+SET data_hora = CONVERT(DATETIME, '20250722 19:30:00', 112)
+WHERE tema = 'Desenvolvimento Web Moderno com React';
+
+-- Atualizar webinar de Scrum
+UPDATE Webinar 
+SET data_hora = CONVERT(DATETIME, '20250729 10:00:00', 112)
+WHERE tema = 'Gestão Ágil de Projetos com Scrum';
+
+-- Atualizar webinar de Segurança
+UPDATE Webinar 
+SET data_hora = CONVERT(DATETIME, '20250805 16:00:00', 112)
+WHERE tema = 'Segurança da Informação para Empresas';
+
+-- Atualizar webinar de Data Science
+UPDATE Webinar 
+SET data_hora = CONVERT(DATETIME, '20250812 15:00:00', 112)
+WHERE tema = 'Data Science na Prática';
+
+-- Atualizar webinar de Blockchain
+UPDATE Webinar 
+SET data_hora = CONVERT(DATETIME, '20250819 20:00:00', 112)
+WHERE tema = 'Blockchain e Criptomoedas';
+
+-- Atualizar webinar de UX/UI
+UPDATE Webinar 
+SET data_hora = CONVERT(DATETIME, '20250826 11:00:00', 112)
+WHERE tema = 'UX/UI Design para Iniciantes';
+
+-- Atualizar webinar de AWS
+UPDATE Webinar 
+SET data_hora = CONVERT(DATETIME, '20250902 14:30:00', 112)
+WHERE tema = 'Cloud Computing with AWS';
+
+-- Atualizar webinar de Marketing Digital
+UPDATE Webinar 
+SET data_hora = CONVERT(DATETIME, '20250909 09:00:00', 112)
+WHERE tema = 'Marketing Digital para Pequenos Negócios';
+
+-- Atualizar webinar de Python
+UPDATE Webinar 
+SET data_hora = CONVERT(DATETIME, '20250916 18:00:00', 112)
+WHERE tema = 'Programação em Python para Finanças';
+
+-- Verificar as atualizações realizadas
+SELECT tema, data_hora, palestrante 
+FROM Webinar 
+ORDER BY data_hora;
+
+
+select * from Funcionario
+
+
+-- Primeiro verifica se a procedure existe para fazer DROP
+IF OBJECT_ID('sp_ValidarLoginFuncionario', 'P') IS NOT NULL
+    DROP PROCEDURE sp_ValidarLoginFuncionario;
+GO
+
+-- Agora cria a procedure
+CREATE PROCEDURE sp_ValidarLoginFuncionario
+    @email NVARCHAR(100),
+    @senha NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @sucesso BIT = 0;
+    DECLARE @mensagem NVARCHAR(500);
+    DECLARE @nome NVARCHAR(255) = '';
+    DECLARE @id_funcionario INT = NULL;
+    DECLARE @nivel_acesso INT = NULL;
+    
+    BEGIN TRY
+        -- Verifica se é funcionário
+        IF EXISTS (SELECT 1 FROM Funcionario WHERE email = @email AND ativo = 1)
+        BEGIN
+            DECLARE @senha_hash NVARCHAR(255);
+            
+            SELECT 
+                @id_funcionario = id_funcionario,
+                @nome = nome_completo,
+                @senha_hash = senha,
+                @nivel_acesso = nivel_acesso
+            FROM Funcionario 
+            WHERE email = @email AND ativo = 1;
+            
+            -- Verificação simples de senha (adapte conforme seu hash)
+            IF @senha_hash = @senha
+            BEGIN
+                -- Atualizar último acesso
+                UPDATE Funcionario 
+                SET ultimo_acesso = GETDATE() 
+                WHERE id_funcionario = @id_funcionario;
+                
+                SET @sucesso = 1;
+                SET @mensagem = 'Login de funcionário realizado com sucesso!';
+            END
+            ELSE
+            BEGIN
+                SET @sucesso = 0;
+                SET @mensagem = 'Email ou senha incorretos para funcionário.';
+            END
+        END
+        ELSE
+        BEGIN
+            SET @sucesso = 0;
+            SET @mensagem = 'Funcionário não encontrado ou inativo.';
+        END
+        
+    END TRY
+    BEGIN CATCH
+        SET @sucesso = 0;
+        SET @mensagem = 'Erro interno: ' + ERROR_MESSAGE();
+    END CATCH
+    
+    -- Retorna os resultados
+    SELECT 
+        @sucesso AS sucesso,
+        @mensagem AS mensagem,
+        @nome AS nome,
+        @id_funcionario AS id_funcionario,
+        @nivel_acesso AS nivel_acesso,
+        'funcionario' AS tipo_usuario;
+END;

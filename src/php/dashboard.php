@@ -47,7 +47,7 @@ $menu_permitido = array(
     ),
     array(
         'nome' => 'Funcionários',
-        'url' => 'funcionarios.php',
+        'url' => 'gerenciar_funcionarios.php',
         'icone' => 'fa-user-tie'
     ),
     array(
