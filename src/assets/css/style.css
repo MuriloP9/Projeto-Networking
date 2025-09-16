@@ -40,7 +40,7 @@ html {
     scroll-padding-top: 80px;
 }
 
-/* Navbar moderna com glassmorphism */
+/* Navbar moderna com glassmorphism - MELHORADA */
 .navbar {
     position: fixed;
     z-index: 1000;
@@ -51,10 +51,10 @@ html {
     justify-content: space-between;
     align-items: center;
     padding: 15px 50px;
-    background: rgba(5, 10, 55, 0.95);
+    background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(100, 181, 246, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .navbar::before {
@@ -65,9 +65,9 @@ html {
     right: 0;
     bottom: 0;
     background: linear-gradient(90deg, 
-        rgba(59, 110, 187, 0.1) 0%, 
-        rgba(14, 23, 104, 0.1) 50%, 
-        rgba(59, 110, 187, 0.1) 100%);
+        rgba(100, 181, 246, 0.05) 0%, 
+        rgba(59, 110, 187, 0.08) 50%, 
+        rgba(100, 181, 246, 0.05) 100%);
     z-index: -1;
 }
 
@@ -82,7 +82,7 @@ html {
     width: 45px;
     height: 45px;
     margin-right: 12px;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(0 4px 8px rgba(100, 181, 246, 0.4));
     animation: pulse 3s ease-in-out infinite;
 }
 
@@ -92,13 +92,13 @@ html {
 }
 
 .logo {
-    font-size: 26px;
+    font-size: 35px;
     font-weight: 700;
-    background: linear-gradient(45deg, #3b6ebb, #64b5f6);
+    background: linear-gradient(45deg, #64b5f6, #ffffff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 2px 4px rgba(100, 181, 246, 0.3);
 }
 
 .menu {
@@ -114,7 +114,7 @@ html {
     color: #0a0a0a;
     text-decoration: none;
     padding: 12px 20px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
     border-radius: 25px;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: block;
@@ -122,7 +122,8 @@ html {
     font-weight: 600;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(100, 181, 246, 0.2);
+    border: 1px solid rgba(100, 181, 246, 0.1);
 }
 
 .menu li a::before {
@@ -132,7 +133,7 @@ html {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(59, 110, 187, 0.3), transparent);
+    background: linear-gradient(90deg, transparent, rgba(100, 181, 246, 0.3), transparent);
     transition: left 0.5s ease;
 }
 
@@ -140,10 +141,15 @@ html {
     left: 100%;
 }
 
+.menu li a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(100, 181, 246, 0.4);
+    background: linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%);
+}
+
 .menu li {
     margin: 0 3px;
 }
-
 
 .menu .profile-item a {
     background: transparent !important;
@@ -151,11 +157,13 @@ html {
     border-radius: 0 !important;
     box-shadow: none !important;
     transform: none !important;
+    border: none !important;
 }
 
 .menu .profile-item a:hover {
     background: transparent !important;
     transform: none !important;
+    box-shadow: none !important;
 }
 
 /* Remove o efeito de hover do pseudo-elemento */
@@ -168,14 +176,16 @@ html {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: box-shadow 0.3s ease;
+    box-shadow: 0 2px 8px rgba(100, 181, 246, 0.3);
+    transition: all 0.3s ease;
     display: block;
+    border: 2px solid rgba(100, 181, 246, 0.5);
 }
 
 .profile-icon:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 15px rgba(100, 181, 246, 0.5);
     transform: scale(1.05);
+    border-color: rgba(100, 181, 246, 0.8);
 }
 
 /* Barra de pesquisa moderna */
@@ -259,227 +269,198 @@ html {
     box-shadow: 0 8px 25px rgba(59, 110, 187, 0.4);
 }
 
-/* Carousel aprimorado */
-  .carousel {
-            display: flex;
-            background: linear-gradient(135deg, #0e1768 0%, #1a2980 50%, #050a37 100%);
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            margin: 30px 0;
-            padding: 40px 20px; /* Aumentei o padding para dar mais espaço */
-            overflow: hidden;
-            min-height: 450px; /* Altura mínima maior */
-        }
+/* Carousel aprimorado - MELHORADO */
+.carousel {
+    display: flex;
+    background: linear-gradient(135deg, #0e1768 0%, #1a2980 50%, #050a37 100%);
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin: 30px 0;
+    padding: 40px 20px;
+    overflow: hidden;
+    min-height: 450px;
+}
 
-        .carousel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 50px,
-                rgba(59, 110, 187, 0.05) 50px,
-                rgba(59, 110, 187, 0.05) 100px
-            );
-            animation: slide 15s linear infinite;
-        }
+.carousel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 50px,
+        rgba(59, 110, 187, 0.05) 50px,
+        rgba(59, 110, 187, 0.05) 100px
+    );
+    animation: slide 15s linear infinite;
+}
 
-        @keyframes slide {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(100px); }
-        }
+@keyframes slide {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(100px); }
+}
 
-        .carousel-container {
-            position: relative;
-            width: 100%;
-            max-width: 1000px;
-            height: 350px;
-            overflow: hidden;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-        }
+.carousel-container {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    height: 350px;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
 
-        .carousel-item {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: scale(1.1);
-        }
+.carousel-item {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(1.1);
+}
 
-        .carousel-item.active {
-            opacity: 1;
-            transform: scale(1);
-        }
+.carousel-item.active {
+    opacity: 1;
+    transform: scale(1);
+}
 
-        .carousel-item:first-child {
-            opacity: 1;
-            transform: scale(1);
-        }
+.carousel-item:first-child {
+    opacity: 1;
+    transform: scale(1);
+}
 
-        .carousel-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 20px;
-            filter: brightness(0.8) contrast(1.1);
-            transition: all 0.5s ease;
-        }
+.carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+    filter: brightness(0.9) contrast(1.1);
+    transition: all 0.5s ease;
+}
 
-        .carousel-item:hover img {
-            filter: brightness(0.9) contrast(1.2);
-            transform: scale(1.05);
-        }
+.carousel-item:hover img {
+    filter: brightness(1) contrast(1.2);
+    transform: scale(1.05);
+}
 
-        /* Layout padronizado para as caixas de texto */
-        .carousel-text {
-            position: absolute;
-            bottom: 40px; /* Distância uniforme do fundo */
-            left: 50%; /* Centralização horizontal */
-            transform: translateX(-50%); /* Centralização perfeita */
-            color: white;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-            width: calc(100% - 80px); /* Largura responsiva com margens */
-            max-width: 600px; /* Largura máxima para não ficar muito largo */
-            background: rgba(0, 0, 0, 0.4); /* Fundo mais escuro para melhor contraste */
-            backdrop-filter: blur(15px);
-            padding: 25px 30px;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            text-align: center; /* Centralização do texto */
-        }
+/* Layout padronizado para as caixas de texto - MELHORADO */
+.carousel-text {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffffff; /* Cor branca sólida */
+    text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.9), 
+                 1px 1px 6px rgba(0, 0, 0, 0.8); /* Sombra mais forte */
+    width: calc(100% - 80px);
+    max-width: 600px;
+    padding: 25px 30px;
+    border-radius: 15px;
+    text-align: center;
+}
 
-        .carousel-text h2 {
-            font-size: clamp(22px, 4vw, 38px);
-            margin-bottom: 12px;
-            font-weight: 700;
-            background: linear-gradient(45deg, #ffffff, #64b5f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.2;
-        }
+.carousel-text h2 {
+    font-size: clamp(22px, 4vw, 38px);
+    margin-bottom: 12px;
+    font-weight: 700;
+    color: #ffffff; /* Branco sólido sem gradient */
+    text-shadow: 3px 3px 15px rgba(0, 0, 0, 0.9),
+                 2px 2px 8px rgba(0, 0, 0, 0.7);
+    line-height: 1.2;
+}
 
-        .carousel-text p {
-            font-size: clamp(15px, 2vw, 19px);
-            line-height: 1.6;
-            opacity: 0.95;
-            margin: 0;
-        }
+.carousel-text p {
+    font-size: clamp(15px, 2vw, 19px);
+    line-height: 1.6;
+    color: #ffffff; /* Branco sólido */
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8),
+                 1px 1px 5px rgba(0, 0, 0, 0.6);
+    margin: 0;
+}
 
-        /* Navegação do carousel */
-        .carousel-nav {
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            z-index: 10;
-        }
+/* Navegação do carousel */
+.carousel-nav {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
 
-        .carousel-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid rgba(255, 255, 255, 0.6);
-        }
 
-        .carousel-dot.active {
-            background: rgba(255, 255, 255, 0.9);
-            transform: scale(1.2);
-        }
 
-        /* Setas de navegação */
-        .carousel-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            z-index: 10;
-        }
+.carousel-dot.active {
+    background: rgba(255, 255, 255, 0.9);
+    transform: scale(1.2);
+}
 
-        .carousel-arrow:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-50%) scale(1.1);
-        }
 
-        .carousel-arrow.prev {
-            left: 20px;
-        }
 
-        .carousel-arrow.next {
-            right: 20px;
-        }
+.carousel-arrow.prev {
+    left: 20px;
+}
 
-        /* Responsividade melhorada */
-        @media (max-width: 768px) {
-            .carousel {
-                padding: 20px 10px;
-                min-height: 400px;
-            }
+.carousel-arrow.next {
+    right: 20px;
+}
 
-            .carousel-container {
-                height: 300px;
-            }
+/* Responsividade melhorada */
+@media (max-width: 768px) {
+    .carousel {
+        padding: 20px 10px;
+        min-height: 400px;
+    }
 
-            .carousel-text {
-                bottom: 30px;
-                width: calc(100% - 40px);
-                padding: 20px;
-            }
+    .carousel-container {
+        height: 300px;
+    }
 
-            .carousel-arrow {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
+    .carousel-text {
+        bottom: 30px;
+        width: calc(100% - 40px);
+        padding: 20px;
+    }
 
-            .carousel-arrow.prev {
-                left: 10px;
-            }
+    .carousel-arrow {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
 
-            .carousel-arrow.next {
-                right: 10px;
-            }
-        }
+    .carousel-arrow.prev {
+        left: 10px;
+    }
 
-        @media (max-width: 480px) {
-            .carousel-text {
-                bottom: 20px;
-                width: calc(100% - 30px);
-                padding: 15px 20px;
-            }
+    .carousel-arrow.next {
+        right: 10px;
+    }
+}
 
-            .carousel-text h2 {
-                font-size: clamp(18px, 5vw, 28px);
-            }
+@media (max-width: 480px) {
+    .carousel-text {
+        bottom: 20px;
+        width: calc(100% - 30px);
+        padding: 15px 20px;
+    }
 
-            .carousel-text p {
-                font-size: clamp(13px, 3vw, 16px);
-            }
-        }
+    .carousel-text h2 {
+        font-size: clamp(18px, 5vw, 28px);
+    }
+
+    .carousel-text p {
+        font-size: clamp(13px, 3vw, 16px);
+    }
+}
+
+
+
+
 
 /* Hero section aprimorada */
 .hero {

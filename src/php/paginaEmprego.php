@@ -327,7 +327,7 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    <style>
+   <style>
         :root {
             --primary-blue: #0052CC;
             --secondary-blue: #0066FF;
@@ -358,13 +358,13 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
 
         body {
             font-family: 'Montserrat', sans-serif;
-           background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #823df0ff 0%, #0098feff 100%);
             color: var(--dark-gray);
             line-height: 1.6;
             min-height: 100vh;
         }
 
-        /* Header - Menu atualizado */
+        /* Updated Navigation Bar */
         .navbar {
             position: fixed;
             z-index: 1000;
@@ -375,10 +375,10 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
             justify-content: space-between;
             align-items: center;
             padding: 15px 50px;
-            background: rgba(5, 10, 55, 0.95);
+            background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(100, 181, 246, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
 
         .navbar::before {
@@ -389,9 +389,9 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
             right: 0;
             bottom: 0;
             background: linear-gradient(90deg, 
-                rgba(59, 110, 187, 0.1) 0%, 
-                rgba(14, 23, 104, 0.1) 50%, 
-                rgba(59, 110, 187, 0.1) 100%);
+                rgba(100, 181, 246, 0.05) 0%, 
+                rgba(59, 110, 187, 0.08) 50%, 
+                rgba(100, 181, 246, 0.05) 100%);
             z-index: -1;
         }
 
@@ -406,7 +406,7 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
             width: 45px;
             height: 45px;
             margin-right: 12px;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            filter: drop-shadow(0 4px 8px rgba(100, 181, 246, 0.4));
             animation: pulse 3s ease-in-out infinite;
         }
 
@@ -416,13 +416,13 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
         }
 
         .logo {
-            font-size: 26px;
+            font-size: 35px;
             font-weight: 700;
-            background: linear-gradient(45deg, #3b6ebb, #64b5f6);
+            background: linear-gradient(45deg, #64b5f6, #ffffff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 2px 4px rgba(100, 181, 246, 0.3);
         }
 
         .menu {
@@ -438,7 +438,7 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
             color: #0a0a0a;
             text-decoration: none;
             padding: 12px 20px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
             border-radius: 25px;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: block;
@@ -446,7 +446,8 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
             font-weight: 600;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(100, 181, 246, 0.2);
+            border: 1px solid rgba(100, 181, 246, 0.1);
         }
 
         .menu li a::before {
@@ -456,7 +457,7 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(59, 110, 187, 0.3), transparent);
+            background: linear-gradient(90deg, transparent, rgba(100, 181, 246, 0.3), transparent);
             transition: left 0.5s ease;
         }
 
@@ -464,29 +465,52 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
             left: 100%;
         }
 
+        .menu li a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(100, 181, 246, 0.4);
+            background: linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%);
+        }
+
         .menu li {
             margin: 0 3px;
         }
 
         .menu .profile-item a {
-            background: transparent !important;
+            background: transparent;
             padding: 0 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
             transform: none !important;
+            border: none !important;
         }
 
         .menu .profile-item a:hover {
             background: transparent !important;
             transform: none !important;
+            box-shadow: none !important;
         }
 
-        /* Remove o efeito de hover do pseudo-elemento */
         .menu .profile-item a::before {
             display: none !important;
         }
 
-        /* Menu toggle moderno */
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(100, 181, 246, 0.3);
+            transition: all 0.3s ease;
+            display: block;
+            border: 2px solid rgba(100, 181, 246, 0.5);
+        }
+
+        .profile-icon:hover {
+            box-shadow: 0 4px 15px rgba(100, 181, 246, 0.5);
+            transform: scale(1.05);
+            border-color: rgba(100, 181, 246, 0.8);
+        }
+
+        /* Menu toggle para responsividade */
         .menu-toggle {
             display: none;
             cursor: pointer;
@@ -520,6 +544,7 @@ $localizacaoDisplay = htmlspecialchars($localizacaoFiltro, ENT_QUOTES, 'UTF-8');
             margin-top: 80px;
             min-height: calc(100vh - 80px);
         }
+
 
         /* Hero Section for Opportunities */
         .opportunities-hero {
