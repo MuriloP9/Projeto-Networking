@@ -184,7 +184,7 @@ $palestranteDisplay = htmlspecialchars($palestrante, ENT_QUOTES, 'UTF-8');
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #823df0ff 0%, #0098feff 100%);
+            background: linear-gradient( #006afeff 100%);
             color: var(--dark-gray);
             line-height: 1.6;
             min-height: 100vh;
