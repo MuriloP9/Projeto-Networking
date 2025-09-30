@@ -18,6 +18,97 @@ if ($usuario['tipo'] === 'usuario') {
     exit();
 }
 
+// Conexão com banco de dados usando PDO
+include('conexao.php');
+$pdo = conectar();
+
+// Buscar estatísticas reais
+$stats = array(
+    'total_usuarios' => 0,
+    'minha_equipe' => 0,
+    'atividades_recentes' => array()
+);
+
+try {
+    // Total de usuários ativos
+    $sql_usuarios = "SELECT COUNT(*) as total FROM Usuario WHERE ativo = 1";
+    $stmt = $pdo->query($sql_usuarios);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row) {
+        $stats['total_usuarios'] = $row['total'];
+    }
+    
+    // Minha equipe (se for gerente ou superior)
+    if (podeAcessar('gerenciar_equipe') && isset($usuario['id_funcionario'])) {
+        $sql_equipe = "SELECT COUNT(*) as total FROM Funcionario WHERE ativo = 1 AND criado_por = ?";
+        $stmt = $pdo->prepare($sql_equipe);
+        $stmt->execute([$usuario['id_funcionario']]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row) {
+            $stats['minha_equipe'] = $row['total'];
+        }
+    }
+    
+    // Atividades recentes (últimas 24 horas)
+    if (podeAcessar('visualizar_relatorios')) {
+        $sql_atividades = "
+            SELECT TOP 5 
+                'usuario' as tipo,
+                u.nome as descricao,
+                u.data_criacao as data_acao,
+                'Novo usuário cadastrado' as acao
+            FROM Usuario u
+            WHERE u.data_criacao >= DATEADD(day, -1, GETDATE())
+            
+            UNION ALL
+            
+            SELECT TOP 5
+                'vaga' as tipo,
+                v.titulo_vaga as descricao,
+                v.data_publicacao as data_acao,
+                'Nova vaga publicada' as acao
+            FROM Vagas v
+            WHERE v.data_publicacao >= DATEADD(day, -1, GETDATE())
+            
+            UNION ALL
+            
+            SELECT TOP 5
+                'webinar' as tipo,
+                w.tema as descricao,
+                w.data_cadastro as data_acao,
+                'Webinar agendado' as acao
+            FROM Webinar w
+            WHERE w.data_cadastro >= DATEADD(day, -1, GETDATE())
+            
+            UNION ALL
+            
+            SELECT TOP 5
+                'candidatura' as tipo,
+                CONCAT('Candidatura para ', v.titulo_vaga) as descricao,
+                c.data_candidatura as data_acao,
+                CASE 
+                    WHEN c.status = 'Aprovado' THEN 'Candidatura aprovada'
+                    WHEN c.status = 'Reprovado' THEN 'Candidatura recusada'
+                    ELSE 'Nova candidatura'
+                END as acao
+            FROM Candidatura c
+            INNER JOIN Vagas v ON c.id_vaga = v.id_vaga
+            WHERE c.data_candidatura >= DATEADD(day, -1, GETDATE())
+            
+            ORDER BY data_acao DESC
+        ";
+        
+        $stmt = $pdo->query($sql_atividades);
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $stats['atividades_recentes'][] = $row;
+        }
+    }
+    
+} catch (PDOException $e) {
+    // Log do erro (adapte conforme necessário)
+    error_log("Erro ao buscar estatísticas: " . $e->getMessage());
+}
+
 // Criar menu manualmente com apenas os itens permitidos
 $menu_permitido = array(
     array(
@@ -348,6 +439,10 @@ $menu_permitido = array(
             margin-top: 15px;
         }
         
+        .mt-2 {
+            margin-top: 10px;
+        }
+        
         .btn-sm {
             display: inline-block;
             padding: 8px 15px;
@@ -451,7 +546,7 @@ $menu_permitido = array(
             <div class="card card-stats bg-warning">
                 <div class="content">
                     <div class="card-title">Minha Equipe</div>
-                    <div class="card-value">12</div>
+                    <div class="card-value"><?php echo $stats['minha_equipe']; ?></div>
                 </div>
                 <div class="icon">
                     <i class="fas fa-users"></i>
@@ -464,7 +559,7 @@ $menu_permitido = array(
             <div class="card card-stats bg-success">
                 <div class="content">
                     <div class="card-title">Total Usuários</div>
-                    <div class="card-value">156</div>
+                    <div class="card-value"><?php echo $stats['total_usuarios']; ?></div>
                 </div>
                 <div class="icon">
                     <i class="fas fa-user-cog"></i>
@@ -547,41 +642,74 @@ $menu_permitido = array(
                     </div>
                     <div class="section-body">
                         <ul class="list-group">
+                            <?php 
+                            if (!empty($stats['atividades_recentes'])) {
+                                foreach ($stats['atividades_recentes'] as $atividade) {
+                                    // Definir ícone e cor baseado no tipo
+                                    $icone = 'fa-info-circle';
+                                    $cor = '#6c757d';
+                                    
+                                    switch($atividade['tipo']) {
+                                        case 'usuario':
+                                            $icone = 'fa-user-plus';
+                                            $cor = '#28a745';
+                                            break;
+                                        case 'vaga':
+                                            $icone = 'fa-briefcase';
+                                            $cor = '#6f42c1';
+                                            break;
+                                        case 'webinar':
+                                            $icone = 'fa-video';
+                                            $cor = '#e83e8c';
+                                            break;
+                                        case 'candidatura':
+                                            $icone = 'fa-file-alt';
+                                            $cor = '#17a2b8';
+                                            break;
+                                    }
+                                    
+                                    // Calcular tempo decorrido
+                                    $data_acao = $atividade['data_acao'];
+                                    $agora = new DateTime();
+                                    
+                                    // Converter data_acao para DateTime se for objeto DateTime do SQL Server
+                                    if ($data_acao instanceof DateTime) {
+                                        $diferenca = $agora->diff($data_acao);
+                                    } else {
+                                        // Se for string, converter
+                                        $data_acao_dt = new DateTime($data_acao->format('Y-m-d H:i:s'));
+                                        $diferenca = $agora->diff($data_acao_dt);
+                                    }
+                                    
+                                    if ($diferenca->d > 0) {
+                                        $tempo = $diferenca->d . ' dia(s) atrás';
+                                    } elseif ($diferenca->h > 0) {
+                                        $tempo = $diferenca->h . ' hora(s) atrás';
+                                    } elseif ($diferenca->i > 0) {
+                                        $tempo = $diferenca->i . ' minuto(s) atrás';
+                                    } else {
+                                        $tempo = 'Agora';
+                                    }
+                            ?>
                             <li class="list-group-item">
                                 <div>
-                                    <i class="fas fa-user-plus" style="color: #28a745; margin-right: 10px;"></i>
-                                    <strong>Novo usuário cadastrado:</strong> João Silva
+                                    <i class="fas <?php echo $icone; ?>" style="color: <?php echo $cor; ?>; margin-right: 10px;"></i>
+                                    <strong><?php echo htmlspecialchars($atividade['acao']); ?>:</strong> 
+                                    <?php echo htmlspecialchars($atividade['descricao']); ?>
                                 </div>
-                                <small class="text-muted">2 horas atrás</small>
+                                <small class="text-muted"><?php echo $tempo; ?></small>
                             </li>
+                            <?php 
+                                }
+                            } else {
+                            ?>
                             <li class="list-group-item">
-                                <div>
-                                    <i class="fas fa-edit" style="color: #ffc107; margin-right: 10px;"></i>
-                                    <strong>Perfil atualizado:</strong> Maria Santos
+                                <div class="text-center text-muted" style="width: 100%; padding: 20px;">
+                                    <i class="fas fa-info-circle" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                                    <p>Nenhuma atividade recente nas últimas 24 horas</p>
                                 </div>
-                                <small class="text-muted">5 horas atrás</small>
                             </li>
-                            <li class="list-group-item">
-                                <div>
-                                    <i class="fas fa-chart-line" style="color: #17a2b8; margin-right: 10px;"></i>
-                                    <strong>Relatório gerado:</strong> Relatório Mensal
-                                </div>
-                                <small class="text-muted">8 horas atrás</small>
-                            </li>
-                            <li class="list-group-item">
-                                <div>
-                                    <i class="fas fa-briefcase" style="color: #6f42c1; margin-right: 10px;"></i>
-                                    <strong>Nova vaga publicada:</strong> Desenvolvedor PHP
-                                </div>
-                                <small class="text-muted">10 horas atrás</small>
-                            </li>
-                            <li class="list-group-item">
-                                <div>
-                                    <i class="fas fa-video" style="color: #e83e8c; margin-right: 10px;"></i>
-                                    <strong>Webinar agendado:</strong> Introdução ao Networking
-                                </div>
-                                <small class="text-muted">12 horas atrás</small>
-                            </li>
+                            <?php } ?>
                         </ul>
                         <div class="text-center mt-3">
                             <a href="atividades.php" class="btn-sm">
@@ -627,7 +755,12 @@ $menu_permitido = array(
                                 <div class="text-muted">
                                     <?php 
                                     if (isset($usuario['ultimo_login']) && !empty($usuario['ultimo_login'])) {
-                                        echo date('d/m/Y H:i', strtotime($usuario['ultimo_login']));
+                                        // Tratar se for objeto DateTime
+                                        if ($usuario['ultimo_login'] instanceof DateTime) {
+                                            echo $usuario['ultimo_login']->format('d/m/Y H:i');
+                                        } else {
+                                            echo date('d/m/Y H:i', strtotime($usuario['ultimo_login']));
+                                        }
                                     } else {
                                         echo 'Primeiro acesso';
                                     }
@@ -650,6 +783,11 @@ $menu_permitido = array(
             <small>&copy; <?php echo date('Y'); ?> Sistema de Gestão. Todos os direitos reservados.</small>
         </footer>
     </div>
+
+    <?php
+    // Fechar conexão PDO (não é obrigatório, mas é boa prática)
+    $pdo = null;
+    ?>
 
     <script>
         // Auto-atualizar a data/hora a cada minuto
