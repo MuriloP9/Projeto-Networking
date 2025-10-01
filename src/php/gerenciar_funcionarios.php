@@ -5,6 +5,20 @@ session_start();
 include('verificar_permissoes.php');
 include('../php/conexao.php');
 
+// Função para obter o nome do nível de acesso
+function getNivelAcessoNome($nivel) {
+    switch ($nivel) {
+        case 0:
+            return 'Administrador';
+        case 1:
+            return 'Gerente';
+        case 2:
+            return 'Supervisor';
+        default:
+            return 'Desconhecido';
+    }
+}
+
 // Verificar se tem permissão para acessar esta página
 if (!verificarLogin()) {
     header("Location: ../php/index.php");
