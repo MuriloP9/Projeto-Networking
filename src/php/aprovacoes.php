@@ -76,6 +76,7 @@ $busca = $_GET['busca'] ?? '';
 
 // Buscar candidaturas
 try {
+    // Primeiro, vamos descobrir as colunas da tabela Vagas
     $sql = "
         SELECT 
             c.*,
@@ -85,12 +86,11 @@ try {
             p.formacao,
             p.experiencia_profissional,
             p.habilidades,
-            v.titulo as titulo_vaga,
-            v.empresa
+            v.* 
         FROM Candidatura c
         INNER JOIN Perfil p ON c.id_perfil = p.id_perfil
         INNER JOIN Usuario u ON p.id_usuario = u.id_usuario
-        INNER JOIN Vagas v ON c.id_vaga = v.id_vaga
+        LEFT JOIN Vagas v ON c.id_vaga = v.id_vaga
         WHERE c.ativo = 1
     ";
     
@@ -102,9 +102,7 @@ try {
     }
     
     if (!empty($busca)) {
-        $sql .= " AND (u.nome LIKE ? OR v.titulo LIKE ? OR v.empresa LIKE ?)";
-        $params[] = "%$busca%";
-        $params[] = "%$busca%";
+        $sql .= " AND u.nome LIKE ?";
         $params[] = "%$busca%";
     }
     
@@ -114,19 +112,39 @@ try {
     $stmt->execute($params);
     $candidaturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Estatísticas
+    // Identificar nomes das colunas da vaga
+    if (!empty($candidaturas)) {
+        $primeira_vaga = $candidaturas[0];
+        // Mapear possíveis nomes de colunas
+        foreach ($candidaturas as &$cand) {
+            $cand['titulo_vaga'] = $cand['titulo'] ?? $cand['nome_vaga'] ?? $cand['nome'] ?? 'Vaga não especificada';
+            $cand['empresa'] = $cand['empresa'] ?? $cand['nome_empresa'] ?? 'Empresa não especificada';
+        }
+    }
+    
+    // Estatísticas - com valores padrão
+    $pendentes = 0;
+    $aprovados = 0;
+    $reprovados = 0;
+    
     $stmt = $pdo->query("SELECT COUNT(*) as total FROM Candidatura WHERE ativo = 1 AND status = 'Pendente'");
-    $pendentes = $stmt->fetch()['total'];
+    $result = $stmt->fetch();
+    $pendentes = $result ? $result['total'] : 0;
     
     $stmt = $pdo->query("SELECT COUNT(*) as total FROM Candidatura WHERE ativo = 1 AND status = 'Aprovado'");
-    $aprovados = $stmt->fetch()['total'];
+    $result = $stmt->fetch();
+    $aprovados = $result ? $result['total'] : 0;
     
     $stmt = $pdo->query("SELECT COUNT(*) as total FROM Candidatura WHERE ativo = 1 AND status = 'Reprovado'");
-    $reprovados = $stmt->fetch()['total'];
+    $result = $stmt->fetch();
+    $reprovados = $result ? $result['total'] : 0;
     
 } catch (Exception $e) {
     $erro = "Erro ao buscar candidaturas: " . $e->getMessage();
     $candidaturas = [];
+    $pendentes = 0;
+    $aprovados = 0;
+    $reprovados = 0;
 }
 ?>
 
