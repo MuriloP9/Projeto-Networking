@@ -114,52 +114,62 @@ $menu_permitido = array(
     array(
         'nome' => 'Dashboard',
         'url' => 'dashboard.php',
-        'icone' => 'fa-tachometer-alt'
+        'icone' => 'fa-tachometer-alt',
+        'ativo' => true
     ),
     array(
         'nome' => 'Gerenciar Usuários',
         'url' => 'gerenciar_usuarios.php',
-        'icone' => 'fa-users-cog'
+        'icone' => 'fa-users-cog',
+        'ativo' => false
     ),
     array(
         'nome' => 'Configurações Sistema',
         'url' => 'configuracoes.php',
-        'icone' => 'fa-cog'
+        'icone' => 'fa-cog',
+        'ativo' => false
     ),
     array(
         'nome' => 'Minha Equipe',
         'url' => 'minha_equipe.php',
-        'icone' => 'fa-users'
+        'icone' => 'fa-users',
+        'ativo' => false
     ),
     array(
         'nome' => 'Aprovações',
         'url' => 'aprovacoes.php',
-        'icone' => 'fa-check-circle'
+        'icone' => 'fa-check-circle',
+        'ativo' => false
     ),
     array(
         'nome' => 'Funcionários',
         'url' => 'gerenciar_funcionarios.php',
-        'icone' => 'fa-user-tie'
+        'icone' => 'fa-user-tie',
+        'ativo' => false
     ),
     array(
         'nome' => 'Relatórios Básicos',
         'url' => 'relatorios_basicos.php',
-        'icone' => 'fa-chart-bar'
+        'icone' => 'fa-chart-bar',
+        'ativo' => false
     ),
     array(
         'nome' => 'Vagas',
         'url' => 'vagas.php',
-        'icone' => 'fa-briefcase'
+        'icone' => 'fa-briefcase',
+        'ativo' => false
     ),
     array(
         'nome' => 'Webinars',
         'url' => 'webinars.php',
-        'icone' => 'fa-video'
+        'icone' => 'fa-video',
+        'ativo' => false
     ),
     array(
         'nome' => 'Meu Perfil',
-        'url' => 'perfil.php',
-        'icone' => 'fa-user-edit'
+        'url' => 'perfil_funcionario.php',
+        'icone' => 'fa-user-edit',
+        'ativo' => false
     )
 );
 ?>
@@ -502,7 +512,7 @@ $menu_permitido = array(
         <ul class="nav">
             <?php foreach ($menu_permitido as $item): ?>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?php echo $item['url']; ?>">
+                    <a class="nav-link <?php echo $item['ativo'] ? 'active' : ''; ?>" href="<?php echo $item['url']; ?>">
                         <i class="fas <?php echo $item['icone']; ?>"></i>
                         <?php echo $item['nome']; ?>
                     </a>
@@ -622,8 +632,8 @@ $menu_permitido = array(
                     </a>
                     <?php endif; ?>
 
-                    <!-- Botão sempre disponível -->
-                    <a href="perfil.php" class="btn">
+                    <!-- Botão sempre disponível - CORRIGIDO -->
+                    <a href="perfil_funcionario.php" class="btn">
                         <i class="fas fa-user-edit"></i>
                         Meu Perfil
                     </a>
@@ -769,7 +779,7 @@ $menu_permitido = array(
                             </div>
                         </div>
                         <div class="text-center mt-3">
-                            <a href="perfil.php" class="btn-sm">
+                            <a href="perfil_funcionario.php" class="btn-sm">
                                 Editar Perfil
                             </a>
                         </div>
